@@ -160,6 +160,7 @@ export async function addFoodLibraryItem(input: FoodLibraryInput) {
   const timestamp = nowIso();
   const item: FoodLibraryItem = {
     ...input,
+    source: input.source ?? "manual",
     id: createId(),
     useCount: 0,
     createdAt: timestamp,
@@ -178,6 +179,7 @@ export async function addFoodLibraryItems(inputs: FoodLibraryInput[]) {
   const rows = inputs.map((input) =>
     withUserId("food_library_items", userId, {
       ...input,
+      source: input.source ?? "manual",
       id: createId(),
       useCount: 0,
       createdAt: timestamp,

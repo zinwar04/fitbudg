@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { FoodEntryDialog, FoodLibraryDialog } from "@/components/shared/entity-dialogs";
+import { ExternalFoodSearch } from "@/components/food/external-food-search";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { FoodCategory, FoodLibraryItem, MealType } from "@/lib/db/schema";
@@ -79,7 +80,7 @@ export function FoodLibraryPage() {
       protein: quickFood.protein ? Math.round(quickFood.protein * quickQuantity) : undefined,
       carbs: quickFood.carbs ? Math.round(quickFood.carbs * quickQuantity) : undefined,
       fat: quickFood.fat ? Math.round(quickFood.fat * quickQuantity) : undefined,
-      fiber: quickFood.fiber,
+      fiber: quickFood.fiber ? Math.round(quickFood.fiber * quickQuantity) : undefined,
       mealType: quickMealType,
     });
     setQuickFood(null);
@@ -131,6 +132,8 @@ export function FoodLibraryPage() {
         }
       />
 
+      <ExternalFoodSearch library={library} />
+
       <Card className="mb-4">
         <CardContent className="space-y-3 p-4">
           <div className="flex flex-col gap-3 lg:flex-row">
@@ -138,7 +141,7 @@ export function FoodLibraryPage() {
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input className="pl-9" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by name or brand" />
             </div>
-            <select className="h-10 rounded-lg border bg-background px-3 text-sm" value={sort} onChange={(event) => setSort(event.target.value as SortOption)}>
+            <select className="h-10 w-full rounded-lg border bg-background px-3 text-sm lg:w-auto" value={sort} onChange={(event) => setSort(event.target.value as SortOption)}>
               <option value="favorites">Favorites First</option>
               <option value="name">Name A-Z</option>
               <option value="calHigh">Calories High</option>
@@ -201,6 +204,9 @@ export function FoodLibraryPage() {
                     <Badge variant="secondary">C {food.carbs ?? 0}g</Badge>
                     <Badge variant="secondary">F {food.fat ?? 0}g</Badge>
                     <Badge variant="outline">{titleCase(food.category)}</Badge>
+                    {food.source && food.source !== "manual" && (
+                      <Badge variant="outline">{food.source === "usda" ? "USDA" : "Open Food Facts"}</Badge>
+                    )}
                   </div>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">

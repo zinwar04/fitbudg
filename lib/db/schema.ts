@@ -69,6 +69,10 @@ export type FoodCategory =
   | "meals"
   | "other";
 
+export type FoodSource = "manual" | "usda" | "open_food_facts";
+
+export type FoodDataQuality = "complete" | "partial" | "limited";
+
 export interface FoodLibraryItem {
   id: string;
   name: string;
@@ -85,6 +89,12 @@ export interface FoodLibraryItem {
   useCount: number;
   lastUsedAt?: string;
   notes?: string;
+  source?: FoodSource | null;
+  external_id?: string | null;
+  source_url?: string | null;
+  data_quality?: FoodDataQuality | null;
+  raw_external_data?: unknown | null;
+  verified_at?: string | null;
   createdAt: string;
   updatedAt: string;
 }

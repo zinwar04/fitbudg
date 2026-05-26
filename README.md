@@ -37,6 +37,30 @@ Settings -> Data includes JSON backup/restore, transaction CSV export, and accou
 4. Add the Supabase and Gemini environment variables in Vercel.
 5. Redeploy.
 
+## External Food Search Setup
+
+FitBudget can search USDA FoodData Central for generic foods and Open Food Facts for packaged foods and barcode lookup. USDA requires an API key. Open Food Facts read-only lookup does not require an API key, but the Edge Functions must send a contact email in the User-Agent.
+
+For an existing database, apply the migration in `supabase/migrations/20260526233000_add_food_external_metadata.sql` before importing external foods.
+
+Store these only as Supabase Edge Function secrets:
+
+```bash
+supabase secrets set USDA_FDC_API_KEY=your_usda_key_here
+supabase secrets set APP_CONTACT_EMAIL=your_email@example.com
+```
+
+Deploy the functions:
+
+```bash
+supabase functions deploy food-search-usda
+supabase functions deploy food-search-open-food-facts
+supabase functions deploy food-barcode-open-food-facts
+supabase functions deploy food-import-to-library
+```
+
+The frontend calls these functions with `supabase.functions.invoke(...)`; it does not call USDA FoodData Central or Open Food Facts directly, and the USDA key is never exposed to browser code.
+
 ## Deploy to Vercel
 
 1. Push to GitHub.

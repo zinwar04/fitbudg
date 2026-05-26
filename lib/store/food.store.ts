@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { toast } from "sonner";
 import { DailyCalorieLog, FoodEntry, FoodLibraryItem, MealTemplate, MealType, WeightEntry } from "@/lib/db/schema";
+import { importExternalFood as importExternalFoodToLibrary } from "@/lib/db/external-food.service";
 import {
   FoodEntryInput,
   FoodLibraryInput,
@@ -29,6 +30,7 @@ import {
   updateMealTemplate,
   updateWeightEntry,
 } from "@/lib/db/food.service";
+import { NormalizedExternalFood } from "@/lib/food/external";
 
 function messageFromError(error: unknown) {
   return error instanceof Error ? error.message : "Something went wrong.";
@@ -49,6 +51,7 @@ interface FoodState {
   duplicateEntry: (id: string, date?: string) => Promise<void>;
   moveEntry: (id: string, mealType: MealType) => Promise<void>;
   addFood: (input: FoodLibraryInput) => Promise<FoodLibraryItem | null>;
+  importExternalFood: (food: NormalizedExternalFood) => Promise<{ item: FoodLibraryItem; created: boolean } | null>;
   importFoods: (inputs: FoodLibraryInput[]) => Promise<void>;
   updateFood: (id: string, input: Partial<FoodLibraryInput>) => Promise<void>;
   deleteFood: (id: string) => Promise<void>;
@@ -172,6 +175,16 @@ export const useFoodStore = create<FoodState>()(
         await get().load();
         toast.success("Food saved.");
         return item;
+      } catch (error) {
+        toast.error(messageFromError(error));
+        return null;
+      }
+    },
+    importExternalFood: async (food) => {
+      try {
+        const result = await importExternalFoodToLibrary(food);
+        await get().load();
+        return result;
       } catch (error) {
         toast.error(messageFromError(error));
         return null;

@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { QuickDialogHost } from "@/components/shared/quick-dialogs";
 import { cn } from "@/lib/utils";
@@ -58,13 +59,46 @@ const settingsNav = [
 
 const mobileNav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/fitness/log", label: "Fitness", icon: UtensilsCrossed },
+  { href: "/fitness/log", label: "Log", icon: UtensilsCrossed },
   { href: "/budget/overview", label: "Budget", icon: CircleDollarSign },
   { href: "/habits", label: "Habits", icon: Sparkles },
-  { href: "/assistant", label: "More", icon: Menu },
 ];
 
 type NavItemConfig = (typeof primaryNav)[number];
+
+const mobileMenuGroups: { title: string; items: NavItemConfig[] }[] = [
+  {
+    title: "Main",
+    items: [
+      primaryNav[0],
+      primaryNav[9],
+      primaryNav[10],
+      primaryNav[11],
+    ],
+  },
+  {
+    title: "Fitness and Food",
+    items: [
+      primaryNav[1],
+      primaryNav[2],
+      primaryNav[3],
+      primaryNav[4],
+      primaryNav[5],
+    ],
+  },
+  {
+    title: "Budget",
+    items: [
+      primaryNav[6],
+      primaryNav[7],
+      primaryNav[8],
+    ],
+  },
+  {
+    title: "Settings",
+    items: settingsNav,
+  },
+];
 
 export function AppShell({ children }: { children: ReactNode }) {
   useAppBoot();
@@ -80,6 +114,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const setSidebarCollapsed = useUiStore((state) => state.setSidebarCollapsed);
   const openDialog = useUiStore((state) => state.openDialog);
   const [online, setOnline] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setOnline(navigator.onLine);
@@ -187,6 +222,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             </Link>
             <div className="flex items-center gap-2">
               {!online && <span className="rounded-full bg-amber-500/15 px-2 py-1 text-xs text-amber-600 dark:text-amber-300">Offline</span>}
+              <Button size="icon" variant="ghost" onClick={() => setMobileMenuOpen(true)} aria-label="Open navigation menu">
+                <Menu className="h-4 w-4" />
+              </Button>
               <Button size="icon" variant="ghost" onClick={handleSignOut} aria-label="Log out">
                 <LogOut className="h-4 w-4" />
               </Button>
@@ -218,7 +256,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="grid h-16 grid-cols-5">
             {mobileNav.map((item) => {
               const Icon = item.icon;
-              const active = pathname === item.href || pathname.startsWith(item.href.split("/").slice(0, 2).join("/"));
+              const active = isMobileRootActive(pathname, item.href);
               return (
                 <Link key={item.href} href={item.href} className="relative flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
                   {active && <motion.span layoutId="mobile-nav-active" className="absolute inset-x-4 top-2 h-8 rounded-full bg-primary/10" />}
@@ -227,8 +265,51 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </Link>
               );
             })}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="relative flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground"
+            >
+              {(mobileMenuOpen || !mobileNav.some((item) => isMobileRootActive(pathname, item.href))) && (
+                <motion.span layoutId="mobile-nav-active" className="absolute inset-x-4 top-2 h-8 rounded-full bg-primary/10" />
+              )}
+              <Menu className={cn("relative h-5 w-5", (mobileMenuOpen || !mobileNav.some((item) => isMobileRootActive(pathname, item.href))) && "text-primary")} />
+              <span className={cn("relative", (mobileMenuOpen || !mobileNav.some((item) => isMobileRootActive(pathname, item.href))) && "font-medium text-primary")}>
+                More
+              </span>
+            </button>
           </div>
         </nav>
+
+        <Dialog open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <DialogContent className="bottom-0 left-0 top-auto max-h-[88vh] w-full max-w-none translate-x-0 translate-y-0 gap-0 overflow-y-auto rounded-b-none rounded-t-2xl p-0 sm:w-full lg:hidden">
+            <DialogHeader className="border-b px-4 py-4 pr-12">
+              <DialogTitle>All FitBudget Features</DialogTitle>
+              <DialogDescription>Every page is available here on mobile.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-5 px-4 py-4">
+              <div className="rounded-xl border bg-muted/30 p-3">
+                <p className="truncate text-sm font-medium">{profile?.name ?? user?.email ?? "FitBudget user"}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{online ? "Supabase sync on" : "Connection offline"}</p>
+              </div>
+              {mobileMenuGroups.map((group) => (
+                <div key={group.title}>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{group.title}</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {group.items.map((item) => (
+                      <MobileMenuItem
+                        key={item.href}
+                        item={item}
+                        active={pathname === item.href || pathname.startsWith(`${item.href}/`)}
+                        onSelect={() => setMobileMenuOpen(false)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
 
         <QuickDialogHost />
       </div>
@@ -259,4 +340,30 @@ function NavItem({ item, active, collapsed }: { item: NavItemConfig; active: boo
       <TooltipContent side="right">{item.label}</TooltipContent>
     </Tooltip>
   );
+}
+
+function MobileMenuItem({ item, active, onSelect }: { item: NavItemConfig; active: boolean; onSelect: () => void }) {
+  const Icon = item.icon;
+  return (
+    <Link
+      href={item.href}
+      onClick={onSelect}
+      className={cn(
+        "flex min-h-14 items-center gap-3 rounded-lg border bg-background p-3 text-sm transition-colors",
+        active ? "border-primary bg-primary/5 text-primary" : "text-muted-foreground hover:border-primary hover:text-foreground",
+      )}
+    >
+      <Icon className="h-4 w-4 shrink-0" />
+      <span className="min-w-0 leading-snug">{item.label}</span>
+    </Link>
+  );
+}
+
+function isMobileRootActive(pathname: string, href: string) {
+  if (href === "/dashboard" || href === "/habits") {
+    return pathname === href || pathname.startsWith(`${href}/`);
+  }
+
+  const section = href.split("/").slice(0, 2).join("/");
+  return pathname === href || pathname.startsWith(`${section}/`);
 }

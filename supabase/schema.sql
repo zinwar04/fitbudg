@@ -94,10 +94,49 @@ create table if not exists public.food_library_items (
   "useCount" integer not null default 0 check ("useCount" >= 0),
   "lastUsedAt" timestamptz,
   notes text,
+  source text,
+  external_id text,
+  source_url text,
+  data_quality text,
+  raw_external_data jsonb,
+  verified_at timestamptz,
   "createdAt" timestamptz not null default now(),
   "updatedAt" timestamptz not null default now(),
-  primary key (user_id, id)
+  primary key (user_id, id),
+  constraint food_library_items_source_check check (source is null or source in ('manual', 'usda', 'open_food_facts')),
+  constraint food_library_items_data_quality_check check (data_quality is null or data_quality in ('complete', 'partial', 'limited'))
 );
+
+alter table public.food_library_items
+  add column if not exists source text,
+  add column if not exists external_id text,
+  add column if not exists source_url text,
+  add column if not exists data_quality text,
+  add column if not exists raw_external_data jsonb,
+  add column if not exists verified_at timestamptz;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'food_library_items_source_check'
+  ) then
+    alter table public.food_library_items
+      add constraint food_library_items_source_check
+      check (source is null or source in ('manual', 'usda', 'open_food_facts'));
+  end if;
+
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'food_library_items_data_quality_check'
+  ) then
+    alter table public.food_library_items
+      add constraint food_library_items_data_quality_check
+      check (data_quality is null or data_quality in ('complete', 'partial', 'limited'));
+  end if;
+end $$;
 
 create table if not exists public.meal_templates (
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -232,6 +271,9 @@ create index if not exists food_entries_user_log_idx on public.food_entries (use
 create index if not exists food_entries_user_food_library_idx on public.food_entries (user_id, "foodLibraryId");
 create index if not exists food_entries_user_meal_template_idx on public.food_entries (user_id, "mealTemplateId");
 create index if not exists food_library_items_user_name_idx on public.food_library_items (user_id, lower(name));
+create unique index if not exists food_library_items_user_source_external_id_unique
+on public.food_library_items(user_id, source, external_id)
+where source is not null and external_id is not null;
 create index if not exists meal_templates_user_name_idx on public.meal_templates (user_id, lower(name));
 create index if not exists weight_entries_user_date_idx on public.weight_entries (user_id, date desc);
 create index if not exists transactions_user_date_idx on public.transactions (user_id, date desc);

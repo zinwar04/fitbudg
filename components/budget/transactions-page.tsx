@@ -75,7 +75,7 @@ export function TransactionsPage() {
         title="Transaction Ledger"
         description="Full transaction history with filters, inline editing, retroactive logging, and CSV export."
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={downloadCsv}>
               <Download className="h-4 w-4" /> Export CSV
             </Button>
@@ -92,14 +92,14 @@ export function TransactionsPage() {
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input className="pl-9" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search title or notes" />
             </div>
-            <select className="h-10 rounded-lg border bg-background px-3 text-sm" value={preset} onChange={(event) => setPreset(event.target.value as DatePreset)}>
+            <select className="h-10 w-full rounded-lg border bg-background px-3 text-sm lg:w-auto" value={preset} onChange={(event) => setPreset(event.target.value as DatePreset)}>
               <option value="today">Today</option>
               <option value="week">This Week</option>
               <option value="cycle">Current Cycle</option>
               <option value="lastCycle">Previous Cycle</option>
               <option value="all">All Time</option>
             </select>
-            <select className="h-10 rounded-lg border bg-background px-3 text-sm" value={type} onChange={(event) => setType(event.target.value as "all" | "expense" | "income")}>
+            <select className="h-10 w-full rounded-lg border bg-background px-3 text-sm lg:w-auto" value={type} onChange={(event) => setType(event.target.value as "all" | "expense" | "income")}>
               <option value="all">All</option>
               <option value="expense">Expenses</option>
               <option value="income">Income</option>

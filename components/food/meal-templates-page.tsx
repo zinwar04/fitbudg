@@ -98,7 +98,7 @@ export function MealTemplatesPage() {
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input className="pl-9" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search templates" />
           </div>
-          <select className="h-10 rounded-lg border bg-background px-3 text-sm" value={sort} onChange={(event) => setSort(event.target.value as SortOption)}>
+          <select className="h-10 w-full rounded-lg border bg-background px-3 text-sm sm:w-auto" value={sort} onChange={(event) => setSort(event.target.value as SortOption)}>
             <option value="used">Most Used</option>
             <option value="recent">Recently Added</option>
             <option value="name">Name</option>

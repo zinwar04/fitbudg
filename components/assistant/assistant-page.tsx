@@ -17,23 +17,23 @@ import { createId, nowIso } from "@/lib/utils/formatting";
 import { cn } from "@/lib/utils";
 
 const promptGroups = {
-  Fitness: [
-    "How are my calories this week?",
-    "Am I on track to reach my goal?",
-    "What's my protein average?",
-    "Suggest a high-protein snack under 300 kcal.",
+  Coach: [
+    "Give me a quick coaching plan for today.",
+    "What should I focus on this week?",
+    "Where are my health and budget choices helping each other?",
+    "What is one small win I can get before bedtime?",
+  ],
+  Nutrition: [
+    "How are my calories and protein this week?",
+    "Suggest a high-protein meal that fits a tight budget.",
+    "What food should I adjust first?",
+    "Help me build a simple meal plan from my usual foods.",
   ],
   Budget: [
     "How's my budget looking this cycle?",
     "Where am I overspending?",
     "How much can I safely spend today?",
-    "What's my biggest budget category?",
-  ],
-  Combined: [
-    "Help me eat high-protein on a low budget.",
-    "Find patterns between my eating and spending.",
-    "Suggest a cheap meal plan based on my food library.",
-    "Give me a weekly review of my health and finances.",
+    "How do I cut food spending without hurting protein?",
   ],
 };
 
@@ -56,7 +56,7 @@ export function AssistantPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [mode, setMode] = useState<PromptMode>("Fitness");
+  const [mode, setMode] = useState<PromptMode>("Coach");
   const scrollRef = useRef<HTMLDivElement>(null);
   const context = useMemo(
     () =>
@@ -173,9 +173,9 @@ export function AssistantPage() {
               <Bot className="h-4 w-4" />
             </div>
             <h1 className="text-xl font-semibold">FitBudget AI</h1>
-            <Badge variant="secondary">Gemini 2.5 Flash</Badge>
+            <Badge variant="secondary">Coach</Badge>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">Personal coaching grounded in your health, budget, and habit data.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Ask about meals, training, spending, habits, and how to make the whole day work.</p>
         </div>
         <Button onClick={startNewChat}>
           <MessageSquarePlus className="h-4 w-4" />
@@ -225,7 +225,7 @@ export function AssistantPage() {
                   <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border bg-card">
                     <Sparkles className="h-5 w-5 text-primary" />
                   </div>
-                  <h2 className="mt-4 text-2xl font-semibold">How can I help today?</h2>
+                  <h2 className="mt-4 text-2xl font-semibold">What are we improving today?</h2>
                   <div className="mt-6 flex justify-center gap-2">
                     {(Object.keys(promptGroups) as PromptMode[]).map((group) => (
                       <Button key={group} size="sm" variant={mode === group ? "default" : "outline"} onClick={() => setMode(group)}>
@@ -278,7 +278,7 @@ export function AssistantPage() {
                 onChange={(event) => setInput(event.target.value)}
                 onKeyDown={onComposerKeyDown}
                 className="max-h-36 min-h-11 resize-none border-0 bg-transparent focus-visible:ring-0"
-                placeholder="Message FitBudget AI"
+                placeholder="Ask your coach about food, fitness, budget, or habits"
               />
               <Button type="submit" size="icon" disabled={loading || !input.trim()} className="rounded-full">
                 <Send className="h-4 w-4" />

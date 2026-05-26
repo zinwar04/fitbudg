@@ -65,13 +65,13 @@ export function FoodLogPage() {
       <Card className="mb-4">
         <CardContent className="p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button variant="outline" size="icon" onClick={() => setDate(format(subDays(parseISO(`${date}T00:00:00`), 1), "yyyy-MM-dd"))}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <div className="flex items-center gap-2 rounded-lg border px-3 py-2">
+              <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg border px-3 py-2 sm:flex-none">
                 <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                <input className="bg-transparent text-sm outline-none" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+                <input className="min-w-0 flex-1 bg-transparent text-sm outline-none sm:flex-none" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
               </div>
               <Button variant="outline" size="icon" onClick={() => setDate(format(addDays(parseISO(`${date}T00:00:00`), 1), "yyyy-MM-dd"))}>
                 <ChevronRight className="h-4 w-4" />

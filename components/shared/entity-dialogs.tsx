@@ -127,6 +127,7 @@ export function FoodEntryDialog({
   const libraryProtein = selectedFood?.protein ? Math.round(selectedFood.protein * libraryQuantity) : undefined;
   const libraryCarbs = selectedFood?.carbs ? Math.round(selectedFood.carbs * libraryQuantity) : undefined;
   const libraryFat = selectedFood?.fat ? Math.round(selectedFood.fat * libraryQuantity) : undefined;
+  const libraryFiber = selectedFood?.fiber ? Math.round(selectedFood.fiber * libraryQuantity) : undefined;
 
   const addSelectedFood = async () => {
     if (!selectedFood) return;
@@ -141,7 +142,7 @@ export function FoodEntryDialog({
       protein: libraryProtein,
       carbs: libraryCarbs,
       fat: libraryFat,
-      fiber: selectedFood.fiber,
+      fiber: libraryFiber,
       mealType: libraryMealType,
     });
     onOpenChange(false);
@@ -274,6 +275,7 @@ export function FoodEntryDialog({
                   {libraryProtein !== undefined && <Badge variant="secondary">P {libraryProtein}g</Badge>}
                   {libraryCarbs !== undefined && <Badge variant="secondary">C {libraryCarbs}g</Badge>}
                   {libraryFat !== undefined && <Badge variant="secondary">F {libraryFat}g</Badge>}
+                  {libraryFiber !== undefined && <Badge variant="secondary">Fiber {libraryFiber}g</Badge>}
                 </div>
                 <Button className="mt-3 w-full" onClick={addSelectedFood}>
                   Add to Log

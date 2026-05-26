@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp, Cloud, Download, Save, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Cloud, Database, Download, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -270,6 +270,18 @@ export function DataSettingsPage() {
               <div>
                 <p className="font-medium text-foreground">{session?.user.email ?? "No account signed in"}</p>
                 <p>Changes save directly to your private Supabase tables. Export and import tools are for backups and bulk moves.</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader><CardTitle>Food Data Sources</CardTitle></CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-start gap-3 rounded-xl border bg-muted/30 p-3 text-sm text-muted-foreground">
+              <Database className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <div>
+                <p className="font-medium text-foreground">External food search</p>
+                <p>USDA FoodData Central powers generic foods. Open Food Facts powers packaged and barcode lookup. Nutrition values are estimates and usually normalized per 100 g.</p>
               </div>
             </div>
           </CardContent>
