@@ -1,0 +1,21 @@
+{
+  "name": "FitBudget",
+  "short_name": "FitBudget",
+  "description": "Offline-first health and finance tracking.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fafafa",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "finance", "productivity"]
+}
+
