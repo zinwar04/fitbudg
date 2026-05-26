@@ -78,6 +78,7 @@ export const weightSchema = z.object({
 export const budgetProfileSchema = z.object({
   monthlyIncome: z.coerce.number().min(0, "Income cannot be negative"),
   monthlyBudget: z.coerce.number().min(1, "Budget must be greater than 0"),
+  monthStartDay: z.coerce.number().int().min(1, "Day must be between 1 and 31").max(31, "Day must be between 1 and 31"),
   currency: z.string().trim().min(1, "Currency is required"),
   currencySymbol: z.string().trim().min(1, "Currency symbol is required"),
 });
@@ -100,4 +101,3 @@ export type HabitFormValues = z.infer<typeof habitSchema>;
 export type WeightFormValues = z.infer<typeof weightSchema>;
 export type BudgetProfileFormValues = z.infer<typeof budgetProfileSchema>;
 export type SettingsFormValues = z.infer<typeof settingsSchema>;
-

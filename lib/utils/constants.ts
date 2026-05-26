@@ -123,6 +123,7 @@ export const defaultBudgetProfile: BudgetProfile = {
   id: "1",
   monthlyIncome: 0,
   monthlyBudget: 750000,
+  monthStartDay: 1,
   currency: "IQD",
   currencySymbol: "IQD",
   categoryBudgets: transactionCategories

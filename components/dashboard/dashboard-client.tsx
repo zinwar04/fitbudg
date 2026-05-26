@@ -164,7 +164,7 @@ export function DashboardClient() {
             <div className="mt-3 flex flex-wrap gap-2 text-sm text-muted-foreground">
               <span>{formatCurrency(budgetSummary.spent, budgetProfile.currency, budgetProfile.currencySymbol)} spent</span>
               <span>{formatCurrency(budgetSummary.remaining, budgetProfile.currency, budgetProfile.currencySymbol)} remaining</span>
-              <span>{budgetSummary.daysInMonth - budgetSummary.dayOfMonth} days left</span>
+              <span>{budgetSummary.daysLeftInCycle} days left in cycle</span>
             </div>
             <Badge className="mt-3" variant={budgetSummary.pacing === "onTrack" ? "secondary" : budgetSummary.pacing === "spendingFast" ? "outline" : "destructive"}>
               {budgetSummary.pacing === "onTrack" ? "On Track" : budgetSummary.pacing === "spendingFast" ? "Spending Fast" : "Over Budget"}

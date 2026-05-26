@@ -48,6 +48,18 @@ export function formatWeight(value: number | undefined | null, unit = "kg") {
   return `${value.toFixed(1)} ${unit}`;
 }
 
+export function formatOrdinalDay(value: number) {
+  if (!Number.isFinite(value)) return "--";
+  const day = Math.round(value);
+  const mod100 = day % 100;
+  if (mod100 >= 11 && mod100 <= 13) return `${day}th`;
+  const mod10 = day % 10;
+  if (mod10 === 1) return `${day}st`;
+  if (mod10 === 2) return `${day}nd`;
+  if (mod10 === 3) return `${day}rd`;
+  return `${day}th`;
+}
+
 export function titleCase(value: string) {
   return value
     .replace(/([A-Z])/g, " $1")
@@ -78,4 +90,3 @@ export function average(values: number[]) {
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
-

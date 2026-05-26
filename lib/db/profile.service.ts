@@ -6,6 +6,20 @@ import { requireUserId, stripUserId, withUserId } from "@/lib/db/supabase.servic
 import { defaultBudgetProfile, defaultSettings } from "@/lib/utils/constants";
 import { createId, nowIso } from "@/lib/utils/formatting";
 
+function normalizeBudgetProfile(profile: Partial<BudgetProfile>): BudgetProfile {
+  return {
+    ...defaultBudgetProfile,
+    ...profile,
+    id: "1",
+    monthStartDay:
+      Number.isFinite(profile.monthStartDay) && (profile.monthStartDay ?? 0) >= 1 && (profile.monthStartDay ?? 0) <= 31
+        ? Math.round(profile.monthStartDay as number)
+        : defaultBudgetProfile.monthStartDay,
+    categoryBudgets: Array.isArray(profile.categoryBudgets) ? profile.categoryBudgets : defaultBudgetProfile.categoryBudgets,
+    updatedAt: profile.updatedAt ?? nowIso(),
+  };
+}
+
 export async function getUserProfile() {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase.from("user_profiles").select("*").order("updatedAt", { ascending: false }).limit(1).maybeSingle();
@@ -69,23 +83,23 @@ export async function getBudgetProfile() {
   const { data, error } = await supabase.from("budget_profiles").select("*").eq("id", "1").maybeSingle();
 
   if (error) throw error;
-  if (data) return stripUserId(data);
+  if (data) return normalizeBudgetProfile(stripUserId(data));
 
-  const record: BudgetProfile = { ...defaultBudgetProfile, updatedAt: nowIso() };
+  const record: BudgetProfile = normalizeBudgetProfile(defaultBudgetProfile);
   const { data: inserted, error: insertError } = await supabase.from("budget_profiles").upsert(withUserId("budget_profiles", userId, record), { onConflict: "user_id,id" }).select("*").single();
   if (insertError) throw insertError;
-  return stripUserId(inserted);
+  return normalizeBudgetProfile(stripUserId(inserted));
 }
 
 export async function updateBudgetProfile(input: Partial<Omit<BudgetProfile, "id" | "updatedAt">>) {
   const supabase = getSupabaseClient();
   const userId = await requireUserId();
   const profile = await getBudgetProfile();
-  const updated: BudgetProfile = { ...profile, ...input, id: "1", updatedAt: nowIso() };
+  const updated: BudgetProfile = normalizeBudgetProfile({ ...profile, ...input, id: "1", updatedAt: nowIso() });
   const { data, error } = await supabase.from("budget_profiles").upsert(withUserId("budget_profiles", userId, updated), { onConflict: "user_id,id" }).select("*").single();
 
   if (error) throw error;
-  return stripUserId(data);
+  return normalizeBudgetProfile(stripUserId(data));
 }
 
 export async function completeOnboarding(profile: Omit<UserProfile, "id" | "createdAt" | "updatedAt" | "onboardingComplete">, budget: BudgetProfile, settings: AppSettings) {
@@ -93,6 +107,7 @@ export async function completeOnboarding(profile: Omit<UserProfile, "id" | "crea
   await updateBudgetProfile({
     monthlyIncome: budget.monthlyIncome,
     monthlyBudget: budget.monthlyBudget,
+    monthStartDay: budget.monthStartDay,
     currency: budget.currency,
     currencySymbol: budget.currencySymbol,
     categoryBudgets: budget.categoryBudgets,

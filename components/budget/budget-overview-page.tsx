@@ -12,7 +12,7 @@ import { ResponsiveBar } from "@/components/shared/chart-frame";
 import { calculateBudgetSummary } from "@/lib/calculations/budget";
 import { useBudgetStore } from "@/lib/store/budget.store";
 import { useUiStore } from "@/lib/store/ui.store";
-import { formatCurrency, percent, titleCase } from "@/lib/utils/formatting";
+import { formatCurrency, formatDateKey, percent, titleCase } from "@/lib/utils/formatting";
 
 export function BudgetOverviewPage() {
   const profile = useBudgetStore((state) => state.profile);
@@ -26,7 +26,7 @@ export function BudgetOverviewPage() {
     <>
       <PageHeader
         title="Budget Overview"
-        description="An honest snapshot of monthly spend, pacing, categories, and safe daily spend."
+        description="An honest snapshot of your current budget cycle, pacing, categories, and safe daily spend."
         action={
           <Button onClick={() => openDialog("transaction")}>
             <ReceiptText className="h-4 w-4" /> Add Transaction
@@ -37,12 +37,15 @@ export function BudgetOverviewPage() {
         <CardContent className="p-5">
           <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Remaining this month</p>
+              <p className="text-sm text-muted-foreground">Remaining this cycle</p>
               <p className={`mt-1 text-4xl font-semibold data-number ${summary.remaining < 0 ? "text-red-500" : summary.paceRatio > 1.1 ? "text-amber-500" : "text-emerald-500"}`}>
                 {formatCurrency(summary.remaining, currency, symbol)}
               </p>
               <p className="mt-2 text-sm text-muted-foreground">
-                Day {summary.dayOfMonth} of {summary.daysInMonth} · Safe daily spend: {formatCurrency(summary.safeDailySpend, currency, symbol)}
+                Day {summary.dayInCycle} of {summary.daysInCycle} · Safe daily spend: {formatCurrency(summary.safeDailySpend, currency, symbol)}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Cycle {formatDateKey(summary.cycleStart)} to {formatDateKey(summary.cycleEnd)}
               </p>
             </div>
             <Badge variant={summary.pacing === "onTrack" ? "secondary" : summary.pacing === "spendingFast" ? "outline" : "destructive"}>
@@ -61,7 +64,7 @@ export function BudgetOverviewPage() {
         <MetricCard icon={WalletCards} label="Top category" value={summary.topCategory ? titleCase(summary.topCategory.category) : "--"} detail={summary.topCategory ? formatCurrency(summary.topCategory.spent, currency, symbol) : undefined} />
         <MetricCard icon={BarChart3} label="Average daily spend" value={formatCurrency(summary.averageDailySpend, currency, symbol)} />
         <MetricCard icon={CircleDollarSign} label="Income" value={formatCurrency(summary.income, currency, symbol)} />
-        <MetricCard icon={TrendingUp} label="Net this month" value={formatCurrency(summary.net, currency, symbol)} tone={summary.net >= 0 ? "positive" : "danger"} />
+        <MetricCard icon={TrendingUp} label="Net this cycle" value={formatCurrency(summary.net, currency, symbol)} tone={summary.net >= 0 ? "positive" : "danger"} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
@@ -92,14 +95,13 @@ export function BudgetOverviewPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Daily spending this month</CardTitle>
+            <CardTitle>Daily spending this cycle</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveBar data={summary.dailySpend.map((day) => ({ date: day.date.slice(5), spent: day.spent }))} xKey="date" yKey="spent" goal={profile.monthlyBudget / 30} height={360} />
+            <ResponsiveBar data={summary.dailySpend.map((day) => ({ date: day.date.slice(5), spent: day.spent }))} xKey="date" yKey="spent" goal={summary.daysInCycle > 0 ? profile.monthlyBudget / summary.daysInCycle : 0} height={360} />
           </CardContent>
         </Card>
       </div>
     </>
   );
 }
-

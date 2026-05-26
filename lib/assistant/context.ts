@@ -89,7 +89,7 @@ export function mockAssistantResponse(messages: Pick<ChatMessage, "role" | "cont
   }
 
   if (lastMessage.includes("budget") || lastMessage.includes("spending") || lastMessage.includes("spend")) {
-    return `You have spent ${context.budgetStatus.spent.toLocaleString("en-US")} ${context.budgetStatus.currency} this month against a budget of ${context.budgetStatus.budget.toLocaleString("en-US")}. Your pace is ${context.budgetStatus.pacePercent}% of the allowed pace. Connect an AI API key for detailed planning.`;
+    return `You have spent ${context.budgetStatus.spent.toLocaleString("en-US")} ${context.budgetStatus.currency} this cycle against a budget of ${context.budgetStatus.budget.toLocaleString("en-US")}. Your pace is ${context.budgetStatus.pacePercent}% of the allowed pace. Connect an AI API key for detailed planning.`;
   }
 
   if (lastMessage.includes("habit") || lastMessage.includes("streak")) {
@@ -99,5 +99,5 @@ export function mockAssistantResponse(messages: Pick<ChatMessage, "role" | "cont
       : "You do not have enough habit data yet. Start with one easy daily habit and I can summarize patterns after a few days.";
   }
 
-  return `I am running in mock mode. Preview: your average daily calories are ${context.last7Days.averageCalories} kcal and you have spent ${context.budgetStatus.spent.toLocaleString("en-US")} ${context.budgetStatus.currency} this month. Add GEMINI_API_KEY on the server for deeper coaching.`;
+  return `I am running in mock mode. Preview: your average daily calories are ${context.last7Days.averageCalories} kcal and you have spent ${context.budgetStatus.spent.toLocaleString("en-US")} ${context.budgetStatus.currency} this cycle. Add GEMINI_API_KEY on the server for deeper coaching.`;
 }

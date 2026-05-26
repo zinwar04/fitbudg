@@ -9,14 +9,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { calculateNutritionTargets, cmToIn, inToCm, kgToLb, lbToKg } from "@/lib/calculations/nutrition";
 import { useAuthStore } from "@/lib/store/auth.store";
 import { useProfileStore } from "@/lib/store/profile.store";
 import { ActivityLevel, AppSettings, BudgetProfile, FitnessGoal, Sex, UnitSystem, UserProfile } from "@/lib/db/schema";
 import { activityLabels, accentOptions, defaultBudgetProfile, defaultSettings, financialDisclaimer, fitnessGoalLabels, healthDisclaimer } from "@/lib/utils/constants";
-import { formatCurrency, formatKcal } from "@/lib/utils/formatting";
+import { formatCurrency, formatKcal, formatOrdinalDay } from "@/lib/utils/formatting";
 import { cn } from "@/lib/utils";
 
 const goalIcons: Record<FitnessGoal, typeof Flame> = {
@@ -29,23 +28,22 @@ const goalIcons: Record<FitnessGoal, typeof Flame> = {
 export function OnboardingWizard() {
   const router = useRouter();
   const signOut = useAuthStore((state) => state.signOut);
+  const user = useAuthStore((state) => state.user);
   const finishOnboarding = useProfileStore((state) => state.finishOnboarding);
-  const loadDemo = useProfileStore((state) => state.loadDemo);
   const [step, setStep] = useState(0);
-  const [loadDemoChecked, setLoadDemoChecked] = useState(true);
   const [heightDisplay, setHeightDisplay] = useState(178);
   const [weightDisplay, setWeightDisplay] = useState(82);
-  const [goalWeightDisplay, setGoalWeightDisplay] = useState(75);
+  const [goalWeightDisplay, setGoalWeightDisplay] = useState(82);
   const [profile, setProfile] = useState<Omit<UserProfile, "id" | "createdAt" | "updatedAt" | "onboardingComplete">>({
-    name: "Alex",
-    age: 28,
-    sex: "male",
+    name: typeof user?.user_metadata?.name === "string" ? user.user_metadata.name : "",
+    age: 25,
+    sex: "other",
     height: 178,
     weight: 82,
-    goalWeight: 75,
-    activityLevel: "moderate",
-    fitnessGoal: "lose",
-    weeklyWeightDelta: 0.45,
+    goalWeight: 82,
+    activityLevel: "light",
+    fitnessGoal: "maintain",
+    weeklyWeightDelta: 0.25,
     unitSystem: "metric",
   });
   const [budget, setBudget] = useState<BudgetProfile>(defaultBudgetProfile);
@@ -90,11 +88,7 @@ export function OnboardingWizard() {
   };
 
   const completeSetup = async () => {
-    if (loadDemoChecked) {
-      await loadDemo("replace");
-    } else {
-      await finishOnboarding(profile, budget, settings);
-    }
+    await finishOnboarding(profile, budget, settings);
     setComplete(true);
     setTimeout(() => router.replace("/dashboard"), 900);
   };
@@ -110,7 +104,7 @@ export function OnboardingWizard() {
               </div>
               <h1 className="text-2xl font-semibold">Your command center is ready</h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Calorie goal: {formatKcal(targets?.calories)}. Budget: {formatCurrency(budget.monthlyBudget, budget.currency, budget.currencySymbol)} per month.
+                Calorie goal: {formatKcal(targets?.calories)}. Budget: {formatCurrency(budget.monthlyBudget, budget.currency, budget.currencySymbol)} per cycle.
               </p>
             </CardContent>
           </Card>
@@ -164,16 +158,6 @@ export function OnboardingWizard() {
                 <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                   <Button size="lg" onClick={next}>
                     Get Started <ArrowRight className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="lg"
-                    onClick={async () => {
-                      await loadDemo("replace");
-                      router.replace("/dashboard");
-                    }}
-                  >
-                    Skip setup
                   </Button>
                 </div>
               </StepShell>
@@ -272,10 +256,11 @@ export function OnboardingWizard() {
             )}
 
             {step === 4 && (
-              <StepShell title="Budget setup" description="Set a monthly guardrail. Category limits can be edited anytime." icon={CircleDollarSign}>
-                <div className="grid gap-4 sm:grid-cols-3">
+              <StepShell title="Budget setup" description="Set the amount available for each pay cycle. Category limits can be edited anytime." icon={CircleDollarSign}>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <InputBlock label="Monthly income" type="number" value={budget.monthlyIncome} onChangeNumber={(value) => setBudget((current) => ({ ...current, monthlyIncome: value }))} />
                   <InputBlock label="Monthly budget" type="number" value={budget.monthlyBudget} onChangeNumber={(value) => setBudget((current) => ({ ...current, monthlyBudget: value }))} />
+                  <InputBlock label="Budget cycle start day" type="number" min={1} max={31} value={budget.monthStartDay} onChangeNumber={(value) => setBudget((current) => ({ ...current, monthStartDay: Math.min(31, Math.max(1, Math.round(value || 1))) }))} />
                   <SelectBlock
                     label="Currency"
                     value={budget.currency}
@@ -286,6 +271,9 @@ export function OnboardingWizard() {
                     options={["IQD", "USD", "EUR", "TRY"]}
                   />
                 </div>
+                <p className="mt-3 text-sm text-muted-foreground">
+                  If your salary arrives on the 19th, set the cycle start to the {formatOrdinalDay(19)} so budgeting follows your real pay period instead of the calendar month.
+                </p>
                 <div className="mt-5 space-y-3">
                   {budget.categoryBudgets.slice(0, 5).map((category, index) => (
                     <div key={category.category}>
@@ -318,7 +306,7 @@ export function OnboardingWizard() {
             )}
 
             {step === 5 && (
-              <StepShell title="Customize" description="Pick a tone and choose whether to load the realistic 14-day demo data." icon={Sparkles}>
+              <StepShell title="Customize" description="Choose how the app should look before you start logging your own data." icon={Sparkles}>
                 <div className="space-y-5">
                   <div>
                     <Label>Accent color</Label>
@@ -337,12 +325,8 @@ export function OnboardingWizard() {
                     </div>
                   </div>
                   <SelectBlock label="Theme" value={settings.theme} onChange={(value) => setSettings((current) => ({ ...current, theme: value as AppSettings["theme"] }))} options={["light", "dark", "system"]} />
-                  <div className="flex items-center justify-between rounded-xl border p-4">
-                    <div>
-                      <p className="font-medium">Load demo data</p>
-                      <p className="text-sm text-muted-foreground">Adds realistic food, spending, weight, meals, and habit history.</p>
-                    </div>
-                    <Switch checked={loadDemoChecked} onCheckedChange={setLoadDemoChecked} />
+                  <div className="rounded-xl border bg-muted/20 p-4 text-sm text-muted-foreground">
+                    Your account starts clean. The app will only show data you create yourself after setup.
                   </div>
                   <div className="rounded-xl border bg-muted/30 p-4 text-sm text-muted-foreground">
                     <p className="font-medium text-foreground">Health Disclaimer</p>
@@ -406,12 +390,16 @@ function InputBlock({
   label,
   value,
   type = "text",
+  min,
+  max,
   onChange,
   onChangeNumber,
 }: {
   label: string;
   value: string | number;
   type?: "text" | "number";
+  min?: number;
+  max?: number;
   onChange?: (value: string) => void;
   onChangeNumber?: (value: number) => void;
 }) {
@@ -421,6 +409,8 @@ function InputBlock({
       <Input
         type={type}
         value={value}
+        min={min}
+        max={max}
         onChange={(event) => {
           if (type === "number") onChangeNumber?.(Number(event.target.value));
           else onChange?.(event.target.value);

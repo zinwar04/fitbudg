@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { endOfMonth, format, startOfMonth, subMonths } from "date-fns";
+import { format } from "date-fns";
 import { Download, Edit, Plus, ReceiptText, Search, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,12 +11,13 @@ import { Input } from "@/components/ui/input";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { TransactionDialog } from "@/components/shared/entity-dialogs";
+import { currentBudgetCycleRange, previousBudgetCycleRange } from "@/lib/calculations/budget";
 import { Transaction, TransactionCategory } from "@/lib/db/schema";
 import { useBudgetStore } from "@/lib/store/budget.store";
 import { transactionCategories } from "@/lib/utils/constants";
 import { formatCurrency, formatDateKey, localDateKey, sum, titleCase } from "@/lib/utils/formatting";
 
-type DatePreset = "today" | "week" | "month" | "lastMonth" | "all";
+type DatePreset = "today" | "week" | "cycle" | "lastCycle" | "all";
 
 export function TransactionsPage() {
   const params = useSearchParams();
@@ -25,14 +26,14 @@ export function TransactionsPage() {
   const deleteTransaction = useBudgetStore((state) => state.deleteTransaction);
   const exportCsv = useBudgetStore((state) => state.exportCsv);
   const [query, setQuery] = useState("");
-  const [preset, setPreset] = useState<DatePreset>("month");
+  const [preset, setPreset] = useState<DatePreset>("cycle");
   const [category, setCategory] = useState<TransactionCategory | "all">((params.get("category") as TransactionCategory | null) ?? "all");
   const [type, setType] = useState<"all" | "expense" | "income">("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
 
   const filtered = useMemo(() => {
-    const range = dateRange(preset);
+    const range = dateRange(preset, profile);
     const normalized = query.trim().toLowerCase();
     return transactions.filter((transaction) => {
       const inRange = preset === "all" || (transaction.date >= range.start && transaction.date <= range.end);
@@ -41,7 +42,7 @@ export function TransactionsPage() {
       const matchesType = type === "all" || transaction.type === type;
       return inRange && matchesQuery && matchesCategory && matchesType;
     });
-  }, [category, preset, query, transactions, type]);
+  }, [category, preset, profile, query, transactions, type]);
 
   const grouped = useMemo(() => {
     const map = new Map<string, Transaction[]>();
@@ -51,7 +52,7 @@ export function TransactionsPage() {
     return Array.from(map.entries()).sort((a, b) => b[0].localeCompare(a[0]));
   }, [filtered]);
 
-  const monthlyTotal = sum(filtered.filter((transaction) => transaction.type === "expense").map((transaction) => transaction.amount));
+  const filteredExpenseTotal = sum(filtered.filter((transaction) => transaction.type === "expense").map((transaction) => transaction.amount));
 
   const openAdd = () => {
     setEditing(null);
@@ -94,8 +95,8 @@ export function TransactionsPage() {
             <select className="h-10 rounded-lg border bg-background px-3 text-sm" value={preset} onChange={(event) => setPreset(event.target.value as DatePreset)}>
               <option value="today">Today</option>
               <option value="week">This Week</option>
-              <option value="month">This Month</option>
-              <option value="lastMonth">Last Month</option>
+              <option value="cycle">Current Cycle</option>
+              <option value="lastCycle">Previous Cycle</option>
               <option value="all">All Time</option>
             </select>
             <select className="h-10 rounded-lg border bg-background px-3 text-sm" value={type} onChange={(event) => setType(event.target.value as "all" | "expense" | "income")}>
@@ -113,7 +114,7 @@ export function TransactionsPage() {
             ))}
           </div>
           <p className="text-sm text-muted-foreground">
-            Filtered expense total: <span className="font-medium data-number text-foreground">{formatCurrency(monthlyTotal, profile.currency, profile.currencySymbol)}</span>
+            Filtered expense total: <span className="font-medium data-number text-foreground">{formatCurrency(filteredExpenseTotal, profile.currency, profile.currencySymbol)}</span>
           </p>
         </CardContent>
       </Card>
@@ -168,14 +169,17 @@ export function TransactionsPage() {
   );
 }
 
-function dateRange(preset: DatePreset) {
+function dateRange(preset: DatePreset, profile: ReturnType<typeof useBudgetStore.getState>["profile"]) {
   const now = new Date();
   if (preset === "today") return { start: localDateKey(now), end: localDateKey(now) };
   if (preset === "week") return { start: format(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6), "yyyy-MM-dd"), end: localDateKey(now) };
-  if (preset === "lastMonth") {
-    const last = subMonths(now, 1);
-    return { start: format(startOfMonth(last), "yyyy-MM-dd"), end: format(endOfMonth(last), "yyyy-MM-dd") };
+  if (preset === "cycle") {
+    const cycle = currentBudgetCycleRange(profile, now);
+    return { start: cycle.start, end: cycle.end };
   }
-  return { start: format(startOfMonth(now), "yyyy-MM-dd"), end: format(endOfMonth(now), "yyyy-MM-dd") };
+  if (preset === "lastCycle") {
+    const cycle = previousBudgetCycleRange(profile, now);
+    return { start: cycle.start, end: cycle.end };
+  }
+  return { start: "", end: "" };
 }
-

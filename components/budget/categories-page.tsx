@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { PageHeader } from "@/components/shared/page-header";
+import { currentBudgetCycleRange } from "@/lib/calculations/budget";
 import { CategoryBudget, TransactionCategory } from "@/lib/db/schema";
 import { useBudgetStore } from "@/lib/store/budget.store";
 import { transactionCategories } from "@/lib/utils/constants";
@@ -21,14 +22,19 @@ export function CategoriesPage() {
   const [customOpen, setCustomOpen] = useState(false);
   const [customName, setCustomName] = useState("");
   const [customLimit, setCustomLimit] = useState(0);
+  const cycle = useMemo(() => currentBudgetCycleRange(profile), [profile]);
 
   const rows = useMemo(
     () =>
       budgets.map((budget) => ({
         ...budget,
-        spent: sum(transactions.filter((transaction) => transaction.type === "expense" && transaction.category === budget.category).map((transaction) => transaction.amount)),
+        spent: sum(
+          transactions
+            .filter((transaction) => transaction.type === "expense" && transaction.category === budget.category && transaction.date >= cycle.start && transaction.date <= cycle.end)
+            .map((transaction) => transaction.amount),
+        ),
       })),
-    [budgets, transactions],
+    [budgets, cycle.end, cycle.start, transactions],
   );
 
   const addMissingCategory = (category: TransactionCategory) => {
@@ -40,7 +46,7 @@ export function CategoriesPage() {
     <>
       <PageHeader
         title="Category Budget Manager"
-        description="Edit category limits, reorder priorities, and keep category spending honest."
+        description="Edit category limits and compare each one against the active budget cycle."
         action={
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setCustomOpen(true)}>
@@ -67,11 +73,11 @@ export function CategoriesPage() {
             <CardContent className="grid gap-3 p-4 lg:grid-cols-[1fr_1fr_auto] lg:items-center">
               <div>
                 <p className="font-semibold">{titleCase(row.category)}</p>
-                <p className="text-sm text-muted-foreground">Spent {formatCurrency(row.spent, profile.currency, profile.currencySymbol)}</p>
+                <p className="text-sm text-muted-foreground">Spent this cycle {formatCurrency(row.spent, profile.currency, profile.currencySymbol)}</p>
                 <Progress value={percent(row.spent, row.limit)} className="mt-2" />
               </div>
               <div>
-                <label className="text-sm font-medium">Monthly limit</label>
+                <label className="text-sm font-medium">Cycle limit</label>
                 <Input
                   className="mt-1"
                   type="number"
@@ -119,4 +125,3 @@ export function CategoriesPage() {
     </>
   );
 }
-

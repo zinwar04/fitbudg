@@ -24,7 +24,7 @@ const promptGroups = {
     "Suggest a high-protein snack under 300 kcal.",
   ],
   Budget: [
-    "How's my budget looking this month?",
+    "How's my budget looking this cycle?",
     "Where am I overspending?",
     "How much can I safely spend today?",
     "What's my biggest budget category?",

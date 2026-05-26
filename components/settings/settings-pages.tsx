@@ -17,7 +17,7 @@ import { useFoodStore } from "@/lib/store/food.store";
 import { useHabitsStore } from "@/lib/store/habits.store";
 import { useProfileStore } from "@/lib/store/profile.store";
 import { accentOptions, activityLabels, dashboardWidgetOrder, financialDisclaimer, fitnessGoalLabels, healthDisclaimer } from "@/lib/utils/constants";
-import { formatKcal, titleCase } from "@/lib/utils/formatting";
+import { formatKcal, formatOrdinalDay, titleCase } from "@/lib/utils/formatting";
 
 export function ProfileSettingsPage() {
   const profile = useProfileStore((state) => state.profile);
@@ -104,20 +104,25 @@ export function BudgetSettingsPage() {
   const saveProfile = useBudgetStore((state) => state.saveProfile);
   const [income, setIncome] = useState(profile.monthlyIncome);
   const [budget, setBudget] = useState(profile.monthlyBudget);
+  const [monthStartDay, setMonthStartDay] = useState(profile.monthStartDay);
   const [currency, setCurrency] = useState(profile.currency);
   return (
     <>
-      <PageHeader title="Budget Settings" description="Set income, monthly budget, currency, and weekly calendar defaults." />
+      <PageHeader title="Budget Settings" description="Set income, budget amount, currency, and the day your pay-cycle budget starts." />
       <Card>
         <CardContent className="grid gap-4 p-4 sm:grid-cols-2">
           <InputSetting label="Monthly income" type="number" value={income} onNumber={setIncome} />
           <InputSetting label="Monthly budget" type="number" value={budget} onNumber={setBudget} />
+          <InputSetting label="Budget cycle start day" type="number" min={1} max={31} value={monthStartDay} onNumber={(value) => setMonthStartDay(Math.min(31, Math.max(1, Math.round(value || 1))))} />
           <SelectSetting label="Currency" value={currency} options={["IQD", "USD", "EUR", "TRY"]} onChange={setCurrency} />
+          <div className="rounded-xl border bg-muted/20 p-4 text-sm text-muted-foreground sm:col-span-2">
+            Example: if you get paid on the {formatOrdinalDay(19)}, set your budget cycle start to the {formatOrdinalDay(19)} so the app tracks spending from payday to payday.
+          </div>
           <div className="rounded-xl border bg-muted/30 p-4 text-sm text-muted-foreground sm:col-span-2">
             <p className="font-medium text-foreground">Financial disclaimer</p>
             <p className="mt-1">{financialDisclaimer}</p>
           </div>
-          <Button className="sm:col-span-2" onClick={() => saveProfile({ monthlyIncome: income, monthlyBudget: budget, currency, currencySymbol: currency })}>
+          <Button className="sm:col-span-2" onClick={() => saveProfile({ monthlyIncome: income, monthlyBudget: budget, monthStartDay, currency, currencySymbol: currency })}>
             Save Budget Settings
           </Button>
         </CardContent>
@@ -191,7 +196,6 @@ export function DataSettingsPage() {
   const exportAll = useProfileStore((state) => state.exportAll);
   const importAll = useProfileStore((state) => state.importAll);
   const clearAll = useProfileStore((state) => state.clearAll);
-  const loadDemo = useProfileStore((state) => state.loadDemo);
   const profileLoad = useProfileStore((state) => state.load);
   const foodLoad = useFoodStore((state) => state.load);
   const budgetLoad = useBudgetStore((state) => state.load);
@@ -238,7 +242,7 @@ export function DataSettingsPage() {
 
   return (
     <>
-      <PageHeader title="Data Settings" description="Export, import, load demo data, clear account data, and review disclaimers." />
+      <PageHeader title="Data Settings" description="Export, import, clear account data, and review disclaimers." />
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader><CardTitle>Export Data</CardTitle></CardHeader>
@@ -268,13 +272,6 @@ export function DataSettingsPage() {
                 <p>Changes save directly to your private Supabase tables. Export and import tools are for backups and bulk moves.</p>
               </div>
             </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader><CardTitle>Demo Data</CardTitle></CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">Loads 14 days of realistic food, weight, spending, meals, and habit data.</p>
-            <Button onClick={async () => { await loadDemo("replace"); await refreshAll(); router.push("/dashboard"); }}>Load Demo Data</Button>
           </CardContent>
         </Card>
         <Card>
@@ -308,12 +305,16 @@ function InputSetting({
   label,
   value,
   type = "text",
+  min,
+  max,
   onChange,
   onNumber,
 }: {
   label: string;
   value: string | number;
   type?: "text" | "number";
+  min?: number;
+  max?: number;
   onChange?: (value: string) => void;
   onNumber?: (value: number) => void;
 }) {
@@ -323,6 +324,8 @@ function InputSetting({
       <Input
         type={type}
         value={value}
+        min={min}
+        max={max}
         onChange={(event) => {
           if (type === "number") onNumber?.(Number(event.target.value));
           else onChange?.(event.target.value);

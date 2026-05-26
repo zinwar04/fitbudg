@@ -41,12 +41,29 @@ create table if not exists public.budget_profiles (
   id text not null default '1' check (id = '1'),
   "monthlyIncome" numeric not null default 0 check ("monthlyIncome" >= 0),
   "monthlyBudget" numeric not null default 0 check ("monthlyBudget" >= 0),
+  "monthStartDay" integer not null default 1 check ("monthStartDay" >= 1 and "monthStartDay" <= 31),
   currency text not null default 'IQD' check (btrim(currency) <> ''),
   "currencySymbol" text not null default 'IQD' check (btrim("currencySymbol") <> ''),
   "categoryBudgets" jsonb not null default '[]'::jsonb check (jsonb_typeof("categoryBudgets") = 'array'),
   "updatedAt" timestamptz not null default now(),
   primary key (user_id, id)
 );
+
+alter table public.budget_profiles
+  add column if not exists "monthStartDay" integer not null default 1;
+
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_constraint
+    where conname = 'budget_profiles_month_start_day_check'
+  ) then
+    alter table public.budget_profiles
+      add constraint budget_profiles_month_start_day_check
+      check ("monthStartDay" >= 1 and "monthStartDay" <= 31);
+  end if;
+end $$;
 
 create table if not exists public.daily_calorie_logs (
   user_id uuid not null references auth.users(id) on delete cascade,

@@ -1,7 +1,7 @@
 import { differenceInCalendarDays, format, parseISO, subDays } from "date-fns";
 import { AllUserData, FoodEntry, Habit, Insight, WeightEntry } from "@/lib/db/schema";
 import { calculateNutritionTargets, estimateWeeksToGoal } from "@/lib/calculations/nutrition";
-import { calculateBudgetSummary, compareWeekSpend, currentMonthRange, filterTransactionsByDate } from "@/lib/calculations/budget";
+import { calculateBudgetSummary, compareWeekSpend, currentBudgetCycleRange, filterTransactionsByDate, previousBudgetCycleRange } from "@/lib/calculations/budget";
 import { average, formatCurrency, formatDateKey, localDateKey, sum } from "@/lib/utils/formatting";
 
 function totalCaloriesForDate(entries: FoodEntry[], date: string) {
@@ -188,13 +188,13 @@ export function generateInsights(data: AllUserData): Insight[] {
 
   const budgetSummary = calculateBudgetSummary(data.budgetProfile, data.transactions, today);
   if (budgetSummary.paceRatio > 1.15) {
-    const projectedOverspend = Math.max(0, budgetSummary.spent / budgetSummary.dayOfMonth * budgetSummary.daysInMonth - data.budgetProfile.monthlyBudget);
+    const projectedOverspend = Math.max(0, budgetSummary.spent / budgetSummary.dayInCycle * budgetSummary.daysInCycle - data.budgetProfile.monthlyBudget);
     addInsight(insights, {
       category: "warning",
       severity: budgetSummary.paceRatio > 1.4 ? "danger" : "warning",
       icon: "AlertTriangle",
       title: "Budget pace is fast",
-      description: `You have used ${Math.round((budgetSummary.spent / data.budgetProfile.monthlyBudget) * 100)}% of your budget but only ${Math.round((budgetSummary.dayOfMonth / budgetSummary.daysInMonth) * 100)}% of the month has passed. You may overspend by ${formatCurrency(projectedOverspend, data.budgetProfile.currency, data.budgetProfile.currencySymbol)}.`,
+      description: `You have used ${Math.round((budgetSummary.spent / data.budgetProfile.monthlyBudget) * 100)}% of your budget but only ${Math.round((budgetSummary.dayInCycle / budgetSummary.daysInCycle) * 100)}% of the current budget cycle has passed. You may overspend by ${formatCurrency(projectedOverspend, data.budgetProfile.currency, data.budgetProfile.currencySymbol)}.`,
       metric: `${Math.round(budgetSummary.paceRatio * 100)}% pace`,
       actionLabel: "Open budget",
       actionRoute: "/budget/overview",
@@ -205,7 +205,7 @@ export function generateInsights(data: AllUserData): Insight[] {
       severity: "positive",
       icon: "PiggyBank",
       title: "Spending below pace",
-      description: `Great financial discipline. You are spending slower than your budget allows. Safe to spend ${formatCurrency(budgetSummary.safeDailySpend, data.budgetProfile.currency, data.budgetProfile.currencySymbol)} per day for the rest of the month.`,
+      description: `Great financial discipline. You are spending slower than your budget allows. Safe to spend ${formatCurrency(budgetSummary.safeDailySpend, data.budgetProfile.currency, data.budgetProfile.currencySymbol)} per day for the rest of this cycle.`,
       metric: formatCurrency(budgetSummary.safeDailySpend, data.budgetProfile.currency, data.budgetProfile.currencySymbol),
     });
   }
@@ -231,8 +231,8 @@ export function generateInsights(data: AllUserData): Insight[] {
       category: "budget",
       severity: "neutral",
       icon: "Receipt",
-      title: "Largest monthly expense",
-      description: `Your biggest expense this month is "${budgetSummary.largestExpense.title}" at ${formatCurrency(budgetSummary.largestExpense.amount, data.budgetProfile.currency, data.budgetProfile.currencySymbol)} on ${formatDateKey(budgetSummary.largestExpense.date)}.`,
+      title: "Largest cycle expense",
+      description: `Your biggest expense this budget cycle is "${budgetSummary.largestExpense.title}" at ${formatCurrency(budgetSummary.largestExpense.amount, data.budgetProfile.currency, data.budgetProfile.currencySymbol)} on ${formatDateKey(budgetSummary.largestExpense.date)}.`,
       metric: formatCurrency(budgetSummary.largestExpense.amount, data.budgetProfile.currency, data.budgetProfile.currencySymbol),
     });
   }
@@ -255,7 +255,7 @@ export function generateInsights(data: AllUserData): Insight[] {
       severity: "neutral",
       icon: "ShoppingBasket",
       title: "Food leads spending",
-      description: `Food is your largest spending category this month at ${Math.round((budgetSummary.topCategory.spent / budgetSummary.spent) * 100)}% of your total expenses.`,
+      description: `Food is your largest spending category this budget cycle at ${Math.round((budgetSummary.topCategory.spent / budgetSummary.spent) * 100)}% of your total expenses.`,
       metric: formatCurrency(budgetSummary.topCategory.spent, data.budgetProfile.currency, data.budgetProfile.currencySymbol),
     });
   }
@@ -368,13 +368,13 @@ export function generateInsights(data: AllUserData): Insight[] {
       });
     });
 
-  if (budgetSummary.remaining <= 0 && budgetSummary.daysInMonth - budgetSummary.dayOfMonth >= 10) {
+  if (budgetSummary.remaining <= 0 && budgetSummary.daysLeftInCycle >= 10) {
     addInsight(insights, {
       category: "warning",
       severity: "danger",
       icon: "OctagonAlert",
-      title: "Monthly budget depleted",
-      description: `You have used your entire monthly budget with ${budgetSummary.daysInMonth - budgetSummary.dayOfMonth} days remaining. Only log income or essentials from here.`,
+      title: "Budget cycle depleted",
+      description: `You have used your entire budget with ${budgetSummary.daysLeftInCycle} days remaining in the current cycle. Only log income or essentials from here.`,
       metric: formatCurrency(Math.abs(budgetSummary.remaining), data.budgetProfile.currency, data.budgetProfile.currencySymbol),
     });
   }
@@ -393,19 +393,18 @@ export function generateInsights(data: AllUserData): Insight[] {
     });
   }
 
-  const thisMonth = currentMonthRange(today);
-  const lastMonthDate = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
-  const lastMonth = currentMonthRange(lastMonthDate);
-  const thisMonthSpend = sum(filterTransactionsByDate(data.transactions, thisMonth.start, thisMonth.end).filter((item) => item.type === "expense").map((item) => item.amount));
-  const lastMonthSpend = sum(filterTransactionsByDate(data.transactions, lastMonth.start, lastMonth.end).filter((item) => item.type === "expense").map((item) => item.amount));
-  if (lastMonthSpend > 0 && thisMonthSpend < lastMonthSpend) {
+  const thisCycle = currentBudgetCycleRange(data.budgetProfile, today);
+  const previousCycle = previousBudgetCycleRange(data.budgetProfile, today);
+  const thisCycleSpend = sum(filterTransactionsByDate(data.transactions, thisCycle.start, thisCycle.end).filter((item) => item.type === "expense").map((item) => item.amount));
+  const previousCycleSpend = sum(filterTransactionsByDate(data.transactions, previousCycle.start, previousCycle.end).filter((item) => item.type === "expense").map((item) => item.amount));
+  if (previousCycleSpend > 0 && thisCycleSpend < previousCycleSpend) {
     addInsight(insights, {
       category: "celebration",
       severity: "positive",
       icon: "WalletCards",
       title: "Spending improved",
-      description: `You spent ${formatCurrency(lastMonthSpend - thisMonthSpend, data.budgetProfile.currency, data.budgetProfile.currencySymbol)} less than last month. Great financial progress.`,
-      metric: formatCurrency(lastMonthSpend - thisMonthSpend, data.budgetProfile.currency, data.budgetProfile.currencySymbol),
+      description: `You spent ${formatCurrency(previousCycleSpend - thisCycleSpend, data.budgetProfile.currency, data.budgetProfile.currencySymbol)} less than the previous budget cycle. Great financial progress.`,
+      metric: formatCurrency(previousCycleSpend - thisCycleSpend, data.budgetProfile.currency, data.budgetProfile.currencySymbol),
     });
   }
 

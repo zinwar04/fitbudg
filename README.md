@@ -27,7 +27,7 @@ Without `GEMINI_API_KEY`, the assistant uses a contextual mock response based on
 
 All user data lives in Supabase tables behind the `/lib/db` service layer. UI components never call Supabase directly. Each table has `user_id`, composite primary keys, indexes for the main query paths, and Row Level Security policies so users can access only their own rows.
 
-Settings -> Data includes JSON backup/restore, transaction CSV export, demo data loading, and account data clearing. Food Library and Meal Templates also support CSV export plus `.csv`/`.xlsx` import for bulk entry.
+Settings -> Data includes JSON backup/restore, transaction CSV export, and account data clearing. Food Library and Meal Templates also support CSV export plus `.csv`/`.xlsx` import for bulk entry.
 
 ## Supabase Setup
 

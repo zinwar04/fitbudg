@@ -1,4 +1,4 @@
-import { endOfMonth, format, parseISO, startOfMonth } from "date-fns";
+import { addMonths, differenceInCalendarDays, format, getDaysInMonth, parseISO, subDays } from "date-fns";
 import { BudgetProfile, Transaction, TransactionCategory } from "@/lib/db/schema";
 import { average, sum } from "@/lib/utils/formatting";
 
@@ -13,8 +13,11 @@ export interface BudgetSummary {
   income: number;
   net: number;
   remaining: number;
-  dayOfMonth: number;
-  daysInMonth: number;
+  cycleStart: string;
+  cycleEnd: string;
+  dayInCycle: number;
+  daysInCycle: number;
+  daysLeftInCycle: number;
   paceRatio: number;
   pacing: "onTrack" | "spendingFast" | "overBudget";
   safeToSpendToday: number;
@@ -26,11 +29,42 @@ export interface BudgetSummary {
   dailySpend: { date: string; spent: number }[];
 }
 
-export function currentMonthRange(date = new Date()) {
+export interface BudgetCycleRange {
+  start: string;
+  end: string;
+  startDate: Date;
+  endDate: Date;
+}
+
+export function normalizeBudgetCycleStartDay(day: number | undefined) {
+  if (!Number.isFinite(day)) return 1;
+  return Math.min(31, Math.max(1, Math.round(day as number)));
+}
+
+function cycleAnchor(year: number, monthIndex: number, desiredDay: number) {
+  return new Date(year, monthIndex, Math.min(desiredDay, getDaysInMonth(new Date(year, monthIndex, 1))));
+}
+
+export function currentBudgetCycleRange(profile: BudgetProfile, date = new Date()): BudgetCycleRange {
+  const desiredDay = normalizeBudgetCycleStartDay(profile.monthStartDay);
+  const thisMonthStart = cycleAnchor(date.getFullYear(), date.getMonth(), desiredDay);
+  const startDate =
+    date.getDate() >= thisMonthStart.getDate()
+      ? thisMonthStart
+      : cycleAnchor(date.getMonth() === 0 ? date.getFullYear() - 1 : date.getFullYear(), date.getMonth() === 0 ? 11 : date.getMonth() - 1, desiredDay);
+  const nextCycleMonth = addMonths(startDate, 1);
+  const nextStartDate = cycleAnchor(nextCycleMonth.getFullYear(), nextCycleMonth.getMonth(), desiredDay);
+  const endDate = subDays(nextStartDate, 1);
   return {
-    start: format(startOfMonth(date), "yyyy-MM-dd"),
-    end: format(endOfMonth(date), "yyyy-MM-dd"),
+    start: format(startDate, "yyyy-MM-dd"),
+    end: format(endDate, "yyyy-MM-dd"),
+    startDate,
+    endDate,
   };
+}
+
+export function previousBudgetCycleRange(profile: BudgetProfile, date = new Date()): BudgetCycleRange {
+  return currentBudgetCycleRange(profile, subDays(currentBudgetCycleRange(profile, date).startDate, 1));
 }
 
 export function filterTransactionsByDate(transactions: Transaction[], start: string, end: string) {
@@ -38,20 +72,21 @@ export function filterTransactionsByDate(transactions: Transaction[], start: str
 }
 
 export function calculateBudgetSummary(profile: BudgetProfile, transactions: Transaction[], date = new Date()): BudgetSummary {
-  const range = currentMonthRange(date);
-  const monthTransactions = filterTransactionsByDate(transactions, range.start, range.end);
-  const expenses = monthTransactions.filter((transaction) => transaction.type === "expense");
-  const incomeTransactions = monthTransactions.filter((transaction) => transaction.type === "income");
+  const range = currentBudgetCycleRange(profile, date);
+  const cycleTransactions = filterTransactionsByDate(transactions, range.start, range.end);
+  const expenses = cycleTransactions.filter((transaction) => transaction.type === "expense");
+  const incomeTransactions = cycleTransactions.filter((transaction) => transaction.type === "income");
   const spent = sum(expenses.map((transaction) => transaction.amount));
   const income = sum(incomeTransactions.map((transaction) => transaction.amount));
   const remaining = profile.monthlyBudget - spent;
-  const dayOfMonth = date.getDate();
-  const daysInMonth = endOfMonth(date).getDate();
+  const dayInCycle = differenceInCalendarDays(date, range.startDate) + 1;
+  const daysInCycle = differenceInCalendarDays(range.endDate, range.startDate) + 1;
+  const daysLeftInCycle = Math.max(0, differenceInCalendarDays(range.endDate, date));
+  const daysRemainingIncludingToday = Math.max(1, daysInCycle - dayInCycle + 1);
   const spentRatio = profile.monthlyBudget > 0 ? spent / profile.monthlyBudget : 0;
-  const timeRatio = dayOfMonth / daysInMonth;
+  const timeRatio = dayInCycle / daysInCycle;
   const paceRatio = timeRatio > 0 ? spentRatio / timeRatio : 0;
-  const daysLeft = Math.max(1, daysInMonth - dayOfMonth + 1);
-  const safeDailySpend = Math.max(0, remaining / daysLeft);
+  const safeDailySpend = Math.max(0, remaining / daysRemainingIncludingToday);
   const averageDailySpend = average(groupDailySpend(expenses).map((day) => day.spent));
   const largestExpense =
     expenses.length > 0 ? [...expenses].sort((a, b) => b.amount - a.amount)[0] : null;
@@ -67,8 +102,11 @@ export function calculateBudgetSummary(profile: BudgetProfile, transactions: Tra
     income,
     net: income - spent,
     remaining,
-    dayOfMonth,
-    daysInMonth,
+    cycleStart: range.start,
+    cycleEnd: range.end,
+    dayInCycle,
+    daysInCycle,
+    daysLeftInCycle,
     paceRatio,
     pacing: spent > profile.monthlyBudget ? "overBudget" : paceRatio > 1.25 ? "overBudget" : paceRatio > 1.1 ? "spendingFast" : "onTrack",
     safeToSpendToday: safeDailySpend,
@@ -116,4 +154,3 @@ export function monthKeyFromDateKey(dateKey: string) {
   const parsed = parseISO(`${dateKey}T00:00:00`);
   return format(parsed, "yyyy-MM");
 }
-

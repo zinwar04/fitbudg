@@ -130,6 +130,7 @@ export interface BudgetProfile {
   id: string;
   monthlyIncome: number;
   monthlyBudget: number;
+  monthStartDay: number;
   currency: string;
   currencySymbol: string;
   categoryBudgets: CategoryBudget[];

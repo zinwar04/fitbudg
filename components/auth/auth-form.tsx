@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, Cloud, Loader2, LockKeyhole, Mail, UserRound } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -37,8 +37,11 @@ async function hydrateAfterAuth() {
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
+  const session = useAuthStore((state) => state.session);
+  const hydrated = useAuthStore((state) => state.hydrated);
   const signIn = useAuthStore((state) => state.signIn);
   const signUp = useAuthStore((state) => state.signUp);
+  const loadAuth = useAuthStore((state) => state.load);
   const loading = useAuthStore((state) => state.loading);
   const configured = useAuthStore((state) => state.configured);
   const [notice, setNotice] = useState<string | null>(null);
@@ -52,6 +55,29 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       password: "",
     },
   });
+
+  useEffect(() => {
+    if (!hydrated) void loadAuth();
+  }, [hydrated, loadAuth]);
+
+  useEffect(() => {
+    if (!hydrated || !session) return;
+
+    let cancelled = false;
+
+    async function openAccount() {
+      await hydrateAfterAuth();
+      if (cancelled) return;
+      const profile = useProfileStore.getState().profile;
+      router.replace(profile?.onboardingComplete ? "/dashboard" : "/onboarding");
+    }
+
+    void openAccount();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hydrated, router, session]);
 
   const onSubmit = form.handleSubmit(async (values) => {
     setNotice(null);

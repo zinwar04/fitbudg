@@ -15,7 +15,6 @@ import {
 } from "@/lib/db/profile.service";
 import { clearAllData, exportJson, importJson, parseImportJson } from "@/lib/db/data.service";
 import { AppExport } from "@/lib/db/schema";
-import { loadDemoData } from "@/lib/demo/seed";
 import { defaultBudgetProfile, defaultSettings } from "@/lib/utils/constants";
 
 function messageFromError(error: unknown) {
@@ -38,7 +37,6 @@ interface ProfileState {
     budget: BudgetProfile,
     settings: AppSettings,
   ) => Promise<void>;
-  loadDemo: (mode?: "merge" | "replace") => Promise<void>;
   exportAll: () => Promise<AppExport>;
   importAll: (input: unknown, mode: "merge" | "replace") => Promise<void>;
   clearAll: () => Promise<void>;
@@ -119,21 +117,6 @@ export const useProfileStore = create<ProfileState>()(
           state.hydrated = true;
         });
         toast.success("FitBudget is ready.");
-      } catch (error) {
-        toast.error(messageFromError(error));
-      }
-    },
-    loadDemo: async (mode = "replace") => {
-      try {
-        await loadDemoData(mode);
-        const [profile, settings, budgetProfile] = await Promise.all([getUserProfile(), getAppSettings(), getBudgetProfile()]);
-        set((state) => {
-          state.profile = profile;
-          state.settings = settings;
-          state.budgetProfile = budgetProfile;
-          state.hydrated = true;
-        });
-        toast.success("Demo data loaded.");
       } catch (error) {
         toast.error(messageFromError(error));
       }
