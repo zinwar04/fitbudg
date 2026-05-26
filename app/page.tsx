@@ -3,14 +3,8 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import { pullCloudSnapshotToLocal } from "@/lib/db/cloud-sync.service";
 import { useAuthStore } from "@/lib/store/auth.store";
 import { useProfileStore } from "@/lib/store/profile.store";
-
-function messageFromError(error: unknown) {
-  return error instanceof Error ? error.message : "Something went wrong.";
-}
 
 export default function Home() {
   const router = useRouter();
@@ -33,11 +27,6 @@ export default function Home() {
     }
 
     async function openAccount() {
-      try {
-        await pullCloudSnapshotToLocal();
-      } catch (error) {
-        toast.error(`Cloud sync failed: ${messageFromError(error)}`);
-      }
       await load();
     }
 

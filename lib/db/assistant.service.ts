@@ -1,15 +1,21 @@
+"use client";
+
 import { AssistantSession } from "@/lib/db/schema";
-import { getDb } from "@/lib/db/database";
-import { scheduleCloudPush } from "@/lib/db/cloud-sync.service";
+import { getSupabaseClient } from "@/lib/db/supabase.client";
+import { requireUserId, stripUserId, stripUserIdArray, withUserId } from "@/lib/db/supabase.service";
 import { createId, nowIso } from "@/lib/utils/formatting";
 
-export async function getAssistantSessions() {
-  const db = getDb();
-  return db.assistantSessions.orderBy("updatedAt").reverse().limit(20).toArray();
+export async function getAssistantSessions(): Promise<AssistantSession[]> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase.from("assistant_sessions").select("*").order("updatedAt", { ascending: false }).limit(20);
+
+  if (error) throw error;
+  return stripUserIdArray<AssistantSession>(data ?? []);
 }
 
 export async function saveAssistantSession(session: Omit<AssistantSession, "id" | "createdAt" | "updatedAt"> & Partial<Pick<AssistantSession, "id" | "createdAt">>) {
-  const db = getDb();
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
   const timestamp = nowIso();
   const record: AssistantSession = {
     ...session,
@@ -17,9 +23,27 @@ export async function saveAssistantSession(session: Omit<AssistantSession, "id" 
     createdAt: session.createdAt ?? timestamp,
     updatedAt: timestamp,
   };
-  await db.assistantSessions.put(record);
+
+  const { data, error } = await supabase
+    .from("assistant_sessions")
+    .upsert(withUserId("assistant_sessions", userId, record), { onConflict: "user_id,id" })
+    .select("*")
+    .single();
+
+  if (error) throw error;
+
   const sessions = await getAssistantSessions();
-  await Promise.all(sessions.slice(20).map((item) => db.assistantSessions.delete(item.id)));
-  scheduleCloudPush();
-  return record;
+  const staleIds = sessions.slice(20).map((item) => item.id);
+  if (staleIds.length > 0) {
+    const { error: deleteError } = await supabase.from("assistant_sessions").delete().in("id", staleIds);
+    if (deleteError) throw deleteError;
+  }
+
+  return stripUserId<AssistantSession>(data);
+}
+
+export async function deleteAssistantSession(id: string) {
+  const supabase = getSupabaseClient();
+  const { error } = await supabase.from("assistant_sessions").delete().eq("id", id);
+  if (error) throw error;
 }

@@ -1,33 +1,49 @@
 "use client";
 
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import {
+  AppSettings,
+  AssistantSession,
+  BudgetProfile,
+  DailyCalorieLog,
+  FoodEntry,
+  FoodLibraryItem,
+  Habit,
+  HabitEntry,
+  MealTemplate,
+  Transaction,
+  UserProfile,
+  WeightEntry,
+} from "@/lib/db/schema";
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
-interface FitBudgetDatabase {
+type RowWithUser<T> = T & { user_id: string };
+type InsertWithUser<T> = T & { user_id: string };
+type UpdateWithUser<T> = Partial<T> & { user_id?: string };
+
+type TableDef<T> = {
+  Row: RowWithUser<T>;
+  Insert: InsertWithUser<T>;
+  Update: UpdateWithUser<T>;
+  Relationships: [];
+};
+
+export interface FitBudgetDatabase {
   public: {
     Tables: {
-      fitbudget_snapshots: {
-        Row: {
-          user_id: string;
-          id: string;
-          payload: Json;
-          updated_at: string;
-        };
-        Insert: {
-          user_id: string;
-          id?: string;
-          payload: Json;
-          updated_at?: string;
-        };
-        Update: {
-          user_id?: string;
-          id?: string;
-          payload?: Json;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
+      user_profiles: TableDef<UserProfile>;
+      app_settings: TableDef<AppSettings>;
+      budget_profiles: TableDef<BudgetProfile>;
+      daily_calorie_logs: TableDef<DailyCalorieLog>;
+      food_library_items: TableDef<FoodLibraryItem>;
+      meal_templates: TableDef<MealTemplate>;
+      food_entries: TableDef<FoodEntry>;
+      weight_entries: TableDef<WeightEntry>;
+      transactions: TableDef<Transaction>;
+      habits: TableDef<Habit>;
+      habit_entries: TableDef<HabitEntry>;
+      assistant_sessions: TableDef<AssistantSession>;
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -36,7 +52,11 @@ interface FitBudgetDatabase {
   };
 }
 
-let client: SupabaseClient<FitBudgetDatabase> | null = null;
+export type SupabaseTableName = keyof FitBudgetDatabase["public"]["Tables"];
+export type SupabaseRow<Table extends SupabaseTableName> = FitBudgetDatabase["public"]["Tables"][Table]["Row"];
+export type SupabaseInsert<Table extends SupabaseTableName> = FitBudgetDatabase["public"]["Tables"][Table]["Insert"];
+
+let client: SupabaseClient | null = null;
 
 export function getSupabaseConfig() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -49,7 +69,7 @@ export function getSupabaseConfig() {
   };
 }
 
-export function getSupabaseClient() {
+export function getSupabaseClient(): SupabaseClient {
   const { configured, url, publishableKey } = getSupabaseConfig();
 
   if (!configured || !url || !publishableKey) {
@@ -57,11 +77,16 @@ export function getSupabaseClient() {
   }
 
   if (!client) {
-    client = createClient<FitBudgetDatabase>(url, publishableKey, {
+    client = createClient(url, publishableKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,
+      },
+      global: {
+        headers: {
+          "x-application-name": "fitbudget-web",
+        },
       },
     });
   }

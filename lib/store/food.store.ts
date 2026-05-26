@@ -4,7 +4,6 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { toast } from "sonner";
 import { DailyCalorieLog, FoodEntry, FoodLibraryItem, MealTemplate, MealType, WeightEntry } from "@/lib/db/schema";
-import { scheduleCloudPush } from "@/lib/db/cloud-sync.service";
 import {
   FoodEntryInput,
   FoodLibraryInput,
@@ -12,7 +11,9 @@ import {
   WeightInput,
   addFoodEntry,
   addFoodLibraryItem,
+  addFoodLibraryItems,
   addMealTemplate,
+  addMealTemplates,
   addMealTemplateToLog,
   addWeightEntry,
   deleteFoodEntry,
@@ -48,10 +49,12 @@ interface FoodState {
   duplicateEntry: (id: string, date?: string) => Promise<void>;
   moveEntry: (id: string, mealType: MealType) => Promise<void>;
   addFood: (input: FoodLibraryInput) => Promise<FoodLibraryItem | null>;
+  importFoods: (inputs: FoodLibraryInput[]) => Promise<void>;
   updateFood: (id: string, input: Partial<FoodLibraryInput>) => Promise<void>;
   deleteFood: (id: string) => Promise<void>;
   toggleFavorite: (id: string) => Promise<void>;
   addTemplate: (input: MealTemplateInput) => Promise<void>;
+  importTemplates: (inputs: MealTemplateInput[]) => Promise<void>;
   updateTemplate: (id: string, input: Partial<MealTemplateInput>) => Promise<void>;
   deleteTemplate: (id: string) => Promise<void>;
   addTemplateToLog: (id: string, date: string, mealType: MealType) => Promise<void>;
@@ -96,7 +99,6 @@ export const useFoodStore = create<FoodState>()(
       try {
         const entry = await addFoodEntry(input);
         await get().load();
-        scheduleCloudPush();
         toast.success("Food logged.");
         return entry;
       } catch (error) {
@@ -108,7 +110,6 @@ export const useFoodStore = create<FoodState>()(
       try {
         await updateFoodEntry(id, input);
         await get().load();
-        scheduleCloudPush();
         toast.success("Food entry updated.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -118,7 +119,6 @@ export const useFoodStore = create<FoodState>()(
       try {
         const deleted = await deleteFoodEntry(id);
         await get().load();
-        scheduleCloudPush();
         toast.success("Food entry deleted.", {
           action: deleted
             ? {
@@ -152,7 +152,6 @@ export const useFoodStore = create<FoodState>()(
       try {
         await duplicateFoodEntry(id, date);
         await get().load();
-        scheduleCloudPush();
         toast.success("Food entry duplicated.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -162,7 +161,6 @@ export const useFoodStore = create<FoodState>()(
       try {
         await moveFoodEntry(id, mealType);
         await get().load();
-        scheduleCloudPush();
         toast.success("Food moved.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -172,7 +170,6 @@ export const useFoodStore = create<FoodState>()(
       try {
         const item = await addFoodLibraryItem(input);
         await get().load();
-        scheduleCloudPush();
         toast.success("Food saved.");
         return item;
       } catch (error) {
@@ -180,11 +177,19 @@ export const useFoodStore = create<FoodState>()(
         return null;
       }
     },
+    importFoods: async (inputs) => {
+      try {
+        await addFoodLibraryItems(inputs);
+        await get().load();
+        toast.success(`${inputs.length} foods imported.`);
+      } catch (error) {
+        toast.error(messageFromError(error));
+      }
+    },
     updateFood: async (id, input) => {
       try {
         await updateFoodLibraryItem(id, input);
         await get().load();
-        scheduleCloudPush();
         toast.success("Food updated.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -194,7 +199,6 @@ export const useFoodStore = create<FoodState>()(
       try {
         await deleteFoodLibraryItem(id);
         await get().load();
-        scheduleCloudPush();
         toast.success("Food deleted.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -204,7 +208,6 @@ export const useFoodStore = create<FoodState>()(
       try {
         await toggleFoodFavorite(id);
         await get().load();
-        scheduleCloudPush();
       } catch (error) {
         toast.error(messageFromError(error));
       }
@@ -213,8 +216,16 @@ export const useFoodStore = create<FoodState>()(
       try {
         await addMealTemplate(input);
         await get().load();
-        scheduleCloudPush();
         toast.success("Meal template saved.");
+      } catch (error) {
+        toast.error(messageFromError(error));
+      }
+    },
+    importTemplates: async (inputs) => {
+      try {
+        await addMealTemplates(inputs);
+        await get().load();
+        toast.success(`${inputs.length} meal templates imported.`);
       } catch (error) {
         toast.error(messageFromError(error));
       }
@@ -223,7 +234,6 @@ export const useFoodStore = create<FoodState>()(
       try {
         await updateMealTemplate(id, input);
         await get().load();
-        scheduleCloudPush();
         toast.success("Meal template updated.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -233,7 +243,6 @@ export const useFoodStore = create<FoodState>()(
       try {
         await deleteMealTemplate(id);
         await get().load();
-        scheduleCloudPush();
         toast.success("Meal template deleted.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -243,7 +252,6 @@ export const useFoodStore = create<FoodState>()(
       try {
         await addMealTemplateToLog(id, date, mealType);
         await get().load();
-        scheduleCloudPush();
         toast.success("Meal added to log.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -253,7 +261,6 @@ export const useFoodStore = create<FoodState>()(
       try {
         await addWeightEntry(input);
         await get().load();
-        scheduleCloudPush();
         toast.success("Weight logged.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -263,7 +270,6 @@ export const useFoodStore = create<FoodState>()(
       try {
         await updateWeightEntry(id, input);
         await get().load();
-        scheduleCloudPush();
         toast.success("Weight updated.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -273,7 +279,6 @@ export const useFoodStore = create<FoodState>()(
       try {
         await deleteWeightEntry(id);
         await get().load();
-        scheduleCloudPush();
         toast.success("Weight entry deleted.");
       } catch (error) {
         toast.error(messageFromError(error));

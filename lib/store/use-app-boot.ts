@@ -1,18 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { toast } from "sonner";
-import { pullCloudSnapshotToLocal } from "@/lib/db/cloud-sync.service";
 import { useAuthStore } from "@/lib/store/auth.store";
 import { useBudgetStore } from "@/lib/store/budget.store";
 import { useFoodStore } from "@/lib/store/food.store";
 import { useHabitsStore } from "@/lib/store/habits.store";
 import { useProfileStore } from "@/lib/store/profile.store";
 import { accentColorMap } from "@/lib/utils/constants";
-
-function messageFromError(error: unknown) {
-  return error instanceof Error ? error.message : "Something went wrong.";
-}
 
 export function useAppBoot() {
   const loadAuth = useAuthStore((state) => state.load);
@@ -36,12 +30,6 @@ export function useAppBoot() {
     let cancelled = false;
 
     async function hydrateAccount() {
-      try {
-        await pullCloudSnapshotToLocal();
-      } catch (error) {
-        toast.error(`Cloud sync failed: ${messageFromError(error)}`);
-      }
-
       if (cancelled) return;
       await Promise.all([loadProfile(), loadFood(), loadBudget(), loadHabits()]);
       if (!cancelled) markCloudHydrated(true);

@@ -1,6 +1,9 @@
+"use client";
+
 import { BudgetProfile, CategoryBudget, Transaction } from "@/lib/db/schema";
-import { getDb } from "@/lib/db/database";
 import { getBudgetProfile, updateBudgetProfile } from "@/lib/db/profile.service";
+import { getSupabaseClient } from "@/lib/db/supabase.client";
+import { requireUserId, stripUserId, stripUserIdArray, withUserId } from "@/lib/db/supabase.service";
 import { createId, nowIso } from "@/lib/utils/formatting";
 
 export interface BudgetData {
@@ -13,13 +16,19 @@ export type TransactionInput = Omit<Transaction, "id" | "createdAt" | "updatedAt
 };
 
 export async function getBudgetData(): Promise<BudgetData> {
-  const db = getDb();
-  const [profile, transactions] = await Promise.all([getBudgetProfile(), db.transactions.orderBy("date").reverse().toArray()]);
-  return { profile, transactions };
+  const supabase = getSupabaseClient();
+  const [profile, transactions] = await Promise.all([
+    getBudgetProfile(),
+    supabase.from("transactions").select("*").order("date", { ascending: false }),
+  ]);
+
+  if (transactions.error) throw transactions.error;
+  return { profile, transactions: stripUserIdArray(transactions.data ?? []) };
 }
 
 export async function addTransaction(input: TransactionInput) {
-  const db = getDb();
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
   const timestamp = nowIso();
   const transaction: Transaction = {
     ...input,
@@ -28,29 +37,37 @@ export async function addTransaction(input: TransactionInput) {
     createdAt: timestamp,
     updatedAt: timestamp,
   };
-  await db.transactions.put(transaction);
-  return transaction;
+  const { data, error } = await supabase.from("transactions").insert(withUserId("transactions", userId, transaction)).select("*").single();
+  if (error) throw error;
+  return stripUserId(data);
 }
 
 export async function updateTransaction(id: string, input: Partial<TransactionInput>) {
-  const db = getDb();
-  const existing = await db.transactions.get(id);
+  const supabase = getSupabaseClient();
+  const { data: existing, error: getError } = await supabase.from("transactions").select("*").eq("id", id).maybeSingle();
+  if (getError) throw getError;
   if (!existing) throw new Error("Transaction not found.");
+
+  const current = stripUserId(existing);
   const updated: Transaction = {
-    ...existing,
+    ...current,
     ...input,
-    recurringId: input.isRecurring ? existing.recurringId ?? createId() : input.isRecurring === false ? undefined : existing.recurringId,
+    recurringId: input.isRecurring ? current.recurringId ?? createId() : input.isRecurring === false ? undefined : current.recurringId,
     updatedAt: nowIso(),
   };
-  await db.transactions.put(updated);
-  return updated;
+  const { data, error } = await supabase.from("transactions").update(updated).eq("id", id).select("*").single();
+  if (error) throw error;
+  return stripUserId(data);
 }
 
 export async function deleteTransaction(id: string) {
-  const db = getDb();
-  const existing = await db.transactions.get(id);
-  await db.transactions.delete(id);
-  return existing ?? null;
+  const supabase = getSupabaseClient();
+  const { data: existing, error: getError } = await supabase.from("transactions").select("*").eq("id", id).maybeSingle();
+  if (getError) throw getError;
+
+  const { error } = await supabase.from("transactions").delete().eq("id", id);
+  if (error) throw error;
+  return existing ? stripUserId(existing) : null;
 }
 
 export async function saveCategoryBudgets(categoryBudgets: CategoryBudget[]) {
@@ -83,4 +100,3 @@ export function transactionsToCsv(transactions: Transaction[]) {
   );
   return [headers.join(","), ...rows].join("\n");
 }
-

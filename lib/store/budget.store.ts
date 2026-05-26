@@ -4,7 +4,6 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { toast } from "sonner";
 import { BudgetProfile, CategoryBudget, Transaction } from "@/lib/db/schema";
-import { scheduleCloudPush } from "@/lib/db/cloud-sync.service";
 import {
   TransactionInput,
   addTransaction,
@@ -65,7 +64,6 @@ export const useBudgetStore = create<BudgetState>()(
       try {
         await addTransaction(input);
         await get().load();
-        scheduleCloudPush();
         toast.success("Transaction added.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -75,7 +73,6 @@ export const useBudgetStore = create<BudgetState>()(
       try {
         await updateTransaction(id, input);
         await get().load();
-        scheduleCloudPush();
         toast.success("Transaction updated.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -85,7 +82,6 @@ export const useBudgetStore = create<BudgetState>()(
       try {
         const deleted = await deleteTransaction(id);
         await get().load();
-        scheduleCloudPush();
         toast.success("Transaction deleted.", {
           action: deleted
             ? {
@@ -117,7 +113,6 @@ export const useBudgetStore = create<BudgetState>()(
         set((state) => {
           state.profile = saved;
         });
-        scheduleCloudPush();
         toast.success("Budget profile saved.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -129,7 +124,6 @@ export const useBudgetStore = create<BudgetState>()(
         set((state) => {
           state.profile = saved;
         });
-        scheduleCloudPush();
         toast.success("Category limits saved.");
       } catch (error) {
         toast.error(messageFromError(error));

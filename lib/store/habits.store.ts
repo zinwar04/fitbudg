@@ -4,7 +4,6 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { toast } from "sonner";
 import { Habit, HabitEntry } from "@/lib/db/schema";
-import { scheduleCloudPush } from "@/lib/db/cloud-sync.service";
 import {
   HabitInput,
   addHabit,
@@ -62,7 +61,6 @@ export const useHabitsStore = create<HabitsState>()(
       try {
         await addHabit(input);
         await get().load();
-        scheduleCloudPush();
         toast.success("Habit added.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -72,7 +70,6 @@ export const useHabitsStore = create<HabitsState>()(
       try {
         await updateHabit(id, input);
         await get().load();
-        scheduleCloudPush();
         toast.success("Habit updated.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -82,7 +79,6 @@ export const useHabitsStore = create<HabitsState>()(
       try {
         await deleteHabit(id);
         await get().load();
-        scheduleCloudPush();
         toast.success("Habit deleted.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -92,7 +88,6 @@ export const useHabitsStore = create<HabitsState>()(
       try {
         await toggleBooleanHabit(habitId, date);
         await get().load();
-        scheduleCloudPush();
       } catch (error) {
         toast.error(messageFromError(error));
       }
@@ -101,7 +96,6 @@ export const useHabitsStore = create<HabitsState>()(
       try {
         await adjustQuantitativeHabit(habit, date, delta);
         await get().load();
-        scheduleCloudPush();
       } catch (error) {
         toast.error(messageFromError(error));
       }

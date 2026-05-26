@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Edit, Grid2X2, List, Plus, Search, Star, Trash2, UtensilsCrossed } from "lucide-react";
+import { ChangeEvent, useMemo, useRef, useState } from "react";
+import { Download, Edit, FileUp, Grid2X2, List, Plus, Search, Star, Trash2, UtensilsCrossed } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ import { FoodCategory, FoodLibraryItem, MealType } from "@/lib/db/schema";
 import { useFoodStore } from "@/lib/store/food.store";
 import { foodCategories, mealTypes } from "@/lib/utils/constants";
 import { formatKcal, localDateKey, titleCase } from "@/lib/utils/formatting";
+import { downloadTextFile, foodsToCsv, parseFoodRows, readSpreadsheetRows } from "@/lib/utils/import-export";
 import { cn } from "@/lib/utils";
 
 type SortOption = "name" | "calHigh" | "calLow" | "proteinHigh" | "proteinLow" | "mostUsed" | "recent" | "favorites";
@@ -21,6 +23,7 @@ type SortOption = "name" | "calHigh" | "calLow" | "proteinHigh" | "proteinLow" |
 export function FoodLibraryPage() {
   const library = useFoodStore((state) => state.library);
   const addEntry = useFoodStore((state) => state.addEntry);
+  const importFoods = useFoodStore((state) => state.importFoods);
   const deleteFood = useFoodStore((state) => state.deleteFood);
   const toggleFavorite = useFoodStore((state) => state.toggleFavorite);
   const [query, setQuery] = useState("");
@@ -33,6 +36,7 @@ export function FoodLibraryPage() {
   const [quickMealType, setQuickMealType] = useState<MealType>("lunch");
   const [quickQuantity, setQuickQuantity] = useState(1);
   const [manualOpen, setManualOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -82,13 +86,41 @@ export function FoodLibraryPage() {
     setQuickQuantity(1);
   };
 
+  const exportFoods = () => {
+    downloadTextFile("fitbudget-food-library.csv", foodsToCsv(library));
+  };
+
+  const importFoodFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    try {
+      const rows = await readSpreadsheetRows(file);
+      const foods = parseFoodRows(rows);
+      if (foods.length === 0) {
+        toast.error("No valid foods found. Include name, calories, serving size, and unit columns.");
+        return;
+      }
+      await importFoods(foods);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Food import failed.");
+    }
+  };
+
   return (
     <>
       <PageHeader
         title="Food Library"
         description="Your personal nutrition database for fast, repeatable food logging."
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <input ref={fileInputRef} className="hidden" type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={importFoodFile} />
+            <Button variant="outline" onClick={exportFoods}>
+              <Download className="h-4 w-4" /> Export
+            </Button>
+            <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+              <FileUp className="h-4 w-4" /> Import
+            </Button>
             <Button variant="outline" onClick={() => setManualOpen(true)}>
               Log Manual Food
             </Button>
@@ -221,4 +253,3 @@ export function FoodLibraryPage() {
     </>
   );
 }
-

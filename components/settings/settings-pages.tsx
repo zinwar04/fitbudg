@@ -1,9 +1,8 @@
 "use client";
 
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp, Cloud, Download, RefreshCw, Save, Trash2, UploadCloud } from "lucide-react";
-import { toast } from "sonner";
+import { ArrowDown, ArrowUp, Cloud, Download, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { PageHeader } from "@/components/shared/page-header";
 import { calculateNutritionTargets } from "@/lib/calculations/nutrition";
-import { getCloudSyncStatus, pullCloudSnapshotToLocal, pushLocalSnapshotToCloud } from "@/lib/db/cloud-sync.service";
 import { AppSettings, FitnessGoal, UserProfile } from "@/lib/db/schema";
 import { useAuthStore } from "@/lib/store/auth.store";
 import { useBudgetStore } from "@/lib/store/budget.store";
@@ -201,56 +199,9 @@ export function DataSettingsPage() {
   const [importPreview, setImportPreview] = useState<string>("No file selected");
   const [importData, setImportData] = useState<unknown>(null);
   const [confirm, setConfirm] = useState("");
-  const [cloudUpdatedAt, setCloudUpdatedAt] = useState<string | null>(null);
-  const [cloudBusy, setCloudBusy] = useState(false);
 
   const refreshAll = async () => {
     await Promise.all([profileLoad(), foodLoad(), budgetLoad(), habitsLoad()]);
-  };
-
-  const refreshCloudStatus = useCallback(async () => {
-    try {
-      const status = await getCloudSyncStatus();
-      setCloudUpdatedAt(status.updatedAt);
-    } catch {
-      setCloudUpdatedAt(null);
-    }
-  }, []);
-
-  useEffect(() => {
-    void refreshCloudStatus();
-  }, [refreshCloudStatus]);
-
-  const pushCloud = async () => {
-    setCloudBusy(true);
-    try {
-      const pushed = await pushLocalSnapshotToCloud();
-      if (pushed) toast.success("Cloud snapshot updated.");
-      else toast.info("Sign in before syncing to Supabase.");
-      await refreshCloudStatus();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Cloud sync failed.");
-    } finally {
-      setCloudBusy(false);
-    }
-  };
-
-  const pullCloud = async () => {
-    setCloudBusy(true);
-    try {
-      const pulled = await pullCloudSnapshotToLocal();
-      if (pulled) {
-        await refreshAll();
-        toast.success("Cloud snapshot restored to this device.");
-      } else {
-        toast.info("No cloud snapshot exists for this account yet.");
-      }
-      await refreshCloudStatus();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Cloud restore failed.");
-    } finally {
-      setCloudBusy(false);
-    }
   };
 
   const downloadJson = async () => {
@@ -287,7 +238,7 @@ export function DataSettingsPage() {
 
   return (
     <>
-      <PageHeader title="Data Settings" description="Export, import, load demo data, clear local storage, and review disclaimers." />
+      <PageHeader title="Data Settings" description="Export, import, load demo data, clear account data, and review disclaimers." />
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader><CardTitle>Export Data</CardTitle></CardHeader>
@@ -308,24 +259,14 @@ export function DataSettingsPage() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader><CardTitle>Supabase Sync</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Cloud Database</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-start gap-3 rounded-xl border bg-muted/30 p-3 text-sm text-muted-foreground">
               <Cloud className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
               <div>
                 <p className="font-medium text-foreground">{session?.user.email ?? "No account signed in"}</p>
-                <p>{cloudUpdatedAt ? `Last cloud update: ${new Date(cloudUpdatedAt).toLocaleString()}` : "No cloud snapshot has been saved yet."}</p>
+                <p>Changes save directly to your private Supabase tables. Export and import tools are for backups and bulk moves.</p>
               </div>
-            </div>
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <Button onClick={pushCloud} disabled={cloudBusy}>
-                {cloudBusy ? <RefreshCw className="h-4 w-4 animate-spin" /> : <UploadCloud className="h-4 w-4" />}
-                Push to Supabase
-              </Button>
-              <Button variant="outline" onClick={pullCloud} disabled={cloudBusy}>
-                <RefreshCw className="h-4 w-4" />
-                Pull from Supabase
-              </Button>
             </div>
           </CardContent>
         </Card>
@@ -350,7 +291,7 @@ export function DataSettingsPage() {
       <Card className="mt-4">
         <CardHeader><CardTitle>App Info and Disclaimers</CardTitle></CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p><Badge>Version 1.0.0</Badge> Built with Next.js 14, TypeScript, Tailwind CSS, shadcn/ui, Dexie, Zustand, Recharts, and Framer Motion.</p>
+          <p><Badge>Version 1.0.0</Badge> Built with Next.js, TypeScript, Tailwind CSS, shadcn/ui, Supabase, Zustand, Recharts, and Framer Motion.</p>
           <p><span className="font-medium text-foreground">Health Disclaimer:</span> {healthDisclaimer}</p>
           <p><span className="font-medium text-foreground">Financial Disclaimer:</span> {financialDisclaimer}</p>
         </CardContent>

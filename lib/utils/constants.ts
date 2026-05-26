@@ -53,6 +53,30 @@ export const fitnessGoalLabels: Record<FitnessGoal, { title: string; description
 
 export const mealTypes: MealType[] = ["breakfast", "lunch", "dinner", "snack", "other"];
 
+export const servingUnits = [
+  "g",
+  "kg",
+  "ml",
+  "l",
+  "serving",
+  "piece",
+  "slice",
+  "cup",
+  "tbsp",
+  "tsp",
+  "oz",
+  "lb",
+  "egg",
+  "wrap",
+  "date",
+  "medium",
+  "small",
+  "large",
+  "scoop",
+  "can",
+  "bottle",
+] as const;
+
 export const foodCategories: FoodCategory[] = [
   "protein",
   "carbs",
@@ -112,4 +136,3 @@ export const healthDisclaimer =
 
 export const financialDisclaimer =
   "FitBudget is a personal budgeting tool and does not constitute financial advice. Budget calculations and projections are estimates only. Consult a qualified financial advisor for personalized financial guidance.";
-

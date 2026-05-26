@@ -17,7 +17,7 @@ import { useBudgetStore } from "@/lib/store/budget.store";
 import { useFoodStore } from "@/lib/store/food.store";
 import { useHabitsStore } from "@/lib/store/habits.store";
 import { useProfileStore } from "@/lib/store/profile.store";
-import { foodCategories, mealTypes, transactionCategories } from "@/lib/utils/constants";
+import { foodCategories, mealTypes, servingUnits, transactionCategories } from "@/lib/utils/constants";
 import { formatKcal, localDateKey, titleCase } from "@/lib/utils/formatting";
 import {
   FoodEntryFormValues,
@@ -294,7 +294,7 @@ export function FoodEntryDialog({
                   <Input type="number" step="0.01" {...form.register("servingSize")} />
                 </Field>
                 <Field label="Unit" error={form.formState.errors.servingUnit?.message}>
-                  <Input {...form.register("servingUnit")} />
+                  <ServingUnitSelect value={form.watch("servingUnit")} onChange={(value) => form.setValue("servingUnit", value, { shouldValidate: true })} />
                 </Field>
               </div>
               <div className="grid gap-3 sm:grid-cols-4">
@@ -407,7 +407,7 @@ export function FoodLibraryDialog({
               <Input type="number" step="0.01" {...form.register("servingSize")} />
             </Field>
             <Field label="Unit" error={form.formState.errors.servingUnit?.message}>
-              <Input {...form.register("servingUnit")} />
+              <ServingUnitSelect value={form.watch("servingUnit")} onChange={(value) => form.setValue("servingUnit", value, { shouldValidate: true })} />
             </Field>
           </div>
           <div className="grid gap-3 sm:grid-cols-4">
@@ -449,6 +449,35 @@ export function FoodLibraryDialog({
         </form>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function ServingUnitSelect({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const [custom, setCustom] = useState(!servingUnits.includes(value as (typeof servingUnits)[number]));
+  return (
+    <div className="grid gap-2 sm:grid-cols-[1fr_8rem]">
+      <select
+        className="h-10 w-full rounded-lg border bg-background px-3 text-sm"
+        value={custom ? "custom" : value}
+        onChange={(event) => {
+          if (event.target.value === "custom") {
+            setCustom(true);
+            onChange("");
+          } else {
+            setCustom(false);
+            onChange(event.target.value);
+          }
+        }}
+      >
+        {servingUnits.map((unit) => (
+          <option key={unit} value={unit}>
+            {unit}
+          </option>
+        ))}
+        <option value="custom">Custom</option>
+      </select>
+      {custom && <Input value={value} onChange={(event) => onChange(event.target.value)} placeholder="Unit" />}
+    </div>
   );
 }
 

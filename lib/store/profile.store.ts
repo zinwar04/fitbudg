@@ -13,9 +13,8 @@ import {
   updateBudgetProfile,
   upsertUserProfile,
 } from "@/lib/db/profile.service";
-import { deleteCloudSnapshot, scheduleCloudPush } from "@/lib/db/cloud-sync.service";
 import { clearAllData, exportJson, importJson, parseImportJson } from "@/lib/db/data.service";
-import { AppExport } from "@/lib/db/database";
+import { AppExport } from "@/lib/db/schema";
 import { loadDemoData } from "@/lib/demo/seed";
 import { defaultBudgetProfile, defaultSettings } from "@/lib/utils/constants";
 
@@ -83,7 +82,6 @@ export const useProfileStore = create<ProfileState>()(
         set((state) => {
           state.profile = saved;
         });
-        scheduleCloudPush();
         toast.success("Profile saved.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -95,7 +93,6 @@ export const useProfileStore = create<ProfileState>()(
         set((state) => {
           state.settings = saved;
         });
-        scheduleCloudPush();
         toast.success("Settings saved.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -107,7 +104,6 @@ export const useProfileStore = create<ProfileState>()(
         set((state) => {
           state.budgetProfile = saved;
         });
-        scheduleCloudPush();
         toast.success("Budget settings saved.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -122,7 +118,6 @@ export const useProfileStore = create<ProfileState>()(
           state.settings = settings;
           state.hydrated = true;
         });
-        scheduleCloudPush();
         toast.success("FitBudget is ready.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -138,7 +133,6 @@ export const useProfileStore = create<ProfileState>()(
           state.budgetProfile = budgetProfile;
           state.hydrated = true;
         });
-        scheduleCloudPush();
         toast.success("Demo data loaded.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -162,7 +156,6 @@ export const useProfileStore = create<ProfileState>()(
           state.settings = settings;
           state.budgetProfile = budgetProfile;
         });
-        scheduleCloudPush();
         toast.success("Data imported.");
       } catch (error) {
         toast.error(messageFromError(error));
@@ -172,11 +165,6 @@ export const useProfileStore = create<ProfileState>()(
     clearAll: async () => {
       try {
         await clearAllData();
-        try {
-          await deleteCloudSnapshot();
-        } catch (error) {
-          toast.error(`Cloud snapshot could not be deleted: ${messageFromError(error)}`);
-        }
         set((state) => {
           state.profile = null;
           state.settings = defaultSettings;

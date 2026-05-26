@@ -1,16 +1,23 @@
+"use client";
+
 import { AppSettings, BudgetProfile, UserProfile } from "@/lib/db/schema";
-import { getDb } from "@/lib/db/database";
+import { getSupabaseClient } from "@/lib/db/supabase.client";
+import { requireUserId, stripUserId, withUserId } from "@/lib/db/supabase.service";
 import { defaultBudgetProfile, defaultSettings } from "@/lib/utils/constants";
 import { createId, nowIso } from "@/lib/utils/formatting";
 
 export async function getUserProfile() {
-  const db = getDb();
-  return (await db.userProfiles.toCollection().first()) ?? null;
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase.from("user_profiles").select("*").order("updatedAt", { ascending: false }).limit(1).maybeSingle();
+
+  if (error) throw error;
+  return data ? stripUserId(data) : null;
 }
 
 export async function upsertUserProfile(profile: Omit<UserProfile, "id" | "createdAt" | "updatedAt"> & Partial<Pick<UserProfile, "id" | "createdAt">>) {
-  const db = getDb();
-  const existing = profile.id ? await db.userProfiles.get(profile.id) : await getUserProfile();
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
+  const existing = profile.id ? await getProfileById(profile.id) : await getUserProfile();
   const timestamp = nowIso();
   const record: UserProfile = {
     ...profile,
@@ -18,42 +25,67 @@ export async function upsertUserProfile(profile: Omit<UserProfile, "id" | "creat
     createdAt: profile.createdAt ?? existing?.createdAt ?? timestamp,
     updatedAt: timestamp,
   };
-  await db.userProfiles.put(record);
-  return record;
+
+  const { data, error } = await supabase.from("user_profiles").upsert(withUserId("user_profiles", userId, record), { onConflict: "user_id,id" }).select("*").single();
+  if (error) throw error;
+  return stripUserId(data);
+}
+
+async function getProfileById(id: string) {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase.from("user_profiles").select("*").eq("id", id).maybeSingle();
+  if (error) throw error;
+  return data ? stripUserId(data) : null;
 }
 
 export async function getAppSettings() {
-  const db = getDb();
-  const settings = await db.appSettings.get("1");
-  if (settings) return settings;
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
+  const { data, error } = await supabase.from("app_settings").select("*").eq("id", "1").maybeSingle();
+
+  if (error) throw error;
+  if (data) return stripUserId(data);
+
   const record: AppSettings = { ...defaultSettings, updatedAt: nowIso() };
-  await db.appSettings.put(record);
-  return record;
+  const { data: inserted, error: insertError } = await supabase.from("app_settings").upsert(withUserId("app_settings", userId, record), { onConflict: "user_id,id" }).select("*").single();
+  if (insertError) throw insertError;
+  return stripUserId(inserted);
 }
 
 export async function updateAppSettings(input: Partial<Omit<AppSettings, "id" | "updatedAt">>) {
-  const db = getDb();
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
   const settings = await getAppSettings();
   const updated: AppSettings = { ...settings, ...input, id: "1", updatedAt: nowIso() };
-  await db.appSettings.put(updated);
-  return updated;
+  const { data, error } = await supabase.from("app_settings").upsert(withUserId("app_settings", userId, updated), { onConflict: "user_id,id" }).select("*").single();
+
+  if (error) throw error;
+  return stripUserId(data);
 }
 
 export async function getBudgetProfile() {
-  const db = getDb();
-  const profile = await db.budgetProfiles.get("1");
-  if (profile) return profile;
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
+  const { data, error } = await supabase.from("budget_profiles").select("*").eq("id", "1").maybeSingle();
+
+  if (error) throw error;
+  if (data) return stripUserId(data);
+
   const record: BudgetProfile = { ...defaultBudgetProfile, updatedAt: nowIso() };
-  await db.budgetProfiles.put(record);
-  return record;
+  const { data: inserted, error: insertError } = await supabase.from("budget_profiles").upsert(withUserId("budget_profiles", userId, record), { onConflict: "user_id,id" }).select("*").single();
+  if (insertError) throw insertError;
+  return stripUserId(inserted);
 }
 
 export async function updateBudgetProfile(input: Partial<Omit<BudgetProfile, "id" | "updatedAt">>) {
-  const db = getDb();
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
   const profile = await getBudgetProfile();
   const updated: BudgetProfile = { ...profile, ...input, id: "1", updatedAt: nowIso() };
-  await db.budgetProfiles.put(updated);
-  return updated;
+  const { data, error } = await supabase.from("budget_profiles").upsert(withUserId("budget_profiles", userId, updated), { onConflict: "user_id,id" }).select("*").single();
+
+  if (error) throw error;
+  return stripUserId(data);
 }
 
 export async function completeOnboarding(profile: Omit<UserProfile, "id" | "createdAt" | "updatedAt" | "onboardingComplete">, budget: BudgetProfile, settings: AppSettings) {
@@ -77,4 +109,3 @@ export async function completeOnboarding(profile: Omit<UserProfile, "id" | "crea
   });
   return record;
 }
-

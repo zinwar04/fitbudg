@@ -58,7 +58,7 @@ export function InsightsPage() {
     <>
       <PageHeader
         title="Insights"
-        description="Generated from your local food, budget, habit, and weight data."
+        description="Generated from your food, budget, habit, and weight data."
         action={
           <Button variant="outline" onClick={() => setGeneratedAt(new Date())}>
             <RefreshCw className="h-4 w-4" /> Refresh Insights
@@ -116,4 +116,3 @@ export function InsightsPage() {
     </>
   );
 }
-

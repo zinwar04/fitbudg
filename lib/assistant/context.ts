@@ -75,7 +75,7 @@ export function buildAssistantContext(data: AllUserData): AssistantContext {
 }
 
 export function buildSystemPrompt(context: AssistantContext) {
-  return `You are FitBudget's lifestyle assistant. You are concise, practical, and grounded only in the user's provided local data. Do not provide medical, nutritional, or financial advice as a professional. Explain tradeoffs and suggest small next actions.
+  return `You are FitBudget's lifestyle assistant. You are concise, practical, and grounded only in the user's provided FitBudget data. Do not provide medical, nutritional, or financial advice as a professional. Explain tradeoffs and suggest small next actions.
 
 User context:
 ${JSON.stringify(context, null, 2)}`;
@@ -99,6 +99,5 @@ export function mockAssistantResponse(messages: Pick<ChatMessage, "role" | "cont
       : "You do not have enough habit data yet. Start with one easy daily habit and I can summarize patterns after a few days.";
   }
 
-  return `I am running in offline mock mode. Preview: your average daily calories are ${context.last7Days.averageCalories} kcal and you have spent ${context.budgetStatus.spent.toLocaleString("en-US")} ${context.budgetStatus.currency} this month. Add an OPENAI_API_KEY or ANTHROPIC_API_KEY on the server for deeper coaching.`;
+  return `I am running in mock mode. Preview: your average daily calories are ${context.last7Days.averageCalories} kcal and you have spent ${context.budgetStatus.spent.toLocaleString("en-US")} ${context.budgetStatus.currency} this month. Add GEMINI_API_KEY on the server for deeper coaching.`;
 }
-

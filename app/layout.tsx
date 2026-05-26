@@ -18,7 +18,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "FitBudget",
-  description: "Offline-first health and finance tracking.",
+  description: "Personal health and finance tracking powered by Supabase.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -49,4 +49,3 @@ export default function RootLayout({
     </html>
   );
 }
-

@@ -239,6 +239,38 @@ export interface AssistantSession {
   updatedAt: string;
 }
 
+export interface AppExport {
+  userProfiles: UserProfile[];
+  dailyCalorieLogs: DailyCalorieLog[];
+  foodEntries: FoodEntry[];
+  foodLibraryItems: FoodLibraryItem[];
+  mealTemplates: MealTemplate[];
+  weightEntries: WeightEntry[];
+  budgetProfiles: BudgetProfile[];
+  transactions: Transaction[];
+  habits: Habit[];
+  habitEntries: HabitEntry[];
+  appSettings: AppSettings[];
+  assistantSessions: AssistantSession[];
+}
+
+export function emptyExport(): AppExport {
+  return {
+    userProfiles: [],
+    dailyCalorieLogs: [],
+    foodEntries: [],
+    foodLibraryItems: [],
+    mealTemplates: [],
+    weightEntries: [],
+    budgetProfiles: [],
+    transactions: [],
+    habits: [],
+    habitEntries: [],
+    appSettings: [],
+    assistantSessions: [],
+  };
+}
+
 export interface AllUserData {
   profile: UserProfile | null;
   settings: AppSettings;
@@ -252,4 +284,3 @@ export interface AllUserData {
   habits: Habit[];
   habitEntries: HabitEntry[];
 }
-

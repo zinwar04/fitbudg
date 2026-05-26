@@ -1,3 +1,5 @@
+"use client";
+
 import {
   DailyCalorieLog,
   FoodEntry,
@@ -7,7 +9,8 @@ import {
   MealType,
   WeightEntry,
 } from "@/lib/db/schema";
-import { getDb } from "@/lib/db/database";
+import { getSupabaseClient } from "@/lib/db/supabase.client";
+import { requireUserId, stripUserId, stripUserIdArray, withUserId } from "@/lib/db/supabase.service";
 import { createId, nowIso } from "@/lib/utils/formatting";
 
 export interface FoodData {
@@ -24,21 +27,38 @@ export type MealTemplateInput = Omit<MealTemplate, "id" | "createdAt" | "updated
 export type WeightInput = Omit<WeightEntry, "id" | "createdAt">;
 
 export async function getFoodData(): Promise<FoodData> {
-  const db = getDb();
+  const supabase = getSupabaseClient();
   const [logs, entries, library, mealTemplates, weights] = await Promise.all([
-    db.dailyCalorieLogs.orderBy("date").toArray(),
-    db.foodEntries.orderBy("date").toArray(),
-    db.foodLibraryItems.orderBy("name").toArray(),
-    db.mealTemplates.orderBy("name").toArray(),
-    db.weightEntries.orderBy("date").toArray(),
+    supabase.from("daily_calorie_logs").select("*").order("date", { ascending: true }),
+    supabase.from("food_entries").select("*").order("date", { ascending: true }),
+    supabase.from("food_library_items").select("*").order("name", { ascending: true }),
+    supabase.from("meal_templates").select("*").order("name", { ascending: true }),
+    supabase.from("weight_entries").select("*").order("date", { ascending: true }),
   ]);
-  return { logs, entries, library, mealTemplates, weights };
+
+  if (logs.error) throw logs.error;
+  if (entries.error) throw entries.error;
+  if (library.error) throw library.error;
+  if (mealTemplates.error) throw mealTemplates.error;
+  if (weights.error) throw weights.error;
+
+  return {
+    logs: stripUserIdArray(logs.data ?? []),
+    entries: stripUserIdArray(entries.data ?? []),
+    library: stripUserIdArray(library.data ?? []),
+    mealTemplates: stripUserIdArray(mealTemplates.data ?? []),
+    weights: stripUserIdArray(weights.data ?? []),
+  };
 }
 
 export async function getOrCreateDailyLog(date: string) {
-  const db = getDb();
-  const existing = await db.dailyCalorieLogs.where("date").equals(date).first();
-  if (existing) return existing;
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
+  const { data: existing, error } = await supabase.from("daily_calorie_logs").select("*").eq("date", date).maybeSingle();
+
+  if (error) throw error;
+  if (existing) return stripUserId(existing);
+
   const timestamp = nowIso();
   const record: DailyCalorieLog = {
     id: createId(),
@@ -46,12 +66,19 @@ export async function getOrCreateDailyLog(date: string) {
     createdAt: timestamp,
     updatedAt: timestamp,
   };
-  await db.dailyCalorieLogs.put(record);
-  return record;
+  const { data, error: insertError } = await supabase
+    .from("daily_calorie_logs")
+    .upsert(withUserId("daily_calorie_logs", userId, record), { onConflict: "user_id,date" })
+    .select("*")
+    .single();
+
+  if (insertError) throw insertError;
+  return stripUserId(data);
 }
 
 export async function addFoodEntry(input: FoodEntryInput) {
-  const db = getDb();
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
   const log = await getOrCreateDailyLog(input.date);
   const timestamp = nowIso();
   const entry: FoodEntry = {
@@ -61,52 +88,65 @@ export async function addFoodEntry(input: FoodEntryInput) {
     createdAt: timestamp,
     updatedAt: timestamp,
   };
-  await db.foodEntries.put(entry);
+
+  const { data, error } = await supabase.from("food_entries").insert(withUserId("food_entries", userId, entry)).select("*").single();
+  if (error) throw error;
   if (entry.foodLibraryId) await markFoodUsed(entry.foodLibraryId);
-  return entry;
+  return stripUserId(data);
 }
 
 export async function updateFoodEntry(id: string, input: Partial<FoodEntryInput>) {
-  const db = getDb();
-  const existing = await db.foodEntries.get(id);
+  const supabase = getSupabaseClient();
+  const { data: existing, error: getError } = await supabase.from("food_entries").select("*").eq("id", id).maybeSingle();
+  if (getError) throw getError;
   if (!existing) throw new Error("Food entry not found.");
-  const log = input.date && input.date !== existing.date ? await getOrCreateDailyLog(input.date) : undefined;
+
+  const current = stripUserId(existing);
+  const log = input.date && input.date !== current.date ? await getOrCreateDailyLog(input.date) : undefined;
   const updated: FoodEntry = {
-    ...existing,
+    ...current,
     ...input,
-    logId: log?.id ?? existing.logId,
+    logId: log?.id ?? current.logId,
     updatedAt: nowIso(),
   };
-  await db.foodEntries.put(updated);
-  return updated;
+
+  const { data, error } = await supabase.from("food_entries").update(updated).eq("id", id).select("*").single();
+  if (error) throw error;
+  return stripUserId(data);
 }
 
 export async function deleteFoodEntry(id: string) {
-  const db = getDb();
-  const existing = await db.foodEntries.get(id);
-  await db.foodEntries.delete(id);
-  return existing ?? null;
+  const supabase = getSupabaseClient();
+  const { data: existing, error: getError } = await supabase.from("food_entries").select("*").eq("id", id).maybeSingle();
+  if (getError) throw getError;
+
+  const { error } = await supabase.from("food_entries").delete().eq("id", id);
+  if (error) throw error;
+
+  return existing ? stripUserId(existing) : null;
 }
 
 export async function duplicateFoodEntry(id: string, date?: string) {
-  const db = getDb();
-  const existing = await db.foodEntries.get(id);
+  const supabase = getSupabaseClient();
+  const { data: existing, error } = await supabase.from("food_entries").select("*").eq("id", id).maybeSingle();
+  if (error) throw error;
   if (!existing) throw new Error("Food entry not found.");
+  const current = stripUserId(existing);
   return addFoodEntry({
-    date: date ?? existing.date,
-    foodLibraryId: existing.foodLibraryId,
-    mealTemplateId: existing.mealTemplateId,
-    name: existing.name,
-    calories: existing.calories,
-    servingSize: existing.servingSize,
-    servingUnit: existing.servingUnit,
-    quantity: existing.quantity,
-    protein: existing.protein,
-    carbs: existing.carbs,
-    fat: existing.fat,
-    fiber: existing.fiber,
-    mealType: existing.mealType,
-    notes: existing.notes,
+    date: date ?? current.date,
+    foodLibraryId: current.foodLibraryId,
+    mealTemplateId: current.mealTemplateId,
+    name: current.name,
+    calories: current.calories,
+    servingSize: current.servingSize,
+    servingUnit: current.servingUnit,
+    quantity: current.quantity,
+    protein: current.protein,
+    carbs: current.carbs,
+    fat: current.fat,
+    fiber: current.fiber,
+    mealType: current.mealType,
+    notes: current.notes,
   });
 }
 
@@ -115,7 +155,8 @@ export async function moveFoodEntry(id: string, mealType: MealType) {
 }
 
 export async function addFoodLibraryItem(input: FoodLibraryInput) {
-  const db = getDb();
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
   const timestamp = nowIso();
   const item: FoodLibraryItem = {
     ...input,
@@ -124,45 +165,78 @@ export async function addFoodLibraryItem(input: FoodLibraryInput) {
     createdAt: timestamp,
     updatedAt: timestamp,
   };
-  await db.foodLibraryItems.put(item);
-  return item;
+  const { data, error } = await supabase.from("food_library_items").insert(withUserId("food_library_items", userId, item)).select("*").single();
+  if (error) throw error;
+  return stripUserId(data);
+}
+
+export async function addFoodLibraryItems(inputs: FoodLibraryInput[]) {
+  if (inputs.length === 0) return [];
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
+  const timestamp = nowIso();
+  const rows = inputs.map((input) =>
+    withUserId("food_library_items", userId, {
+      ...input,
+      id: createId(),
+      useCount: 0,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    }),
+  );
+  const { data, error } = await supabase.from("food_library_items").insert(rows).select("*");
+  if (error) throw error;
+  return stripUserIdArray(data ?? []);
 }
 
 export async function updateFoodLibraryItem(id: string, input: Partial<FoodLibraryInput>) {
-  const db = getDb();
-  const existing = await db.foodLibraryItems.get(id);
+  const supabase = getSupabaseClient();
+  const { data: existing, error: getError } = await supabase.from("food_library_items").select("*").eq("id", id).maybeSingle();
+  if (getError) throw getError;
   if (!existing) throw new Error("Food item not found.");
-  const updated: FoodLibraryItem = { ...existing, ...input, updatedAt: nowIso() };
-  await db.foodLibraryItems.put(updated);
-  return updated;
+
+  const updated: FoodLibraryItem = { ...stripUserId(existing), ...input, updatedAt: nowIso() };
+  const { data, error } = await supabase.from("food_library_items").update(updated).eq("id", id).select("*").single();
+  if (error) throw error;
+  return stripUserId(data);
 }
 
 export async function deleteFoodLibraryItem(id: string) {
-  const db = getDb();
-  await db.foodLibraryItems.delete(id);
+  const supabase = getSupabaseClient();
+  const { error } = await supabase.from("food_library_items").delete().eq("id", id);
+  if (error) throw error;
 }
 
 export async function markFoodUsed(id: string) {
-  const db = getDb();
-  const item = await db.foodLibraryItems.get(id);
+  const supabase = getSupabaseClient();
+  const { data: item, error: getError } = await supabase.from("food_library_items").select("*").eq("id", id).maybeSingle();
+  if (getError) throw getError;
   if (!item) return null;
+
+  const current = stripUserId(item);
+  const timestamp = nowIso();
   const updated: FoodLibraryItem = {
-    ...item,
-    useCount: item.useCount + 1,
-    lastUsedAt: nowIso(),
-    updatedAt: nowIso(),
+    ...current,
+    useCount: current.useCount + 1,
+    lastUsedAt: timestamp,
+    updatedAt: timestamp,
   };
-  await db.foodLibraryItems.put(updated);
-  return updated;
+  const { data, error } = await supabase.from("food_library_items").update(updated).eq("id", id).select("*").single();
+  if (error) throw error;
+  return stripUserId(data);
 }
 
 export async function toggleFoodFavorite(id: string) {
-  const db = getDb();
-  const item = await db.foodLibraryItems.get(id);
+  const supabase = getSupabaseClient();
+  const { data: item, error: getError } = await supabase.from("food_library_items").select("*").eq("id", id).maybeSingle();
+  if (getError) throw getError;
   if (!item) throw new Error("Food item not found.");
-  const updated: FoodLibraryItem = { ...item, isFavorite: !item.isFavorite, updatedAt: nowIso() };
-  await db.foodLibraryItems.put(updated);
-  return updated;
+
+  const current = stripUserId(item);
+  const updated: FoodLibraryItem = { ...current, isFavorite: !current.isFavorite, updatedAt: nowIso() };
+  const { data, error } = await supabase.from("food_library_items").update(updated).eq("id", id).select("*").single();
+  if (error) throw error;
+  return stripUserId(data);
 }
 
 function calculateTemplateTotals(items: MealTemplateItem[]) {
@@ -175,7 +249,8 @@ function calculateTemplateTotals(items: MealTemplateItem[]) {
 }
 
 export async function addMealTemplate(input: MealTemplateInput) {
-  const db = getDb();
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
   const timestamp = nowIso();
   const totals = calculateTemplateTotals(input.items);
   const template: MealTemplate = {
@@ -186,38 +261,68 @@ export async function addMealTemplate(input: MealTemplateInput) {
     createdAt: timestamp,
     updatedAt: timestamp,
   };
-  await db.mealTemplates.put(template);
-  return template;
+  const { data, error } = await supabase.from("meal_templates").insert(withUserId("meal_templates", userId, template)).select("*").single();
+  if (error) throw error;
+  return stripUserId(data);
+}
+
+export async function addMealTemplates(inputs: MealTemplateInput[]) {
+  if (inputs.length === 0) return [];
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
+  const timestamp = nowIso();
+  const rows = inputs.map((input) => {
+    const totals = calculateTemplateTotals(input.items);
+    return withUserId("meal_templates", userId, {
+      ...input,
+      ...totals,
+      id: createId(),
+      useCount: 0,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    });
+  });
+  const { data, error } = await supabase.from("meal_templates").insert(rows).select("*");
+  if (error) throw error;
+  return stripUserIdArray(data ?? []);
 }
 
 export async function updateMealTemplate(id: string, input: Partial<MealTemplateInput>) {
-  const db = getDb();
-  const existing = await db.mealTemplates.get(id);
+  const supabase = getSupabaseClient();
+  const { data: existing, error: getError } = await supabase.from("meal_templates").select("*").eq("id", id).maybeSingle();
+  if (getError) throw getError;
   if (!existing) throw new Error("Meal template not found.");
-  const items = input.items ?? existing.items;
+
+  const current = stripUserId(existing);
+  const items = input.items ?? current.items;
   const totals = calculateTemplateTotals(items);
   const updated: MealTemplate = {
-    ...existing,
+    ...current,
     ...input,
     items,
     ...totals,
     updatedAt: nowIso(),
   };
-  await db.mealTemplates.put(updated);
-  return updated;
+  const { data, error } = await supabase.from("meal_templates").update(updated).eq("id", id).select("*").single();
+  if (error) throw error;
+  return stripUserId(data);
 }
 
 export async function deleteMealTemplate(id: string) {
-  const db = getDb();
-  await db.mealTemplates.delete(id);
+  const supabase = getSupabaseClient();
+  const { error } = await supabase.from("meal_templates").delete().eq("id", id);
+  if (error) throw error;
 }
 
 export async function addMealTemplateToLog(templateId: string, date: string, mealType: MealType) {
-  const db = getDb();
-  const template = await db.mealTemplates.get(templateId);
-  if (!template) throw new Error("Meal template not found.");
+  const supabase = getSupabaseClient();
+  const { data: templateRow, error } = await supabase.from("meal_templates").select("*").eq("id", templateId).maybeSingle();
+  if (error) throw error;
+  if (!templateRow) throw new Error("Meal template not found.");
+
+  const template = stripUserId<MealTemplate>(templateRow);
   const entries = await Promise.all(
-    template.items.map((item) =>
+    template.items.map((item: MealTemplateItem) =>
       addFoodEntry({
         date,
         foodLibraryId: item.foodLibraryId,
@@ -234,37 +339,45 @@ export async function addMealTemplateToLog(templateId: string, date: string, mea
       }),
     ),
   );
-  await db.mealTemplates.put({
+
+  const updated: MealTemplate = {
     ...template,
     useCount: template.useCount + 1,
     lastUsedAt: nowIso(),
     updatedAt: nowIso(),
-  });
+  };
+  const { error: updateError } = await supabase.from("meal_templates").update(updated).eq("id", template.id);
+  if (updateError) throw updateError;
   return entries;
 }
 
 export async function addWeightEntry(input: WeightInput) {
-  const db = getDb();
+  const supabase = getSupabaseClient();
+  const userId = await requireUserId();
   const entry: WeightEntry = {
     ...input,
     id: createId(),
     createdAt: nowIso(),
   };
-  await db.weightEntries.put(entry);
-  return entry;
+  const { data, error } = await supabase.from("weight_entries").insert(withUserId("weight_entries", userId, entry)).select("*").single();
+  if (error) throw error;
+  return stripUserId(data);
 }
 
 export async function updateWeightEntry(id: string, input: Partial<WeightInput>) {
-  const db = getDb();
-  const existing = await db.weightEntries.get(id);
+  const supabase = getSupabaseClient();
+  const { data: existing, error: getError } = await supabase.from("weight_entries").select("*").eq("id", id).maybeSingle();
+  if (getError) throw getError;
   if (!existing) throw new Error("Weight entry not found.");
-  const updated: WeightEntry = { ...existing, ...input };
-  await db.weightEntries.put(updated);
-  return updated;
+
+  const updated: WeightEntry = { ...stripUserId(existing), ...input };
+  const { data, error } = await supabase.from("weight_entries").update(updated).eq("id", id).select("*").single();
+  if (error) throw error;
+  return stripUserId(data);
 }
 
 export async function deleteWeightEntry(id: string) {
-  const db = getDb();
-  await db.weightEntries.delete(id);
+  const supabase = getSupabaseClient();
+  const { error } = await supabase.from("weight_entries").delete().eq("id", id);
+  if (error) throw error;
 }
-

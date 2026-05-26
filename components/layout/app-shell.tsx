@@ -161,7 +161,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               {!sidebarCollapsed && (
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{profile?.name ?? user?.email ?? "FitBudget user"}</p>
-                  <p className="truncate text-xs text-muted-foreground">{online ? "Supabase sync on" : "Offline Mode"}</p>
+                  <p className="truncate text-xs text-muted-foreground">{online ? "Supabase sync on" : "Connection offline"}</p>
                 </div>
               )}
             </div>
@@ -186,7 +186,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               FitBudget
             </Link>
             <div className="flex items-center gap-2">
-              {!online && <span className="rounded-full bg-amber-500/15 px-2 py-1 text-xs text-amber-600 dark:text-amber-300">Offline Mode</span>}
+              {!online && <span className="rounded-full bg-amber-500/15 px-2 py-1 text-xs text-amber-600 dark:text-amber-300">Offline</span>}
               <Button size="icon" variant="ghost" onClick={handleSignOut} aria-label="Log out">
                 <LogOut className="h-4 w-4" />
               </Button>
@@ -197,7 +197,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </header>
           {!online && (
             <div className="hidden border-b bg-amber-500/10 px-6 py-2 text-xs text-amber-700 dark:text-amber-300 lg:block">
-              Offline Mode is active. All logging still works and stays on this device.
+              Connection is offline. Supabase actions will need the network to save.
             </div>
           )}
           <AnimatePresence mode="wait">

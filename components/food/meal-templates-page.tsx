@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { ArrowDown, ArrowUp, Edit, Plus, Search, Trash2, UtensilsCrossed } from "lucide-react";
+import { ChangeEvent, useMemo, useRef, useState } from "react";
+import { ArrowDown, ArrowUp, Download, Edit, FileUp, Plus, Search, Trash2, UtensilsCrossed } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ import { MealTemplate, MealTemplateItem, MealType } from "@/lib/db/schema";
 import { useFoodStore } from "@/lib/store/food.store";
 import { formatKcal, localDateKey, titleCase } from "@/lib/utils/formatting";
 import { mealTypes } from "@/lib/utils/constants";
+import { downloadTextFile, mealTemplatesToCsv, parseMealTemplateRows, readSpreadsheetRows } from "@/lib/utils/import-export";
 
 type SortOption = "used" | "recent" | "name";
 
@@ -22,6 +24,7 @@ export function MealTemplatesPage() {
   const library = useFoodStore((state) => state.library);
   const addTemplate = useFoodStore((state) => state.addTemplate);
   const updateTemplate = useFoodStore((state) => state.updateTemplate);
+  const importTemplates = useFoodStore((state) => state.importTemplates);
   const deleteTemplate = useFoodStore((state) => state.deleteTemplate);
   const addTemplateToLog = useFoodStore((state) => state.addTemplateToLog);
   const [query, setQuery] = useState("");
@@ -30,6 +33,7 @@ export function MealTemplatesPage() {
   const [editing, setEditing] = useState<MealTemplate | null>(null);
   const [useTemplate, setUseTemplate] = useState<MealTemplate | null>(null);
   const [mealType, setMealType] = useState<MealType>("lunch");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -47,15 +51,45 @@ export function MealTemplatesPage() {
     setDialogOpen(true);
   };
 
+  const exportTemplates = () => {
+    downloadTextFile("fitbudget-meal-templates.csv", mealTemplatesToCsv(templates));
+  };
+
+  const importTemplateFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    try {
+      const rows = await readSpreadsheetRows(file);
+      const imported = parseMealTemplateRows(rows);
+      if (imported.length === 0) {
+        toast.error("No valid templates found. Include template and ingredient columns.");
+        return;
+      }
+      await importTemplates(imported);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Meal template import failed.");
+    }
+  };
+
   return (
     <>
       <PageHeader
         title="Meal Templates"
         description="Build reusable meals and add all ingredients to your diary in one action."
         action={
-          <Button onClick={openCreate}>
-            <Plus className="h-4 w-4" /> Create Template
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <input ref={fileInputRef} className="hidden" type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={importTemplateFile} />
+            <Button variant="outline" onClick={exportTemplates}>
+              <Download className="h-4 w-4" /> Export
+            </Button>
+            <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+              <FileUp className="h-4 w-4" /> Import
+            </Button>
+            <Button onClick={openCreate}>
+              <Plus className="h-4 w-4" /> Create Template
+            </Button>
+          </div>
         }
       />
       <Card className="mb-4">
@@ -299,4 +333,3 @@ function TemplateDialog({
     </Dialog>
   );
 }
-

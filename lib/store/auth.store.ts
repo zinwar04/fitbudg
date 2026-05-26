@@ -4,7 +4,6 @@ import { Session, User } from "@supabase/supabase-js";
 import { toast } from "sonner";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { clearDatabase } from "@/lib/db/database";
 import { getCurrentAuthState, onAuthStateChange, signInWithEmail, signOutCurrentUser, signUpWithEmail } from "@/lib/db/auth.service";
 import { isSupabaseConfigured } from "@/lib/db/supabase.client";
 
@@ -142,7 +141,6 @@ export const useAuthStore = create<AuthState>()(
 
       try {
         await signOutCurrentUser();
-        await clearDatabase();
         set((state) => {
           state.session = null;
           state.user = null;

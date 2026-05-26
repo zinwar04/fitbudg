@@ -1,6 +1,7 @@
 import { format, subDays } from "date-fns";
-import { AppExport, mergeDatabase, replaceDatabase } from "@/lib/db/database";
+import { importJson } from "@/lib/db/data.service";
 import {
+  AppExport,
   AppSettings,
   BudgetProfile,
   DailyCalorieLog,
@@ -312,8 +313,6 @@ export function buildDemoData(): AppExport {
 
 export async function loadDemoData(mode: "merge" | "replace" = "replace") {
   const data = buildDemoData();
-  if (mode === "replace") await replaceDatabase(data);
-  else await mergeDatabase(data);
+  await importJson(data, mode);
   return data;
 }
-

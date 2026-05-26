@@ -27,22 +27,37 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing messages or context." }, { status: 400 });
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
+    const model = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
 
     if (!apiKey) {
       return NextResponse.json({ content: mockAssistantResponse(messages, context) });
     }
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    const prompt = [
+      buildSystemPrompt(context),
+      "",
+      "Conversation:",
+      ...messages.map((message) => `${message.role === "user" ? "User" : "Assistant"}: ${message.content}`),
+    ].join("\n");
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        "x-goog-api-key": apiKey,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [{ role: "system", content: buildSystemPrompt(context) }, ...messages],
-        max_tokens: 500,
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: prompt }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.45,
+          maxOutputTokens: 800,
+        },
       }),
     });
 
@@ -51,12 +66,11 @@ export async function POST(req: Request) {
     }
 
     const payload = (await response.json()) as {
-      choices?: { message?: { content?: string } }[];
+      candidates?: { content?: { parts?: { text?: string }[] } }[];
     };
-    const content = payload.choices?.[0]?.message?.content ?? mockAssistantResponse(messages, context);
+    const content = payload.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("").trim() || mockAssistantResponse(messages, context);
     return NextResponse.json({ content });
   } catch {
     return NextResponse.json({ error: "Assistant request failed." }, { status: 500 });
   }
 }
-

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle2, CircleDollarSign, Dumbbell, Flame, Scale, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, CircleDollarSign, Dumbbell, Flame, LogOut, Scale, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { calculateNutritionTargets, cmToIn, inToCm, kgToLb, lbToKg } from "@/lib/calculations/nutrition";
+import { useAuthStore } from "@/lib/store/auth.store";
 import { useProfileStore } from "@/lib/store/profile.store";
 import { ActivityLevel, AppSettings, BudgetProfile, FitnessGoal, Sex, UnitSystem, UserProfile } from "@/lib/db/schema";
 import { activityLabels, accentOptions, defaultBudgetProfile, defaultSettings, financialDisclaimer, fitnessGoalLabels, healthDisclaimer } from "@/lib/utils/constants";
@@ -27,6 +28,7 @@ const goalIcons: Record<FitnessGoal, typeof Flame> = {
 
 export function OnboardingWizard() {
   const router = useRouter();
+  const signOut = useAuthStore((state) => state.signOut);
   const finishOnboarding = useProfileStore((state) => state.finishOnboarding);
   const loadDemo = useProfileStore((state) => state.loadDemo);
   const [step, setStep] = useState(0);
@@ -82,6 +84,11 @@ export function OnboardingWizard() {
   const next = () => setStep((current) => Math.min(totalSteps - 1, current + 1));
   const back = () => setStep((current) => Math.max(0, current - 1));
 
+  const handleSignOut = async () => {
+    await signOut();
+    router.replace("/login");
+  };
+
   const completeSetup = async () => {
     if (loadDemoChecked) {
       await loadDemo("replace");
@@ -129,7 +136,13 @@ export function OnboardingWizard() {
               <p className="text-xs text-muted-foreground">Setup takes about two minutes</p>
             </div>
           </div>
-          {step > 0 && <Badge variant="secondary">Step {step + 1} of {totalSteps}</Badge>}
+          <div className="flex items-center gap-2">
+            {step > 0 && <Badge variant="secondary">Step {step + 1} of {totalSteps}</Badge>}
+            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4" />
+              Sign out
+            </Button>
+          </div>
         </div>
         <Progress value={((step + 1) / totalSteps) * 100} className="mb-6" />
 
@@ -138,7 +151,7 @@ export function OnboardingWizard() {
             {step === 0 && (
               <StepShell
                 title="Build a daily rhythm for your body and money."
-                description="FitBudget helps you track meals, weight, habits, and spending in one offline-first workspace."
+                description="FitBudget helps you track meals, weight, habits, and spending in one private account."
                 icon={Sparkles}
               >
                 <div className="grid gap-3 sm:grid-cols-3">
