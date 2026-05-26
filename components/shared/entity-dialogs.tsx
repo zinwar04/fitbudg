@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Minus, Plus, Search, Star } from "lucide-react";
+import { AlertCircle, Loader2, Minus, PackageSearch, Plus, ScanBarcode, Search, Star, UtensilsCrossed } from "lucide-react";
 import { Resolver, SubmitHandler, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -12,13 +13,15 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { FoodEntry, FoodLibraryItem, Habit, MealType, Transaction, WeightEntry } from "@/lib/db/schema";
+import { searchExternalFoods } from "@/lib/db/external-food.service";
+import { FoodEntry, FoodLibraryItem, Habit, MealTemplate, MealType, Transaction, WeightEntry } from "@/lib/db/schema";
+import { NormalizedExternalFood, dataQualityLabel, externalSourceLabel } from "@/lib/food/external";
 import { useBudgetStore } from "@/lib/store/budget.store";
 import { useFoodStore } from "@/lib/store/food.store";
 import { useHabitsStore } from "@/lib/store/habits.store";
 import { useProfileStore } from "@/lib/store/profile.store";
 import { foodCategories, mealTypes, servingUnits, transactionCategories } from "@/lib/utils/constants";
-import { formatKcal, localDateKey, titleCase } from "@/lib/utils/formatting";
+import { formatKcal, formatNumber, localDateKey, titleCase } from "@/lib/utils/formatting";
 import {
   FoodEntryFormValues,
   FoodLibraryFormValues,
@@ -85,13 +88,27 @@ export function FoodEntryDialog({
   entry?: FoodEntry | null;
 }) {
   const library = useFoodStore((state) => state.library);
+  const mealTemplates = useFoodStore((state) => state.mealTemplates);
   const addEntry = useFoodStore((state) => state.addEntry);
   const updateEntry = useFoodStore((state) => state.updateEntry);
   const addFood = useFoodStore((state) => state.addFood);
+  const addTemplateToLog = useFoodStore((state) => state.addTemplateToLog);
+  const importExternalFood = useFoodStore((state) => state.importExternalFood);
   const [query, setQuery] = useState("");
+  const [mealQuery, setMealQuery] = useState("");
   const [selectedFood, setSelectedFood] = useState<FoodLibraryItem | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<MealTemplate | null>(null);
+  const [selectedExternalFood, setSelectedExternalFood] = useState<NormalizedExternalFood | null>(null);
   const [libraryQuantity, setLibraryQuantity] = useState(1);
+  const [externalQuantity, setExternalQuantity] = useState(1);
   const [libraryMealType, setLibraryMealType] = useState<MealType>(mealType);
+  const [templateMealType, setTemplateMealType] = useState<MealType>(mealType);
+  const [externalMealType, setExternalMealType] = useState<MealType>(mealType);
+  const [externalResults, setExternalResults] = useState<NormalizedExternalFood[]>([]);
+  const [externalWarnings, setExternalWarnings] = useState<string[]>([]);
+  const [externalLoading, setExternalLoading] = useState(false);
+  const [externalQuery, setExternalQuery] = useState("");
+  const [barcodeOpen, setBarcodeOpen] = useState(false);
 
   const form = useForm<FoodEntryFormValues>({
     resolver: zodResolver(foodEntrySchema) as unknown as Resolver<FoodEntryFormValues>,
@@ -123,11 +140,71 @@ export function FoodEntryDialog({
     });
   }, [library, query]);
 
+  const filteredTemplates = useMemo(() => {
+    const normalized = mealQuery.trim().toLowerCase();
+    const items = normalized
+      ? mealTemplates.filter((template) => `${template.name} ${template.description ?? ""}`.toLowerCase().includes(normalized))
+      : mealTemplates;
+    return [...items].sort((a, b) => {
+      if (a.isFavorite !== b.isFavorite) return a.isFavorite ? -1 : 1;
+      return b.useCount - a.useCount;
+    });
+  }, [mealQuery, mealTemplates]);
+
   const libraryCalories = selectedFood ? Math.round(selectedFood.caloriesPerServing * libraryQuantity) : 0;
   const libraryProtein = selectedFood?.protein ? Math.round(selectedFood.protein * libraryQuantity) : undefined;
   const libraryCarbs = selectedFood?.carbs ? Math.round(selectedFood.carbs * libraryQuantity) : undefined;
   const libraryFat = selectedFood?.fat ? Math.round(selectedFood.fat * libraryQuantity) : undefined;
   const libraryFiber = selectedFood?.fiber ? Math.round(selectedFood.fiber * libraryQuantity) : undefined;
+  const externalCalories = selectedExternalFood?.caloriesPerServing ? Math.round(selectedExternalFood.caloriesPerServing * externalQuantity) : 0;
+  const externalProtein = selectedExternalFood?.protein !== null && selectedExternalFood?.protein !== undefined ? Math.round(selectedExternalFood.protein * externalQuantity) : undefined;
+  const externalCarbs = selectedExternalFood?.carbs !== null && selectedExternalFood?.carbs !== undefined ? Math.round(selectedExternalFood.carbs * externalQuantity) : undefined;
+  const externalFat = selectedExternalFood?.fat !== null && selectedExternalFood?.fat !== undefined ? Math.round(selectedExternalFood.fat * externalQuantity) : undefined;
+  const externalFiber = selectedExternalFood?.fiber !== null && selectedExternalFood?.fiber !== undefined ? Math.round(selectedExternalFood.fiber * externalQuantity) : undefined;
+
+  useEffect(() => {
+    if (!open) return;
+    setLibraryMealType(mealType);
+    setTemplateMealType(mealType);
+    setExternalMealType(mealType);
+  }, [mealType, open]);
+
+  useEffect(() => {
+    if (!open || entry) return;
+    const trimmed = query.trim();
+    if (trimmed.length < 2) {
+      setExternalResults([]);
+      setExternalWarnings([]);
+      setExternalQuery("");
+      setExternalLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    const timeout = window.setTimeout(async () => {
+      setExternalLoading(true);
+      setExternalWarnings([]);
+      try {
+        const response = await searchExternalFoods("all", trimmed);
+        if (cancelled) return;
+        setExternalResults(response.foods);
+        setExternalWarnings(response.warnings);
+        setExternalQuery(trimmed);
+      } catch (error) {
+        if (cancelled) return;
+        setExternalResults([]);
+        setExternalWarnings([error instanceof Error ? error.message : "External food search failed."]);
+        setExternalQuery(trimmed);
+      } finally {
+        if (!cancelled) setExternalLoading(false);
+      }
+    }, 700);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeout);
+    };
+  }, [entry, open, query]);
 
   const addSelectedFood = async () => {
     if (!selectedFood) return;
@@ -146,6 +223,51 @@ export function FoodEntryDialog({
       mealType: libraryMealType,
     });
     onOpenChange(false);
+  };
+
+  const addSelectedTemplate = async () => {
+    if (!selectedTemplate) return;
+    await addTemplateToLog(selectedTemplate.id, date, templateMealType);
+    onOpenChange(false);
+  };
+
+  const addSelectedExternalFood = async (saveToLibrary: boolean) => {
+    if (!selectedExternalFood || !selectedExternalFood.caloriesPerServing || selectedExternalFood.caloriesPerServing <= 0) return;
+
+    let libraryId: string | undefined;
+    if (saveToLibrary) {
+      const result = await importExternalFood(selectedExternalFood);
+      if (!result) return;
+      libraryId = result.item.id;
+      toast.success(result.created ? "Added to your food library." : "Already in your library.");
+    }
+
+    await addEntry({
+      date,
+      foodLibraryId: libraryId,
+      name: selectedExternalFood.name,
+      calories: externalCalories,
+      servingSize: selectedExternalFood.servingSize,
+      servingUnit: selectedExternalFood.servingUnit,
+      quantity: externalQuantity,
+      protein: externalProtein,
+      carbs: externalCarbs,
+      fat: externalFat,
+      fiber: externalFiber,
+      mealType: externalMealType,
+      notes: selectedExternalFood.notes,
+    });
+    onOpenChange(false);
+  };
+
+  const onBarcodeFoodFound = (food: NormalizedExternalFood) => {
+    setQuery(food.name);
+    setExternalResults([food]);
+    setExternalWarnings([]);
+    setExternalQuery(food.name);
+    setSelectedExternalFood(food);
+    setSelectedFood(null);
+    setBarcodeOpen(false);
   };
 
   const submitManual: SubmitHandler<FoodEntryFormValues> = async (values) => {
@@ -208,19 +330,25 @@ export function FoodEntryDialog({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>{entry ? "Edit food entry" : "Add food"}</DialogTitle>
-          <DialogDescription>Log from your library or enter a food manually. Calories update before saving.</DialogDescription>
+        <DialogDescription>Log saved foods, saved meals, external database foods, or a manual entry.</DialogDescription>
         </DialogHeader>
         <Tabs defaultValue={entry ? "manual" : "library"}>
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="library" disabled={Boolean(entry)}>
-              From Library
+              Foods
+            </TabsTrigger>
+            <TabsTrigger value="meals" disabled={Boolean(entry)}>
+              Meals
             </TabsTrigger>
             <TabsTrigger value="manual">Manual Entry</TabsTrigger>
           </TabsList>
           <TabsContent value="library" className="space-y-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input value={query} onChange={(event) => setQuery(event.target.value)} className="pl-9" placeholder="Search foods" />
+              <Input value={query} onChange={(event) => setQuery(event.target.value)} className="pl-9 pr-12" placeholder="Search foods or external databases" />
+              <Button type="button" variant="ghost" size="icon" className="absolute right-0 top-0" onClick={() => setBarcodeOpen(true)} aria-label="Scan barcode">
+                <ScanBarcode className="h-4 w-4" />
+              </Button>
             </div>
             <div className="grid max-h-64 gap-2 overflow-y-auto sm:grid-cols-2">
               {filteredLibrary.map((food) => (
@@ -243,6 +371,11 @@ export function FoodEntryDialog({
                   <p className="mt-2 text-sm data-number">{formatKcal(food.caloriesPerServing)}</p>
                 </button>
               ))}
+              {filteredLibrary.length === 0 && (
+                <div className="rounded-lg border bg-muted/20 p-3 text-sm text-muted-foreground sm:col-span-2">
+                  No saved foods match. External results will appear below when available.
+                </div>
+              )}
             </div>
             {selectedFood && (
               <div className="rounded-xl border bg-muted/30 p-3">
@@ -279,6 +412,170 @@ export function FoodEntryDialog({
                 </div>
                 <Button className="mt-3 w-full" onClick={addSelectedFood}>
                   Add to Log
+                </Button>
+              </div>
+            )}
+
+            {(externalLoading || externalResults.length > 0 || externalWarnings.length > 0 || externalQuery) && (
+              <div className="rounded-xl border bg-muted/20 p-3">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm font-medium">External databases</p>
+                    <p className="text-xs text-muted-foreground">USDA and Open Food Facts results can be logged once or saved to your library.</p>
+                  </div>
+                  {externalLoading && <Badge variant="secondary">Searching...</Badge>}
+                </div>
+                {externalWarnings.map((warning) => (
+                  <div key={warning} className="mt-3 flex items-start gap-2 rounded-lg border bg-background p-2 text-xs text-muted-foreground">
+                    <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                    <p>{warning}</p>
+                  </div>
+                ))}
+                {!externalLoading && externalQuery && externalResults.length === 0 && externalWarnings.length === 0 && (
+                  <p className="mt-3 text-sm text-muted-foreground">No external foods found for {externalQuery}.</p>
+                )}
+                {externalResults.length > 0 && (
+                  <div className="mt-3 grid max-h-72 gap-2 overflow-y-auto sm:grid-cols-2">
+                    {externalResults.map((food) => (
+                      <button
+                        key={`${food.source}:${food.external_id}`}
+                        type="button"
+                        onClick={() => {
+                          setSelectedExternalFood(food);
+                          setSelectedFood(null);
+                        }}
+                        className={cn(
+                          "rounded-lg border bg-card p-3 text-left transition-colors hover:border-primary",
+                          selectedExternalFood?.source === food.source && selectedExternalFood.external_id === food.external_id && "border-primary bg-primary/5",
+                        )}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <p className="line-clamp-2 font-medium">{food.name}</p>
+                            <p className="truncate text-xs text-muted-foreground">{food.brand ?? titleCase(food.category)}</p>
+                          </div>
+                          <Badge variant={food.source === "usda" ? "default" : "secondary"}>{externalSourceLabel(food.source)}</Badge>
+                        </div>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <Badge variant="outline">{formatKcal(food.caloriesPerServing)}</Badge>
+                          <Badge variant="secondary">{dataQualityLabel(food.data_quality)}</Badge>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {selectedExternalFood && (
+              <div className="rounded-xl border bg-primary/5 p-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <p className="text-sm font-medium">{selectedExternalFood.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {externalSourceLabel(selectedExternalFood.source)} · per {selectedExternalFood.servingSize} {selectedExternalFood.servingUnit}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button type="button" variant="outline" size="icon" onClick={() => setExternalQuantity(Math.max(0.25, externalQuantity - 0.25))}>
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <Input className="w-24 text-center data-number" type="number" step="0.25" value={externalQuantity} onChange={(event) => setExternalQuantity(Number(event.target.value))} />
+                    <Button type="button" variant="outline" size="icon" onClick={() => setExternalQuantity(externalQuantity + 0.25)}>
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                    <select className="h-10 rounded-lg border bg-background px-3 text-sm" value={externalMealType} onChange={(event) => setExternalMealType(event.target.value as MealType)}>
+                      {mealTypes.map((type) => (
+                        <option key={type} value={type}>
+                          {titleCase(type)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Badge>{formatKcal(externalCalories)}</Badge>
+                  {externalProtein !== undefined && <Badge variant="secondary">P {externalProtein}g</Badge>}
+                  {externalCarbs !== undefined && <Badge variant="secondary">C {externalCarbs}g</Badge>}
+                  {externalFat !== undefined && <Badge variant="secondary">F {externalFat}g</Badge>}
+                  {externalFiber !== undefined && <Badge variant="secondary">Fiber {externalFiber}g</Badge>}
+                </div>
+                {(!selectedExternalFood.caloriesPerServing || selectedExternalFood.caloriesPerServing <= 0) && (
+                  <p className="mt-3 text-xs text-destructive">Calories are missing, so this item cannot be logged yet.</p>
+                )}
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <Button variant="outline" disabled={!selectedExternalFood.caloriesPerServing || selectedExternalFood.caloriesPerServing <= 0} onClick={() => void addSelectedExternalFood(false)}>
+                    Log Once
+                  </Button>
+                  <Button disabled={!selectedExternalFood.caloriesPerServing || selectedExternalFood.caloriesPerServing <= 0} onClick={() => void addSelectedExternalFood(true)}>
+                    Save & Log
+                  </Button>
+                </div>
+              </div>
+            )}
+          </TabsContent>
+          <TabsContent value="meals" className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Input value={mealQuery} onChange={(event) => setMealQuery(event.target.value)} className="pl-9" placeholder="Search saved meal templates" />
+            </div>
+            <div className="grid max-h-72 gap-2 overflow-y-auto sm:grid-cols-2">
+              {filteredTemplates.map((template) => (
+                <button
+                  key={template.id}
+                  type="button"
+                  onClick={() => setSelectedTemplate(template)}
+                  className={cn(
+                    "rounded-lg border bg-card p-3 text-left transition-colors hover:border-primary",
+                    selectedTemplate?.id === template.id && "border-primary bg-primary/5",
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{template.name}</p>
+                      <p className="text-xs text-muted-foreground">{template.items.length} foods</p>
+                    </div>
+                    {template.isFavorite && <Star className="h-4 w-4 fill-primary text-primary" />}
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Badge>{formatKcal(template.totalCalories)}</Badge>
+                    <Badge variant="secondary">P {formatNumber(template.totalProtein, 0)}g</Badge>
+                    <Badge variant="outline">{template.useCount} uses</Badge>
+                  </div>
+                </button>
+              ))}
+              {filteredTemplates.length === 0 && (
+                <div className="flex items-start gap-3 rounded-lg border bg-muted/20 p-4 text-sm text-muted-foreground sm:col-span-2">
+                  <UtensilsCrossed className="mt-0.5 h-4 w-4 shrink-0" />
+                  <p>No saved meals yet. Create reusable meals from the Meals page, then log them here.</p>
+                </div>
+              )}
+            </div>
+            {selectedTemplate && (
+              <div className="rounded-xl border bg-muted/30 p-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <p className="text-sm font-medium">{selectedTemplate.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {selectedTemplate.items.length} foods · {formatKcal(selectedTemplate.totalCalories)}
+                    </p>
+                  </div>
+                  <select className="h-10 rounded-lg border bg-background px-3 text-sm" value={templateMealType} onChange={(event) => setTemplateMealType(event.target.value as MealType)}>
+                    {mealTypes.map((type) => (
+                      <option key={type} value={type}>
+                        {titleCase(type)}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Badge>{formatKcal(selectedTemplate.totalCalories)}</Badge>
+                  <Badge variant="secondary">P {selectedTemplate.totalProtein}g</Badge>
+                  <Badge variant="secondary">C {selectedTemplate.totalCarbs}g</Badge>
+                  <Badge variant="secondary">F {selectedTemplate.totalFat}g</Badge>
+                </div>
+                <Button className="mt-3 w-full" onClick={addSelectedTemplate}>
+                  Add Meal to Log
                 </Button>
               </div>
             )}
@@ -345,6 +642,225 @@ export function FoodEntryDialog({
             </form>
           </TabsContent>
         </Tabs>
+        <BarcodeScannerDialog open={barcodeOpen} onOpenChange={setBarcodeOpen} onFoodFound={onBarcodeFoodFound} />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+type BarcodeDetectorResult = {
+  rawValue?: string;
+};
+
+type BarcodeDetectorInstance = {
+  detect: (source: CanvasImageSource) => Promise<BarcodeDetectorResult[]>;
+};
+
+type BarcodeDetectorConstructor = new (options?: { formats?: string[] }) => BarcodeDetectorInstance;
+
+const barcodeFormats = ["ean_13", "ean_8", "upc_a", "upc_e", "code_128", "code_39", "itf", "qr_code"];
+
+function extractBarcodeCandidate(value: string) {
+  const trimmed = value.trim();
+  const groups = trimmed.match(/\d{8,14}/g);
+  if (groups?.length) {
+    return groups.sort((a, b) => b.length - a.length)[0];
+  }
+
+  const digitsOnly = trimmed.replace(/\D/g, "");
+  if (digitsOnly.length >= 8 && digitsOnly.length <= 14) return digitsOnly;
+  return trimmed;
+}
+
+function BarcodeScannerDialog({
+  open,
+  onOpenChange,
+  onFoodFound,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onFoodFound: (food: NormalizedExternalFood) => void;
+}) {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const frameRef = useRef<number | null>(null);
+  const lookupInFlightRef = useRef(false);
+  const [manualBarcode, setManualBarcode] = useState("");
+  const [cameraReady, setCameraReady] = useState(false);
+  const [lookupLoading, setLookupLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const stopCamera = useCallback(() => {
+    if (frameRef.current) {
+      window.cancelAnimationFrame(frameRef.current);
+      frameRef.current = null;
+    }
+
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+  }, []);
+
+  const lookupBarcode = useCallback(
+    async (rawValue: string) => {
+      const barcode = extractBarcodeCandidate(rawValue);
+      if (!barcode || barcode.length < 6 || lookupInFlightRef.current) return;
+
+      lookupInFlightRef.current = true;
+      setLookupLoading(true);
+      setError(null);
+      setMessage(`Looking up ${barcode}...`);
+
+      try {
+        const response = await searchExternalFoods("barcode", barcode);
+        const food = response.foods[0];
+        if (!food) {
+          setError(response.warnings[0] ?? "No product was found for that barcode.");
+          setMessage(null);
+          return;
+        }
+
+        toast.success("Barcode found.");
+        onFoodFound(food);
+        onOpenChange(false);
+      } catch (lookupError) {
+        setError(lookupError instanceof Error ? lookupError.message : "Barcode lookup failed.");
+        setMessage(null);
+      } finally {
+        lookupInFlightRef.current = false;
+        setLookupLoading(false);
+      }
+    },
+    [onFoodFound, onOpenChange],
+  );
+
+  useEffect(() => {
+    if (!open) {
+      stopCamera();
+      return;
+    }
+
+    let active = true;
+    setManualBarcode("");
+    setCameraReady(false);
+    setLookupLoading(false);
+    setMessage("Starting camera...");
+    setError(null);
+
+    const startScanner = async () => {
+      const Detector = (window as unknown as { BarcodeDetector?: BarcodeDetectorConstructor }).BarcodeDetector;
+
+      if (!Detector || !navigator.mediaDevices?.getUserMedia) {
+        setMessage("Camera scanning is not available in this browser. Type or paste the barcode below.");
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: { facingMode: { ideal: "environment" } },
+        });
+
+        if (!active) {
+          stream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+
+        streamRef.current = stream;
+        const video = videoRef.current;
+        if (video) {
+          video.srcObject = stream;
+          await video.play();
+        }
+
+        const detector = new Detector({ formats: barcodeFormats });
+        setCameraReady(true);
+        setMessage("Point the camera at the package barcode or a QR code with a product code.");
+
+        const scanFrame = async () => {
+          if (!active) return;
+
+          const currentVideo = videoRef.current;
+          if (currentVideo && currentVideo.readyState >= 2 && !lookupInFlightRef.current) {
+            try {
+              const detected = await detector.detect(currentVideo);
+              const rawValue = detected.find((code) => code.rawValue)?.rawValue;
+              if (rawValue) {
+                await lookupBarcode(rawValue);
+                return;
+              }
+            } catch {
+              setMessage("Hold steady and keep the full code inside the frame.");
+            }
+          }
+
+          frameRef.current = window.requestAnimationFrame(scanFrame);
+        };
+
+        frameRef.current = window.requestAnimationFrame(scanFrame);
+      } catch {
+        setMessage("Camera permission is needed to scan. You can still type or paste the barcode below.");
+      }
+    };
+
+    void startScanner();
+
+    return () => {
+      active = false;
+      stopCamera();
+    };
+  }, [lookupBarcode, open, stopCamera]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Scan barcode</DialogTitle>
+          <DialogDescription>Use the camera for packaged foods, then log the Open Food Facts result.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-xl border bg-muted">
+            <video ref={videoRef} className="h-full w-full object-cover" muted playsInline autoPlay />
+            {!cameraReady && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-5 text-center text-sm text-muted-foreground">
+                <ScanBarcode className="h-8 w-8" />
+                <p>{message ?? "Starting camera..."}</p>
+              </div>
+            )}
+            {cameraReady && (
+              <div className="pointer-events-none absolute inset-x-8 top-1/2 h-24 -translate-y-1/2 rounded-xl border-2 border-primary/80 shadow-[0_0_0_999px_rgba(0,0,0,0.25)]" />
+            )}
+          </div>
+          <div className="flex items-start gap-2 rounded-lg border bg-muted/20 p-3 text-xs text-muted-foreground">
+            <PackageSearch className="mt-0.5 h-4 w-4 shrink-0" />
+            <p>Open Food Facts is community-provided. Verify the package label if needed.</p>
+          </div>
+          {(message || error || lookupLoading) && (
+            <div className={cn("flex items-start gap-2 rounded-lg border p-3 text-sm", error ? "border-destructive/30 bg-destructive/10 text-destructive" : "bg-muted/20 text-muted-foreground")}>
+              {lookupLoading ? <Loader2 className="mt-0.5 h-4 w-4 shrink-0 animate-spin" /> : <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />}
+              <p>{error ?? message}</p>
+            </div>
+          )}
+          <div className="space-y-2">
+            <Label htmlFor="manual-barcode">Barcode</Label>
+            <div className="flex gap-2">
+              <Input
+                id="manual-barcode"
+                inputMode="numeric"
+                value={manualBarcode}
+                onChange={(event) => setManualBarcode(event.target.value)}
+                placeholder="Type or paste barcode"
+              />
+              <Button type="button" onClick={() => void lookupBarcode(manualBarcode)} disabled={lookupLoading || manualBarcode.trim().length < 6}>
+                {lookupLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Look Up"}
+              </Button>
+            </div>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -717,6 +1233,17 @@ export function WeightDialog({
       notes: entry?.notes ?? "",
     },
   });
+
+  useEffect(() => {
+    if (!open) return;
+
+    form.reset({
+      date: entry?.date ?? localDateKey(),
+      weight: entry?.weight ?? profile?.weight ?? 80,
+      bodyFatPercent: entry?.bodyFatPercent,
+      notes: entry?.notes ?? "",
+    });
+  }, [entry, form, open, profile?.weight]);
 
   const submit: SubmitHandler<WeightFormValues> = async (values) => {
     if (entry) await updateWeight(entry.id, values);
