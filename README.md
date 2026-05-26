@@ -42,3 +42,4 @@ Supabase Auth must have email/password enabled in Authentication -> Providers. I
 2. Import the repository in Vercel.
 3. Add environment variables in the Vercel dashboard.
 4. Deploy. The app uses the Next.js App Router and needs no custom server.
+# fitbudg
