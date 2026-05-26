@@ -25,6 +25,7 @@ export function FoodLogPage() {
   const [date, setDate] = useState(searchParams.get("date") ?? localDateKey());
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMealType, setDialogMealType] = useState<MealType>("lunch");
+  const [dialogMealLocked, setDialogMealLocked] = useState(false);
   const [editing, setEditing] = useState<FoodEntry | null>(null);
   const [collapsed, setCollapsed] = useState<MealType[]>([]);
   const profile = useProfileStore((state) => state.profile);
@@ -39,15 +40,17 @@ export function FoodLogPage() {
   const carbs = sum(selectedEntries.map((entry) => entry.carbs ?? 0));
   const fat = sum(selectedEntries.map((entry) => entry.fat ?? 0));
 
-  const openAdd = (mealType: MealType) => {
+  const openAdd = (mealType: MealType, lockMealType = true) => {
     setEditing(null);
     setDialogMealType(mealType);
+    setDialogMealLocked(lockMealType);
     setDialogOpen(true);
   };
 
   const openEdit = (entry: FoodEntry) => {
     setEditing(entry);
     setDialogMealType(entry.mealType);
+    setDialogMealLocked(false);
     setDialogOpen(true);
   };
 
@@ -57,7 +60,7 @@ export function FoodLogPage() {
         title="Food Diary"
         description="Fast daily logging with meal groups, macros, date navigation, and undo-friendly actions."
         action={
-          <Button onClick={() => openAdd("lunch")}>
+          <Button onClick={() => openAdd("lunch", false)}>
             <Plus className="h-4 w-4" /> Quick Add
           </Button>
         }
@@ -184,7 +187,7 @@ export function FoodLogPage() {
         })}
       </div>
 
-      <FoodEntryDialog open={dialogOpen} onOpenChange={setDialogOpen} date={date} mealType={dialogMealType} entry={editing} />
+      <FoodEntryDialog open={dialogOpen} onOpenChange={setDialogOpen} date={date} mealType={dialogMealType} lockMealType={dialogMealLocked} entry={editing} />
     </>
   );
 }

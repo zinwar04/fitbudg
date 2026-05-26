@@ -27,6 +27,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { AppLoadingSkeleton } from "@/components/shared/app-loading-skeleton";
 import { QuickDialogHost } from "@/components/shared/quick-dialogs";
 import { cn } from "@/lib/utils";
 import { useAppBoot } from "@/lib/store/use-app-boot";
@@ -156,13 +157,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, [profile?.name]);
 
   if (!authHydrated || !session || !hydrated) {
-    return (
-      <main className="flex min-h-screen items-center justify-center">
-        <div className="rounded-xl border bg-card px-4 py-3 text-sm text-muted-foreground shadow-sm">
-          {!authHydrated ? "Checking your account" : !session ? "Opening sign in" : "Syncing your workspace"}
-        </div>
-      </main>
-    );
+    return <AppLoadingSkeleton />;
   }
 
   return (
