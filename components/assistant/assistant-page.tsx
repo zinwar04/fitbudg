@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
-import { Bot, MessageSquare, MessageSquarePlus, Send, Sparkles, Trash2 } from "lucide-react";
+import { Bot, CircleDollarSign, Dumbbell, Flame, MessageSquare, MessageSquarePlus, Send, Sparkles, Trash2, UtensilsCrossed } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,37 +9,25 @@ import { Badge } from "@/components/ui/badge";
 import { buildAssistantContext } from "@/lib/assistant/context";
 import { AssistantSession, ChatMessage } from "@/lib/db/schema";
 import { deleteAssistantSession, getAssistantSessions, saveAssistantSession } from "@/lib/db/assistant.service";
+import { useAuthStore } from "@/lib/store/auth.store";
 import { useBudgetStore } from "@/lib/store/budget.store";
 import { useFoodStore } from "@/lib/store/food.store";
 import { useHabitsStore } from "@/lib/store/habits.store";
 import { useProfileStore } from "@/lib/store/profile.store";
-import { createId, nowIso } from "@/lib/utils/formatting";
+import { createId, formatCurrency, formatKcal, nowIso } from "@/lib/utils/formatting";
 import { cn } from "@/lib/utils";
 
-const promptGroups = {
-  Wellness: [
-    "Give me a simple health and budget plan for today.",
-    "What should I focus on this week?",
-    "How can I make healthier choices without spending more?",
-    "What is one small win I can get before bedtime?",
-  ],
-  Nutrition: [
-    "How are my calories and protein this week?",
-    "Suggest a high-protein meal that fits a tight budget.",
-    "What food should I adjust first?",
-    "Help me build a simple meal plan from my usual foods.",
-  ],
-  Budget: [
-    "How's my budget looking this cycle?",
-    "Where am I overspending?",
-    "How much can I safely spend today?",
-    "How do I cut food spending without hurting protein?",
-  ],
-};
-
-type PromptMode = keyof typeof promptGroups;
+const starterPrompts = [
+  "Build me one realistic plan for today using my calories, protein, habits, and safe spending.",
+  "Review my recent logs and tell me the highest-impact thing to fix this week.",
+  "Make me a cheap high-protein meal plan from my usual foods.",
+  "How do I stay on track tonight without overspending?",
+  "What should I meal prep before tomorrow?",
+  "Where am I drifting from my goals, and what should I do next?",
+];
 
 export function AssistantPage() {
+  const session = useAuthStore((state) => state.session);
   const profile = useProfileStore((state) => state.profile);
   const settings = useProfileStore((state) => state.settings);
   const logs = useFoodStore((state) => state.logs);
@@ -56,7 +44,6 @@ export function AssistantPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [mode, setMode] = useState<PromptMode>("Wellness");
   const scrollRef = useRef<HTMLDivElement>(null);
   const context = useMemo(
     () =>
@@ -74,6 +61,31 @@ export function AssistantPage() {
         habitEntries,
       }),
     [budgetProfile, foodEntries, foodLibrary, habitEntries, habits, logs, mealTemplates, profile, settings, transactions, weightEntries],
+  );
+  const contextChips = useMemo(
+    () => [
+      {
+        label: "Calories",
+        value: formatKcal(context.targets?.calories),
+        icon: Flame,
+      },
+      {
+        label: "Protein",
+        value: context.targets?.protein ? `${context.targets.protein} g` : "--",
+        icon: Dumbbell,
+      },
+      {
+        label: "Safe spend",
+        value: formatCurrency(context.budget.cycle.safeToSpendToday, context.budget.currency, context.budget.currencySymbol),
+        icon: CircleDollarSign,
+      },
+      {
+        label: "Logged",
+        value: `${context.nutrition.last7Days.loggedDays}/7 days`,
+        icon: UtensilsCrossed,
+      },
+    ],
+    [context],
   );
 
   const refreshSessions = async () => {
@@ -134,7 +146,10 @@ export function AssistantPage() {
     try {
       const response = await fetch("/api/assistant", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
         body: JSON.stringify({
           messages: next.map((message) => ({ role: message.role, content: message.content })),
           context,
@@ -165,25 +180,41 @@ export function AssistantPage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[calc(100vh-7rem)] w-full max-w-7xl flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <Bot className="h-4 w-4" />
+    <div className="mx-auto flex min-h-[calc(100svh-8rem)] w-full max-w-7xl flex-col gap-4 pb-2">
+      <div className="rounded-xl border bg-card/80 p-3 shadow-sm sm:p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                <Bot className="h-4 w-4" />
+              </div>
+              <h1 className="text-xl font-semibold">FitBudget Coach</h1>
+              <Badge variant="secondary">Personal data ready</Badge>
             </div>
-            <h1 className="text-xl font-semibold">FitBudget AI</h1>
-            <Badge variant="secondary">Health and budget</Badge>
+            <p className="mt-1 text-sm text-muted-foreground">Fitness, meals, calories, habits, and spending in one coach.</p>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">Ask any health, food, fitness, habit, or budget question.</p>
+          <Button className="w-full sm:w-auto" onClick={startNewChat}>
+            <MessageSquarePlus className="h-4 w-4" />
+            New Chat
+          </Button>
         </div>
-        <Button onClick={startNewChat}>
-          <MessageSquarePlus className="h-4 w-4" />
-          New Chat
-        </Button>
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {contextChips.map((chip) => {
+            const Icon = chip.icon;
+            return (
+              <div key={chip.label} className="min-w-0 rounded-lg border bg-background/70 p-3">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Icon className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{chip.label}</span>
+                </div>
+                <p className="mt-1 truncate text-sm font-semibold data-number">{chip.value}</p>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      <div className="lg:hidden">
+      <div className="-mx-4 px-4 lg:hidden">
         <div className="flex gap-2 overflow-x-auto pb-1">
           <Button size="sm" variant={!sessionId ? "default" : "outline"} onClick={startNewChat}>
             New
@@ -196,7 +227,7 @@ export function AssistantPage() {
         </div>
       </div>
 
-      <div className="grid flex-1 gap-4 lg:grid-cols-[17rem_1fr]">
+      <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[17rem_1fr]">
         <aside className="hidden rounded-xl border bg-card p-3 lg:block">
           <Button className="mb-3 w-full justify-start" variant="outline" onClick={startNewChat}>
             <MessageSquarePlus className="h-4 w-4" />
@@ -217,25 +248,21 @@ export function AssistantPage() {
           </div>
         </aside>
 
-        <section className="flex min-h-[70vh] flex-col overflow-hidden rounded-xl border bg-background">
-          <div className="flex-1 overflow-y-auto px-3 py-6 sm:px-6">
+        <section className="flex min-h-[64svh] flex-1 flex-col overflow-hidden rounded-xl border bg-background sm:min-h-[70vh]">
+          <div className="flex-1 overflow-y-auto px-3 py-5 sm:px-6 sm:py-6">
             <div className="mx-auto flex w-full max-w-3xl flex-col gap-5">
               {messages.length === 0 && (
-                <div className="py-8 text-center">
+                <div className="py-4 text-center sm:py-8">
                   <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border bg-card">
                     <Sparkles className="h-5 w-5 text-primary" />
                   </div>
-                  <h2 className="mt-4 text-2xl font-semibold">What do you want help with?</h2>
-                  <div className="mt-6 flex justify-center gap-2">
-                    {(Object.keys(promptGroups) as PromptMode[]).map((group) => (
-                      <Button key={group} size="sm" variant={mode === group ? "default" : "outline"} onClick={() => setMode(group)}>
-                        {group}
-                      </Button>
-                    ))}
-                  </div>
-                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                    {promptGroups[mode].map((prompt) => (
-                      <button key={prompt} className="rounded-xl border bg-card p-3 text-left text-sm transition-colors hover:border-primary" onClick={() => void send(prompt)}>
+                  <h2 className="mt-4 text-xl font-semibold sm:text-2xl">Ask your coach anything.</h2>
+                  <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
+                    One assistant reads your food, fitness, habits, and spending together.
+                  </p>
+                  <div className="mt-5 grid gap-2 text-left sm:grid-cols-2">
+                    {starterPrompts.map((prompt) => (
+                      <button key={prompt} className="rounded-lg border bg-card p-3 text-left text-sm leading-5 transition-colors hover:border-primary" onClick={() => void send(prompt)}>
                         {prompt}
                       </button>
                     ))}
@@ -249,7 +276,7 @@ export function AssistantPage() {
                       <Bot className="h-4 w-4" />
                     </div>
                   )}
-                  <div className={cn("max-w-[88%] whitespace-pre-wrap rounded-2xl px-4 py-3 text-sm leading-6", message.role === "user" ? "bg-primary text-primary-foreground" : "bg-card")}>
+                  <div className={cn("max-w-[92%] break-words whitespace-pre-wrap rounded-2xl px-4 py-3 text-[15px] leading-6 sm:max-w-[84%] sm:text-sm", message.role === "user" ? "bg-primary text-primary-foreground" : "bg-card")}>
                     {message.content}
                   </div>
                 </div>
@@ -259,28 +286,28 @@ export function AssistantPage() {
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
                     <Bot className="h-4 w-4" />
                   </div>
-                  <div className="rounded-2xl bg-card px-4 py-3 text-sm text-muted-foreground">Thinking...</div>
+                  <div className="rounded-2xl bg-card px-4 py-3 text-sm text-muted-foreground">Coaching...</div>
                 </div>
               )}
               <div ref={scrollRef} />
             </div>
           </div>
           <form
-            className="border-t bg-background p-3 sm:p-4"
+            className="sticky bottom-0 border-t bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur sm:p-4"
             onSubmit={(event: FormEvent<HTMLFormElement>) => {
               event.preventDefault();
               void send();
             }}
           >
-            <div className="mx-auto flex max-w-3xl items-end gap-2 rounded-2xl border bg-card p-2 shadow-sm">
+            <div className="mx-auto flex max-w-3xl items-end gap-2 rounded-xl border bg-card p-2 shadow-sm">
               <Textarea
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
                 onKeyDown={onComposerKeyDown}
-                className="max-h-36 min-h-11 resize-none border-0 bg-transparent focus-visible:ring-0"
-                placeholder="Ask about health, food, fitness, budget, or habits"
+                className="max-h-36 min-h-11 resize-none border-0 bg-transparent text-base focus-visible:ring-0 sm:text-sm"
+                placeholder="Ask FitBudget Coach"
               />
-              <Button type="submit" size="icon" disabled={loading || !input.trim()} className="rounded-full">
+              <Button type="submit" size="icon" disabled={loading || !input.trim()} className="h-11 w-11 shrink-0 rounded-xl">
                 <Send className="h-4 w-4" />
               </Button>
             </div>

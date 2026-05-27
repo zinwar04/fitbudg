@@ -23,7 +23,9 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 Never commit `.env`, `.env.local`, or real API keys. Add production values in Vercel project environment variables instead.
 
-Without `GEMINI_API_KEY`, the assistant uses a local fallback response based on the user's stored FitBudget data.
+Without `GEMINI_API_KEY`, the assistant returns a configuration error instead of generating local canned coaching replies.
+
+See [docs/environment.md](docs/environment.md) for the permanent production setup, local `.env.local` workflow, Vercel sensitive variables, Supabase Edge Function secrets, and leaked-key recovery steps.
 
 ## Data
 

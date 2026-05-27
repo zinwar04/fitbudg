@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/check-env-secrets.mjs",
     "build": "next build",
+    "env:check": "node scripts/check-env-secrets.mjs",
     "start": "next start",
     "lint": "eslint ."
   },
