@@ -11,17 +11,19 @@ npm run build
 npm run start
 ```
 
-Create `.env.local`:
+Create `.env.local` from `.env.example` and fill it with your local values:
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL=https://yxxwawvrhurlwzdngran.supabase.co
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
-GEMINI_API_KEY=
+GEMINI_API_KEY=your_gemini_api_key
 GEMINI_MODEL=gemini-2.5-flash
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-Without `GEMINI_API_KEY`, the assistant uses a contextual mock response based on the user's stored FitBudget data.
+Never commit `.env`, `.env.local`, or real API keys. Add production values in Vercel project environment variables instead.
+
+Without `GEMINI_API_KEY`, the assistant uses a local fallback response based on the user's stored FitBudget data.
 
 ## Data
 

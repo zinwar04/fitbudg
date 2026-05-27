@@ -28,7 +28,10 @@ export function WeightPage() {
   const first = sorted[0];
   const change = current && first ? current.weight - first.weight : 0;
   const weightUnit = profile?.unitSystem === "imperial" ? "lb" : "kg";
-  const displayWeight = (value: number | undefined | null) => (profile?.unitSystem === "imperial" && Number.isFinite(value) ? kgToLb(value as number) : value);
+  const displayWeight = (value: number | undefined | null) => {
+    if (!Number.isFinite(value)) return undefined;
+    return profile?.unitSystem === "imperial" ? kgToLb(value as number) : (value as number);
+  };
   const projectedDate = useMemo(() => {
     if (!profile || sorted.length < 2 || !current) return "Need more data";
     const firstEntry = sorted[0];
@@ -45,7 +48,10 @@ export function WeightPage() {
     return format(addDays(currentDate, daysToGoal), "MMM d, yyyy");
   }, [current, profile, sorted]);
 
-  const chartData = sorted.map((entry) => ({ date: entry.date.slice(5), weight: Number(displayWeight(entry.weight)?.toFixed(1) ?? 0) }));
+  const chartData = sorted.map((entry) => {
+    const weight = displayWeight(entry.weight);
+    return { date: entry.date.slice(5), weight: Number(weight?.toFixed(1) ?? 0) };
+  });
   const goalLine = Number.isFinite(profile?.goalWeight) ? displayWeight(profile?.goalWeight) ?? undefined : undefined;
 
   const openAdd = () => {
@@ -100,26 +106,30 @@ export function WeightPage() {
               <EmptyState icon={Scale} title="No weigh-ins yet" description="Add your first weight entry to start trend tracking." action={<Button onClick={openAdd}>Log Weight</Button>} />
             ) : (
               <div className="space-y-2">
-                {[...sorted].reverse().map((entry) => (
-                  <div key={entry.id} className="rounded-lg border p-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="font-medium data-number">{formatWeight(entry.weight)}</p>
-                        <p className="text-sm text-muted-foreground">{formatDateKey(entry.date)}</p>
+                {[...sorted].reverse().map((entry) => {
+                  const bodyFatPercent = Number.isFinite(entry.bodyFatPercent) ? entry.bodyFatPercent : undefined;
+
+                  return (
+                    <div key={entry.id} className="rounded-lg border p-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="font-medium data-number">{formatWeight(displayWeight(entry.weight), weightUnit)}</p>
+                          <p className="text-sm text-muted-foreground">{formatDateKey(entry.date)}</p>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          {bodyFatPercent !== undefined && <Badge variant="secondary">{bodyFatPercent.toFixed(1)}% fat</Badge>}
+                          <Button variant="ghost" size="icon" onClick={() => openEdit(entry)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => deleteWeight(entry.id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        {entry.bodyFatPercent !== undefined && <Badge variant="secondary">{entry.bodyFatPercent.toFixed(1)}% fat</Badge>}
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(entry)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => deleteWeight(entry.id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      {entry.notes && <p className="mt-2 text-sm text-muted-foreground">{entry.notes}</p>}
                     </div>
-                    {entry.notes && <p className="mt-2 text-sm text-muted-foreground">{entry.notes}</p>}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </CardContent>

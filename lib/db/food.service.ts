@@ -26,6 +26,27 @@ export type FoodLibraryInput = Omit<FoodLibraryItem, "id" | "createdAt" | "updat
 export type MealTemplateInput = Omit<MealTemplate, "id" | "createdAt" | "updatedAt" | "totalCalories" | "totalProtein" | "totalCarbs" | "totalFat" | "useCount" | "lastUsedAt">;
 export type WeightInput = Omit<WeightEntry, "id" | "createdAt">;
 
+function finiteNumber(value: unknown, fallback = 0) {
+  const numeric = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(numeric) ? numeric : fallback;
+}
+
+function optionalFiniteNumber(value: unknown) {
+  if (value === null || value === undefined || value === "") return undefined;
+  const numeric = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(numeric) ? numeric : undefined;
+}
+
+function normalizeWeightEntry(entry: WeightEntry): WeightEntry {
+  return {
+    ...entry,
+    date: String(entry.date ?? ""),
+    weight: finiteNumber(entry.weight),
+    bodyFatPercent: optionalFiniteNumber(entry.bodyFatPercent),
+    notes: entry.notes ?? undefined,
+  };
+}
+
 export async function getFoodData(): Promise<FoodData> {
   const supabase = getSupabaseClient();
   const [logs, entries, library, mealTemplates, weights] = await Promise.all([
@@ -47,7 +68,7 @@ export async function getFoodData(): Promise<FoodData> {
     entries: stripUserIdArray(entries.data ?? []),
     library: stripUserIdArray(library.data ?? []),
     mealTemplates: stripUserIdArray(mealTemplates.data ?? []),
-    weights: stripUserIdArray(weights.data ?? []),
+    weights: stripUserIdArray(weights.data ?? []).map(normalizeWeightEntry),
   };
 }
 
@@ -363,7 +384,7 @@ export async function addWeightEntry(input: WeightInput) {
   };
   const { data, error } = await supabase.from("weight_entries").insert(withUserId("weight_entries", userId, entry)).select("*").single();
   if (error) throw error;
-  return stripUserId(data);
+  return normalizeWeightEntry(stripUserId(data));
 }
 
 export async function updateWeightEntry(id: string, input: Partial<WeightInput>) {
@@ -375,7 +396,7 @@ export async function updateWeightEntry(id: string, input: Partial<WeightInput>)
   const updated: WeightEntry = { ...stripUserId(existing), ...input };
   const { data, error } = await supabase.from("weight_entries").update(updated).eq("id", id).select("*").single();
   if (error) throw error;
-  return stripUserId(data);
+  return normalizeWeightEntry(stripUserId(data));
 }
 
 export async function deleteWeightEntry(id: string) {

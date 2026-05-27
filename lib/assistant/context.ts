@@ -108,6 +108,9 @@ export function fallbackAssistantResponse(messages: Pick<ChatMessage, "role" | "
   const lastMessage = messages[messages.length - 1]?.content.toLowerCase() ?? "";
   const topFood = context.last7Days.topFoods[0]?.name;
   const topHabit = context.habits.currentStreaks[0];
+  const calorieLimit = lastMessage.match(/(?:under|less than|below|max|maximum)\s*(\d{2,4})\s*(?:cal|calorie|kcal|calories)?/)?.[1];
+  const asksForMeal = /meal|food|dish|diet|recipe|eat|breakfast|lunch|dinner|snack/.test(lastMessage);
+  const asksKurdish = /kurdish|kurd|kurdi|کورد|كورد/i.test(lastMessage);
   const asksAboutHealth = /health|fitness|food|meal|diet|nutrition|calorie|protein|weight|habit|sleep|exercise|workout|steps|water|fat|carb/.test(lastMessage);
   const asksAboutBudget = /budget|money|spend|saving|save|expense|income|salary|bill|debt|cost|cheap|afford|buy|purchase/.test(lastMessage);
   const calorieLine =
@@ -116,6 +119,32 @@ export function fallbackAssistantResponse(messages: Pick<ChatMessage, "role" | "
       : "You do not have much food logging data this week yet.";
   const budgetLine = `You have spent ${context.budgetStatus.spent.toLocaleString("en-US")} ${context.budgetStatus.currency} against a ${context.budgetStatus.budget.toLocaleString("en-US")} budget, with about ${context.budgetStatus.safeToSpendToday.toLocaleString("en-US")} ${context.budgetStatus.currency} safe to spend today.`;
   const response: string[] = [];
+
+  if (asksForMeal) {
+    const limit = calorieLimit ? `${calorieLimit} kcal` : "your calorie target";
+    const mealIdeas = asksKurdish
+      ? [
+          "Grilled chicken tikka with chopped cucumber, tomato, lemon, and herbs. Skip bread or keep it to a small piece.",
+          "Mastaw or plain yogurt bowl with cucumber, mint, a pinch of salt, and a boiled egg on the side.",
+          "Small bowl of Kurdish lentil soup with extra herbs and no added oil.",
+        ]
+      : [
+          "Egg-and-yogurt plate with cucumber, tomato, herbs, and a little salt.",
+          "Chicken or tuna salad with lemon dressing instead of mayo.",
+          "Lentil or vegetable soup with extra protein on the side.",
+        ];
+
+    response.push(
+      `Here are simple ${asksKurdish ? "Kurdish-style " : ""}meal ideas under about ${limit}: ${mealIdeas.join(" ")}`,
+      "To keep it lighter, grill or boil the protein, measure oil with a teaspoon, and put bread/rice on the side instead of making it the base.",
+    );
+
+    if (context.profile.proteinTarget) {
+      response.push(`Aim for a protein anchor first, since your protein target is about ${context.profile.proteinTarget} g/day.`);
+    }
+
+    return response.join("\n\n");
+  }
 
   if (asksAboutHealth || !asksAboutBudget) {
     response.push(
