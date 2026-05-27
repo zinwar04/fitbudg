@@ -18,7 +18,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: "FitBudget",
-  description: "Personal health and finance tracking powered by Supabase.",
+  description: "Personal health and budget tracking in one calm daily app.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

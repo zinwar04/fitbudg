@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDown, ArrowUp, Cloud, Database, Download, Save, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Database, Download, Save, ShieldCheck, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -263,13 +263,13 @@ export function DataSettingsPage() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader><CardTitle>Cloud Database</CardTitle></CardHeader>
+          <CardHeader><CardTitle>Account Sync</CardTitle></CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-start gap-3 rounded-xl border bg-muted/30 p-3 text-sm text-muted-foreground">
-              <Cloud className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
               <div>
                 <p className="font-medium text-foreground">{session?.user.email ?? "No account signed in"}</p>
-                <p>Changes save directly to your private Supabase tables. Export and import tools are for backups and bulk moves.</p>
+                <p>Changes save to your account. Export and import tools are available for backups and bulk moves.</p>
               </div>
             </div>
           </CardContent>
@@ -300,7 +300,7 @@ export function DataSettingsPage() {
       <Card className="mt-4">
         <CardHeader><CardTitle>App Info and Disclaimers</CardTitle></CardHeader>
         <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p><Badge>Version 1.0.0</Badge> Built with Next.js, TypeScript, Tailwind CSS, shadcn/ui, Supabase, Zustand, Recharts, and Framer Motion.</p>
+          <p><Badge>Version 1.0.0</Badge> FitBudget helps connect daily food, health, habits, and money decisions.</p>
           <p><span className="font-medium text-foreground">Health Disclaimer:</span> {healthDisclaimer}</p>
           <p><span className="font-medium text-foreground">Financial Disclaimer:</span> {financialDisclaimer}</p>
         </CardContent>

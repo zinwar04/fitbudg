@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { AssistantContext, buildSystemPrompt, mockAssistantResponse } from "@/lib/assistant/context";
+import { AssistantContext, buildSystemPrompt, fallbackAssistantResponse } from "@/lib/assistant/context";
 
 interface RequestMessage {
   role: "user" | "assistant";
@@ -28,18 +28,11 @@ export async function POST(req: Request) {
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
-    const model = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
+    const model = process.env.AI_MODEL ?? process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
 
     if (!apiKey) {
-      return NextResponse.json({ content: mockAssistantResponse(messages, context) });
+      return NextResponse.json({ content: fallbackAssistantResponse(messages, context) });
     }
-
-    const prompt = [
-      buildSystemPrompt(context),
-      "",
-      "Conversation:",
-      ...messages.map((message) => `${message.role === "user" ? "User" : "Assistant"}: ${message.content}`),
-    ].join("\n");
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
       method: "POST",
@@ -48,27 +41,28 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: prompt }],
-          },
-        ],
+        systemInstruction: {
+          parts: [{ text: buildSystemPrompt(context) }],
+        },
+        contents: messages.map((message) => ({
+          role: message.role === "assistant" ? "model" : "user",
+          parts: [{ text: message.content }],
+        })),
         generationConfig: {
-          temperature: 0.55,
+          temperature: 0.65,
           maxOutputTokens: 1200,
         },
       }),
     });
 
     if (!response.ok) {
-      return NextResponse.json({ content: mockAssistantResponse(messages, context), warning: "AI provider request failed, returned mock response." });
+      return NextResponse.json({ content: fallbackAssistantResponse(messages, context) });
     }
 
     const payload = (await response.json()) as {
       candidates?: { content?: { parts?: { text?: string }[] } }[];
     };
-    const content = payload.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("").trim() || mockAssistantResponse(messages, context);
+    const content = payload.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("").trim() || fallbackAssistantResponse(messages, context);
     return NextResponse.json({ content });
   } catch {
     return NextResponse.json({ error: "Assistant request failed." }, { status: 500 });

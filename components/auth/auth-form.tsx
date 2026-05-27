@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, Cloud, Loader2, LockKeyhole, Mail, UserRound } from "lucide-react";
+import { ArrowRight, Loader2, LockKeyhole, Mail, ShieldCheck, UserRound } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -113,11 +113,11 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
               {isSignup ? "Create your FitBudget account." : "Welcome back to FitBudget."}
             </h1>
             <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
-              Your food, weight, habits, assistant history, settings, and budget data are saved to your private Supabase account.
+              Track food, weight, habits, spending, and AI conversations from one secure account.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              {["Private per account", "Supabase powered", "Mobile ready"].map((item) => (
-                <div key={item} className="rounded-xl border bg-card p-3 text-sm font-medium shadow-sm">
+              {["Daily food logging", "Budget clarity", "Mobile ready"].map((item) => (
+                <div key={item} className="rounded-xl border bg-card p-3 text-sm font-medium leading-snug shadow-sm">
                   {item}
                 </div>
               ))}
@@ -131,7 +131,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             <CardContent>
               {!configured && (
                 <div className="mb-4 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-200">
-                  Supabase is not configured. Add your URL and publishable key to `.env.local`.
+                  Sign in is temporarily unavailable. Please try again soon.
                 </div>
               )}
               <form className="space-y-4" onSubmit={onSubmit}>
@@ -153,8 +153,8 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 </Button>
               </form>
               <div className="mt-5 flex items-start gap-3 rounded-xl border bg-muted/30 p-3 text-xs text-muted-foreground">
-                <Cloud className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <p>Your account data is stored in private Supabase tables protected by row-level security.</p>
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                <p>Your progress is saved securely and available whenever you sign in.</p>
               </div>
               <p className="mt-5 text-center text-sm text-muted-foreground">
                 {isSignup ? "Already have an account?" : "New here?"}{" "}

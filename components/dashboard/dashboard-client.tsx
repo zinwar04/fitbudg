@@ -197,7 +197,7 @@ export function DashboardClient() {
                       className={cn("rounded-xl border p-3 text-center transition-colors hover:border-primary", entry?.completed && "border-primary bg-primary/5")}
                     >
                       <Icon className="mx-auto h-5 w-5" style={{ color: habit.color }} />
-                      <p className="mt-2 truncate text-xs font-medium">{habit.name}</p>
+                      <p className="mt-2 break-words text-xs font-medium leading-snug">{habit.name}</p>
                       <p className="mt-1 text-xs text-muted-foreground">{habit.type === "quantitative" ? `${entry?.value ?? 0}/${habit.targetValue ?? 1}` : entry?.completed ? "Done" : "Open"}</p>
                       <p className="mt-1 text-xs data-number">{habit.streak} day streak</p>
                     </button>

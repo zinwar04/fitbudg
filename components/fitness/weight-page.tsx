@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { addDays, differenceInCalendarDays, format, parseISO } from "date-fns";
+import { addDays, differenceInCalendarDays, format, isValid, parseISO } from "date-fns";
 import { Edit, Plus, Scale, Trash2, TrendingDown, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/shared/page-header";
 import { ResponsiveLine } from "@/components/shared/chart-frame";
 import { WeightDialog } from "@/components/shared/entity-dialogs";
 import { WeightEntry } from "@/lib/db/schema";
+import { kgToLb } from "@/lib/calculations/nutrition";
 import { useFoodStore } from "@/lib/store/food.store";
 import { useProfileStore } from "@/lib/store/profile.store";
 import { formatDateKey, formatWeight } from "@/lib/utils/formatting";
@@ -22,23 +23,30 @@ export function WeightPage() {
   const deleteWeight = useFoodStore((state) => state.deleteWeight);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<WeightEntry | null>(null);
-  const sorted = useMemo(() => [...weights].sort((a, b) => a.date.localeCompare(b.date)), [weights]);
+  const sorted = useMemo(() => weights.filter(isChartableWeight).sort((a, b) => a.date.localeCompare(b.date)), [weights]);
   const current = sorted[sorted.length - 1];
   const first = sorted[0];
   const change = current && first ? current.weight - first.weight : 0;
+  const weightUnit = profile?.unitSystem === "imperial" ? "lb" : "kg";
+  const displayWeight = (value: number | undefined | null) => (profile?.unitSystem === "imperial" && Number.isFinite(value) ? kgToLb(value as number) : value);
   const projectedDate = useMemo(() => {
     if (!profile || sorted.length < 2 || !current) return "Need more data";
     const firstEntry = sorted[0];
-    const days = Math.max(1, differenceInCalendarDays(parseISO(`${current.date}T00:00:00`), parseISO(`${firstEntry.date}T00:00:00`)));
+    const currentDate = parseDateKey(current.date);
+    const firstDate = parseDateKey(firstEntry.date);
+    if (!currentDate || !firstDate) return "Need more data";
+    const days = Math.max(1, differenceInCalendarDays(currentDate, firstDate));
     const dailyTrend = (current.weight - firstEntry.weight) / days;
-    if (dailyTrend === 0) return "Stable trend";
+    if (!Number.isFinite(dailyTrend) || Math.abs(dailyTrend) < 0.001) return "Stable trend";
     const remaining = profile.goalWeight - current.weight;
     if (Math.sign(remaining) !== Math.sign(dailyTrend)) return "Trend away from goal";
     const daysToGoal = Math.abs(Math.round(remaining / dailyTrend));
-    return format(addDays(parseISO(`${current.date}T00:00:00`), daysToGoal), "MMM d, yyyy");
+    if (!Number.isFinite(daysToGoal) || daysToGoal > 3650) return "Long-term trend";
+    return format(addDays(currentDate, daysToGoal), "MMM d, yyyy");
   }, [current, profile, sorted]);
 
-  const chartData = sorted.map((entry) => ({ date: entry.date.slice(5), weight: entry.weight }));
+  const chartData = sorted.map((entry) => ({ date: entry.date.slice(5), weight: Number(displayWeight(entry.weight)?.toFixed(1) ?? 0) }));
+  const goalLine = Number.isFinite(profile?.goalWeight) ? displayWeight(profile?.goalWeight) ?? undefined : undefined;
 
   const openAdd = () => {
     setEditing(null);
@@ -61,11 +69,16 @@ export function WeightPage() {
           </Button>
         }
       />
-      <div className="mb-4 grid gap-3 sm:grid-cols-5">
-        <MetricCard icon={Scale} label="Starting weight" value={formatWeight(first?.weight)} />
-        <MetricCard icon={Scale} label="Current weight" value={formatWeight(current?.weight)} />
-        <MetricCard icon={Scale} label="Goal weight" value={formatWeight(profile?.goalWeight)} />
-        <MetricCard icon={change <= 0 ? TrendingDown : TrendingUp} label="Change so far" value={`${change.toFixed(1)} kg`} tone={change <= 0 ? "positive" : "warning"} />
+      <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <MetricCard icon={Scale} label="Starting weight" value={formatWeight(displayWeight(first?.weight), weightUnit)} />
+        <MetricCard icon={Scale} label="Current weight" value={formatWeight(displayWeight(current?.weight), weightUnit)} />
+        <MetricCard icon={Scale} label="Goal weight" value={formatWeight(displayWeight(profile?.goalWeight), weightUnit)} />
+        <MetricCard
+          icon={change <= 0 ? TrendingDown : TrendingUp}
+          label="Change so far"
+          value={formatWeight(displayWeight(change), weightUnit)}
+          tone={change <= 0 ? "positive" : "warning"}
+        />
         <MetricCard icon={TrendingDown} label="Projected goal date" value={projectedDate} />
       </div>
 
@@ -75,7 +88,7 @@ export function WeightPage() {
             <CardTitle>Weight trend</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveLine data={chartData} xKey="date" yKey="weight" goal={profile?.goalWeight} height={320} />
+            <ResponsiveLine data={chartData} xKey="date" yKey="weight" goal={goalLine} height={320} />
           </CardContent>
         </Card>
         <Card>
@@ -118,3 +131,11 @@ export function WeightPage() {
   );
 }
 
+function parseDateKey(date: string) {
+  const parsed = parseISO(`${date}T00:00:00`);
+  return isValid(parsed) ? parsed : null;
+}
+
+function isChartableWeight(entry: WeightEntry) {
+  return Number.isFinite(entry.weight) && Boolean(parseDateKey(entry.date));
+}

@@ -102,7 +102,7 @@ export function OnboardingWizard() {
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <CheckCircle2 className="h-8 w-8" />
               </div>
-              <h1 className="text-2xl font-semibold">Your command center is ready</h1>
+              <h1 className="text-2xl font-semibold">Your FitBudget is ready</h1>
               <p className="mt-2 text-sm text-muted-foreground">
                 Calorie goal: {formatKcal(targets?.calories)}. Budget: {formatCurrency(budget.monthlyBudget, budget.currency, budget.currencySymbol)} per cycle.
               </p>
@@ -127,7 +127,7 @@ export function OnboardingWizard() {
             </motion.div>
             <div>
               <p className="text-sm font-semibold">FitBudget</p>
-              <p className="text-xs text-muted-foreground">Setup takes about two minutes</p>
+              <p className="text-xs text-muted-foreground">A few quick questions</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -145,7 +145,7 @@ export function OnboardingWizard() {
             {step === 0 && (
               <StepShell
                 title="Build a daily rhythm for your body and money."
-                description="FitBudget helps you track meals, weight, habits, and spending in one private account."
+                description="FitBudget brings meals, weight, habits, and spending into one clear daily view."
                 icon={Sparkles}
               >
                 <div className="grid gap-3 sm:grid-cols-3">

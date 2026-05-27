@@ -59,7 +59,7 @@ export function BudgetOverviewPage() {
         </CardContent>
       </Card>
 
-      <div className="mb-4 grid gap-3 sm:grid-cols-5">
+      <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <MetricCard icon={ReceiptText} label="Largest expense" value={summary.largestExpense ? formatCurrency(summary.largestExpense.amount, currency, symbol) : "--"} detail={summary.largestExpense?.title} />
         <MetricCard icon={WalletCards} label="Top category" value={summary.topCategory ? titleCase(summary.topCategory.category) : "--"} detail={summary.topCategory ? formatCurrency(summary.topCategory.spent, currency, symbol) : undefined} />
         <MetricCard icon={BarChart3} label="Average daily spend" value={formatCurrency(summary.averageDailySpend, currency, symbol)} />

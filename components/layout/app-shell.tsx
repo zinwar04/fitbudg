@@ -176,7 +176,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             {!sidebarCollapsed && (
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">FitBudget</p>
-                <p className="truncate text-xs text-muted-foreground">Body and money command center</p>
+                <p className="text-xs leading-snug text-muted-foreground">Body and money dashboard</p>
               </div>
             )}
           </div>
@@ -191,7 +191,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               {!sidebarCollapsed && (
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{profile?.name ?? user?.email ?? "FitBudget user"}</p>
-                  <p className="truncate text-xs text-muted-foreground">{online ? "Supabase sync on" : "Connection offline"}</p>
+                  <p className="text-xs leading-snug text-muted-foreground">{online ? "Sync on" : "Connection offline"}</p>
                 </div>
               )}
             </div>
@@ -230,7 +230,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </header>
           {!online && (
             <div className="hidden border-b bg-amber-500/10 px-6 py-2 text-xs text-amber-700 dark:text-amber-300 lg:block">
-              Connection is offline. Supabase actions will need the network to save.
+              Connection is offline. Changes need the network to save.
             </div>
           )}
           <AnimatePresence mode="wait">
@@ -285,7 +285,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="space-y-5 px-4 py-4">
               <div className="rounded-xl border bg-muted/30 p-3">
                 <p className="truncate text-sm font-medium">{profile?.name ?? user?.email ?? "FitBudget user"}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{online ? "Supabase sync on" : "Connection offline"}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{online ? "Sync on" : "Connection offline"}</p>
               </div>
               {mobileMenuGroups.map((group) => (
                 <div key={group.title}>
@@ -349,7 +349,7 @@ function MobileMenuItem({ item, active, onSelect }: { item: NavItemConfig; activ
       )}
     >
       <Icon className="h-4 w-4 shrink-0" />
-      <span className="min-w-0 leading-snug">{item.label}</span>
+      <span className="min-w-0 break-words leading-snug">{item.label}</span>
     </Link>
   );
 }

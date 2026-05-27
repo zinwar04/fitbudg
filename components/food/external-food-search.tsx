@@ -131,7 +131,7 @@ export function ExternalFoodSearch({ library }: { library: FoodLibraryItem[] }) 
                 <Icon className="h-4 w-4 shrink-0 text-primary" />
                 <span className="min-w-0">
                   <span className="block font-medium">{item.label}</span>
-                  <span className="block truncate text-xs text-muted-foreground">{item.description}</span>
+                  <span className="block text-xs leading-snug text-muted-foreground">{item.description}</span>
                 </span>
               </button>
             );
@@ -249,8 +249,8 @@ function ExternalFoodResult({
     <div className="flex min-h-full flex-col rounded-lg border bg-background p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="line-clamp-2 font-semibold leading-snug">{food.name}</h3>
-          <p className="mt-1 truncate text-sm text-muted-foreground">{food.brand ?? titleCase(food.category)}</p>
+          <h3 className="break-words font-semibold leading-snug">{food.name}</h3>
+          <p className="mt-1 break-words text-sm leading-snug text-muted-foreground">{food.brand ?? titleCase(food.category)}</p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1">
           <Badge variant={food.source === "usda" ? "default" : "secondary"}>{externalSourceLabel(food.source)}</Badge>
@@ -271,7 +271,7 @@ function ExternalFoodResult({
         <span className="rounded-full border px-2 py-1">{titleCase(food.category)}</span>
       </div>
 
-      {food.notes && <p className="mt-3 line-clamp-2 text-xs text-muted-foreground">{food.notes}</p>}
+      {food.notes && <p className="mt-3 break-words text-xs leading-snug text-muted-foreground">{food.notes}</p>}
       {missingCalories && <p className="mt-3 text-xs text-destructive">Calories are missing, so this item cannot be imported yet.</p>}
 
       <Button className="mt-4 w-full" disabled={isImported || missingCalories || importing} onClick={onImport}>

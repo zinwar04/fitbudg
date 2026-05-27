@@ -17,10 +17,10 @@ import { createId, nowIso } from "@/lib/utils/formatting";
 import { cn } from "@/lib/utils";
 
 const promptGroups = {
-  Coach: [
-    "Give me a quick coaching plan for today.",
+  Wellness: [
+    "Give me a simple health and budget plan for today.",
     "What should I focus on this week?",
-    "Where are my health and budget choices helping each other?",
+    "How can I make healthier choices without spending more?",
     "What is one small win I can get before bedtime?",
   ],
   Nutrition: [
@@ -56,7 +56,7 @@ export function AssistantPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [mode, setMode] = useState<PromptMode>("Coach");
+  const [mode, setMode] = useState<PromptMode>("Wellness");
   const scrollRef = useRef<HTMLDivElement>(null);
   const context = useMemo(
     () =>
@@ -144,7 +144,7 @@ export function AssistantPage() {
       const assistantMessage: ChatMessage = {
         id: createId(),
         role: "assistant",
-        content: payload.content ?? payload.error ?? "I could not generate a response. Try again after adding more data.",
+        content: payload.content ?? payload.error ?? "I could not generate a response right now. Please send that again in a moment.",
         createdAt: nowIso(),
       };
       const withAssistant = [...next, assistantMessage];
@@ -168,14 +168,14 @@ export function AssistantPage() {
     <div className="mx-auto flex min-h-[calc(100vh-7rem)] w-full max-w-7xl flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
               <Bot className="h-4 w-4" />
             </div>
             <h1 className="text-xl font-semibold">FitBudget AI</h1>
-            <Badge variant="secondary">Coach</Badge>
+            <Badge variant="secondary">Health and budget</Badge>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">Ask about meals, training, spending, habits, and how to make the whole day work.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Ask any health, food, fitness, habit, or budget question.</p>
         </div>
         <Button onClick={startNewChat}>
           <MessageSquarePlus className="h-4 w-4" />
@@ -225,7 +225,7 @@ export function AssistantPage() {
                   <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border bg-card">
                     <Sparkles className="h-5 w-5 text-primary" />
                   </div>
-                  <h2 className="mt-4 text-2xl font-semibold">What are we improving today?</h2>
+                  <h2 className="mt-4 text-2xl font-semibold">What do you want help with?</h2>
                   <div className="mt-6 flex justify-center gap-2">
                     {(Object.keys(promptGroups) as PromptMode[]).map((group) => (
                       <Button key={group} size="sm" variant={mode === group ? "default" : "outline"} onClick={() => setMode(group)}>
@@ -278,7 +278,7 @@ export function AssistantPage() {
                 onChange={(event) => setInput(event.target.value)}
                 onKeyDown={onComposerKeyDown}
                 className="max-h-36 min-h-11 resize-none border-0 bg-transparent focus-visible:ring-0"
-                placeholder="Ask your coach about food, fitness, budget, or habits"
+                placeholder="Ask about health, food, fitness, budget, or habits"
               />
               <Button type="submit" size="icon" disabled={loading || !input.trim()} className="rounded-full">
                 <Send className="h-4 w-4" />

@@ -66,7 +66,7 @@ export function HistoryPage() {
         }
       />
 
-      <div className="mb-4 grid gap-3 sm:grid-cols-5">
+      <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <MetricCard icon={UtensilsCrossed} label="Average calories" value={formatKcal(averageCalories)} />
         <MetricCard icon={Target} label="Days on target" value={`${daysOnTarget}`} detail="Within 10%" tone="positive" />
         <MetricCard icon={BarChart3} label="Days over" value={`${daysOver}`} tone={daysOver > 3 ? "warning" : "default"} />
@@ -224,4 +224,3 @@ function calculateBestStreak(values: boolean[]) {
   });
   return best;
 }
-

@@ -23,10 +23,20 @@ class ChartErrorBoundary extends Component<{ children: ReactNode }, ChartErrorBo
 
   render() {
     if (this.state.hasError) {
-      return <EmptyState icon={BarChart3} title="Chart unavailable" description="The data is still safe. Try refreshing this view." />;
+      return <EmptyState icon={BarChart3} title="Chart unavailable" description="The rest of this page is still available." />;
     }
     return this.props.children;
   }
+}
+
+function cleanChartData(data: Record<string, string | number>[], xKey: string, yKey: string) {
+  return data
+    .filter((row) => row[xKey] !== undefined && row[xKey] !== null && Number.isFinite(Number(row[yKey])))
+    .map((row) => ({ ...row, [yKey]: Number(row[yKey]) }));
+}
+
+function cleanGoal(goal: number | undefined) {
+  return Number.isFinite(goal) ? goal : undefined;
 }
 
 export function ResponsiveBar({
@@ -43,7 +53,9 @@ export function ResponsiveBar({
   height?: number;
 }) {
   const theme = useChartTheme();
-  if (data.length === 0) {
+  const chartData = cleanChartData(data, xKey, yKey);
+  const goalLine = cleanGoal(goal);
+  if (chartData.length === 0) {
     return <EmptyState icon={BarChart3} title="No chart data yet" description="Log a few entries and this chart will fill in automatically." />;
   }
 
@@ -51,12 +63,12 @@ export function ResponsiveBar({
     <ChartErrorBoundary>
       <div className="w-full min-w-0" style={{ height, minWidth: 0 }}>
         <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={height} initialDimension={{ width: 800, height }}>
-          <BarChart data={data}>
+          <BarChart data={chartData}>
             <CartesianGrid stroke={theme.goal} strokeDasharray="3 3" vertical={false} />
             <XAxis dataKey={xKey} stroke={theme.muted} tickLine={false} axisLine={false} fontSize={12} />
             <YAxis stroke={theme.muted} tickLine={false} axisLine={false} fontSize={12} />
             <Tooltip contentStyle={{ background: theme.background, border: `1px solid ${theme.goal}`, borderRadius: 8 }} />
-            {goal !== undefined && <ReferenceLine y={goal} stroke={theme.warning} strokeDasharray="4 4" />}
+            {goalLine !== undefined && <ReferenceLine y={goalLine} stroke={theme.warning} strokeDasharray="4 4" />}
             <Bar dataKey={yKey} radius={[6, 6, 0, 0]} fill={theme.primary} />
           </BarChart>
         </ResponsiveContainer>
@@ -79,7 +91,9 @@ export function ResponsiveLine({
   height?: number;
 }) {
   const theme = useChartTheme();
-  if (data.length === 0) {
+  const chartData = cleanChartData(data, xKey, yKey);
+  const goalLine = cleanGoal(goal);
+  if (chartData.length === 0) {
     return <EmptyState icon={BarChart3} title="No chart data yet" description="Add a few entries to see the trend." />;
   }
 
@@ -87,12 +101,12 @@ export function ResponsiveLine({
     <ChartErrorBoundary>
       <div className="w-full min-w-0" style={{ height, minWidth: 0 }}>
         <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={height} initialDimension={{ width: 800, height }}>
-          <LineChart data={data}>
+          <LineChart data={chartData}>
             <CartesianGrid stroke={theme.goal} strokeDasharray="3 3" vertical={false} />
             <XAxis dataKey={xKey} stroke={theme.muted} tickLine={false} axisLine={false} fontSize={12} />
             <YAxis stroke={theme.muted} tickLine={false} axisLine={false} fontSize={12} />
             <Tooltip contentStyle={{ background: theme.background, border: `1px solid ${theme.goal}`, borderRadius: 8 }} />
-            {goal !== undefined && <ReferenceLine y={goal} stroke={theme.warning} strokeDasharray="4 4" />}
+            {goalLine !== undefined && <ReferenceLine y={goalLine} stroke={theme.warning} strokeDasharray="4 4" />}
             <Line type="monotone" dataKey={yKey} stroke={theme.primary} strokeWidth={3} dot={{ r: 3 }} activeDot={{ r: 5 }} />
           </LineChart>
         </ResponsiveContainer>

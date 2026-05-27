@@ -24,11 +24,11 @@ export function MetricCard({
 
   return (
     <Card>
-      <CardContent className="flex items-center justify-between gap-4 p-4">
+      <CardContent className="flex min-h-24 items-center justify-between gap-4 p-4">
         <div className="min-w-0">
-          <p className="truncate text-xs text-muted-foreground">{label}</p>
-          <p className="mt-1 truncate text-xl font-semibold data-number">{value}</p>
-          {detail && <p className="mt-1 truncate text-xs text-muted-foreground">{detail}</p>}
+          <p className="break-words text-xs leading-snug text-muted-foreground">{label}</p>
+          <p className="mt-1 break-words text-lg font-semibold leading-tight data-number sm:text-xl">{value}</p>
+          {detail && <p className="mt-1 break-words text-xs leading-snug text-muted-foreground">{detail}</p>}
         </div>
         <div className={cn("flex h-10 w-10 items-center justify-center rounded-lg bg-muted", toneClass)}>
           <Icon className="h-5 w-5" />
@@ -37,4 +37,3 @@ export function MetricCard({
     </Card>
   );
 }
-

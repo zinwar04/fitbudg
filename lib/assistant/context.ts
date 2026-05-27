@@ -87,45 +87,61 @@ export function buildAssistantContext(data: AllUserData): AssistantContext {
 }
 
 export function buildSystemPrompt(context: AssistantContext) {
-  return `You are FitBudget Coach, a practical fitness, nutrition, budgeting, and habit coach inside the FitBudget app.
+  return `You are FitBudget AI, a practical assistant for health, nutrition, fitness, habits, and everyday budgeting inside the FitBudget app.
 
-You can answer any budget, fitness, nutrition, food logging, meal planning, habit, or health-and-money tradeoff question. Be useful even when the user asks broadly: start with the likely goal, use the FitBudget data below, explain the tradeoff, and give a small next action. If data is missing, say what is missing and give a reasonable general plan instead of refusing.
+You can answer any health, nutrition, fitness, food logging, meal planning, habit, budget, spending, saving, or health-and-money tradeoff question. Be useful even when the user asks broadly: start with the likely goal, use the FitBudget data below when it helps, explain the tradeoff, and give a small next action. If app data is missing, say what is missing and give a reasonable general plan instead of refusing.
 
 Style:
 - Warm, direct, and concise.
-- Coach the whole situation, not only the literal wording of the question.
+- Answer the whole situation, not only the literal wording of the question.
 - Use numbers from the context when they help.
 - Prefer practical steps, simple meal/spending ideas, and behavior changes the user can do today.
 - Ask at most one clarifying question only when the answer would change the plan.
 - Do not provide diagnosis, medical treatment, investment advice, or claim professional certainty.
+- Do not mention the AI provider, model name, backend, database, or implementation details.
 
 User context:
 ${JSON.stringify(context, null, 2)}`;
 }
 
-export function mockAssistantResponse(messages: Pick<ChatMessage, "role" | "content">[], context: AssistantContext) {
+export function fallbackAssistantResponse(messages: Pick<ChatMessage, "role" | "content">[], context: AssistantContext) {
   const lastMessage = messages[messages.length - 1]?.content.toLowerCase() ?? "";
   const topFood = context.last7Days.topFoods[0]?.name;
   const topHabit = context.habits.currentStreaks[0];
+  const asksAboutHealth = /health|fitness|food|meal|diet|nutrition|calorie|protein|weight|habit|sleep|exercise|workout|steps|water|fat|carb/.test(lastMessage);
+  const asksAboutBudget = /budget|money|spend|saving|save|expense|income|salary|bill|debt|cost|cheap|afford|buy|purchase/.test(lastMessage);
   const calorieLine =
     context.last7Days.loggedDays > 0
       ? `You logged ${context.last7Days.loggedDays} day(s) this week, averaging ${context.last7Days.averageCalories} kcal and ${context.last7Days.averageProtein} g protein.`
       : "You do not have much food logging data this week yet.";
   const budgetLine = `You have spent ${context.budgetStatus.spent.toLocaleString("en-US")} ${context.budgetStatus.currency} against a ${context.budgetStatus.budget.toLocaleString("en-US")} budget, with about ${context.budgetStatus.safeToSpendToday.toLocaleString("en-US")} ${context.budgetStatus.currency} safe to spend today.`;
+  const response: string[] = [];
 
-  if (lastMessage.includes("calories") || lastMessage.includes("food") || lastMessage.includes("protein")) {
-    return `${calorieLine} Your targets are ${context.profile.calorieTarget} kcal and ${context.profile.proteinTarget} g protein. Coach move: plan one protein anchor for the next meal, then adjust carbs or fats around your remaining calories.${topFood ? ` Your most repeated food lately is ${topFood}, so that is a good place to tune portions first.` : ""}`;
+  if (asksAboutHealth || !asksAboutBudget) {
+    response.push(
+      `${calorieLine} A good health move is to pick one anchor for the next meal: protein first, then vegetables or fruit, then adjust carbs and fats around your calorie target of ${context.profile.calorieTarget || "--"} kcal and protein target of ${context.profile.proteinTarget || "--"} g.`,
+    );
+
+    if (topFood) {
+      response.push(`Your most repeated food lately is ${topFood}, so that is a useful place to tune portions or improve protein per serving.`);
+    }
+
+    if (topHabit) {
+      response.push(`Your strongest habit is "${topHabit.name}" at ${topHabit.streak} days. Protect that streak before adding anything complicated.`);
+    }
   }
 
-  if (lastMessage.includes("budget") || lastMessage.includes("spending") || lastMessage.includes("spend")) {
-    return `${budgetLine} Your spending pace is ${context.budgetStatus.pacePercent}% of target pace. Coach move: keep today's flexible purchases under that safe-spend number and check ${context.budgetStatus.topCategory ?? "your largest category"} before buying extras.`;
+  if (asksAboutBudget || !asksAboutHealth) {
+    response.push(
+      `${budgetLine} A good money move is to keep flexible purchases under today's safe-spend number and check ${context.budgetStatus.topCategory ?? "your largest category"} before buying extras.`,
+    );
   }
 
-  if (lastMessage.includes("habit") || lastMessage.includes("streak")) {
-    return topHabit
-      ? `Your strongest habit right now is "${topHabit.name}" at ${topHabit.streak} days. Weekly completion is ${context.habits.completionRateThisWeek}%. Coach move: protect that streak, then add one tiny supporting habit that takes under two minutes.`
-      : "You do not have enough habit data yet. Start with one easy daily habit and I can summarize patterns after a few days.";
+  response.push("For today, choose one health target and one money target small enough to complete before bedtime. That keeps the plan useful even without perfect data.");
+
+  if (!asksAboutHealth && !asksAboutBudget) {
+    response.push("I am best for health, food, habits, and budget questions, so connect your question to one of those and I can be more specific.");
   }
 
-  return `${calorieLine} ${budgetLine} Coach move for today: choose one food target and one money target, then keep both small enough to win before bedtime.`;
+  return response.join("\n\n");
 }
