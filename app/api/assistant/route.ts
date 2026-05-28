@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { AssistantContext, buildSystemPrompt } from "@/lib/assistant/context";
 
+export const runtime = "nodejs";
+
+const ASSISTANT_MODEL = "gemini-2.5-flash";
+const MAX_CONTEXT_CHARS = 650_000;
+const MAX_MESSAGES = 24;
+const MAX_MESSAGE_CHARS = 8_000;
+
 interface RequestMessage {
   role: "user" | "assistant";
   content: string;
@@ -20,6 +27,13 @@ function isRequestMessage(value: unknown): value is RequestMessage {
 
 function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
+}
+
+function toGeminiMessage(message: RequestMessage) {
+  return {
+    role: message.role === "assistant" ? "model" : "user",
+    parts: [{ text: message.content.slice(0, MAX_MESSAGE_CHARS) }],
+  };
 }
 
 async function isAuthorizedAssistantRequest(req: Request) {
@@ -45,29 +59,28 @@ export async function POST(req: Request) {
   try {
     const authorized = await isAuthorizedAssistantRequest(req);
     if (!authorized) {
-      return jsonError("Please sign in again before using FitBudget Coach.", 401);
+      return jsonError("Please sign in again before using the assistant.", 401);
     }
 
     const body = (await req.json()) as { messages?: unknown; context?: AssistantContext };
-    const messages = Array.isArray(body.messages) ? body.messages.filter(isRequestMessage) : [];
+    const messages = Array.isArray(body.messages) ? body.messages.filter(isRequestMessage).slice(-MAX_MESSAGES) : [];
     const context = body.context;
 
     if (!context || messages.length === 0) {
       return jsonError("Missing messages or account context.", 400);
     }
 
-    if (JSON.stringify(context).length > 120_000) {
+    if (JSON.stringify(context).length > MAX_CONTEXT_CHARS) {
       return jsonError("The assistant context is too large. Please try again after reducing imported data.", 413);
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
-    const model = process.env.AI_MODEL ?? process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
 
     if (!apiKey) {
-      return jsonError("Gemini is not configured for this app yet. Add GEMINI_API_KEY on the server to enable FitBudget Coach.", 503);
+      return jsonError("The assistant is not configured on the server yet.", 503);
     }
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${ASSISTANT_MODEL}:generateContent`, {
       method: "POST",
       headers: {
         "x-goog-api-key": apiKey,
@@ -77,33 +90,34 @@ export async function POST(req: Request) {
         systemInstruction: {
           parts: [{ text: buildSystemPrompt(context) }],
         },
-        contents: messages.map((message) => ({
-          role: message.role === "assistant" ? "model" : "user",
-          parts: [{ text: message.content }],
-        })),
+        contents: messages.map(toGeminiMessage),
         generationConfig: {
-          temperature: 0.45,
-          topP: 0.9,
-          maxOutputTokens: 1800,
+          temperature: 0.35,
+          topP: 0.95,
+          maxOutputTokens: 2400,
           responseMimeType: "text/plain",
+          thinkingConfig: {
+            thinkingBudget: -1,
+          },
         },
       }),
     });
 
     if (!response.ok) {
-      return jsonError("Gemini could not generate a coach response right now. Please try again in a moment.", 502);
+      return jsonError("I could not generate a response right now. Please try again in a moment.", 502);
     }
 
     const payload = (await response.json()) as {
-      candidates?: { content?: { parts?: { text?: string }[] } }[];
+      candidates?: { content?: { parts?: { text?: string }[] }; finishReason?: string }[];
     };
     const content = payload.candidates?.[0]?.content?.parts?.map((part) => part.text ?? "").join("").trim();
     if (!content) {
-      return jsonError("Gemini returned an empty response. Please try a more specific question.", 502);
+      return jsonError("I got an empty response. Please try a more specific question.", 502);
     }
 
     return NextResponse.json({ content });
-  } catch {
+  } catch (error) {
+    console.error("Assistant request failed", error);
     return jsonError("Assistant request failed.", 500);
   }
 }

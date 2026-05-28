@@ -1,11 +1,11 @@
 "use client";
 
 import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
-import { Bot, CircleDollarSign, Dumbbell, Flame, MessageSquare, MessageSquarePlus, Send, Sparkles, Trash2, UtensilsCrossed } from "lucide-react";
+import { ArrowUp, Bot, Dumbbell, Menu, MessageSquare, MessageSquarePlus, Sparkles, Trash2, UtensilsCrossed, WalletCards } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { buildAssistantContext } from "@/lib/assistant/context";
 import { AssistantSession, ChatMessage } from "@/lib/db/schema";
 import { deleteAssistantSession, getAssistantSessions, saveAssistantSession } from "@/lib/db/assistant.service";
@@ -14,20 +14,34 @@ import { useBudgetStore } from "@/lib/store/budget.store";
 import { useFoodStore } from "@/lib/store/food.store";
 import { useHabitsStore } from "@/lib/store/habits.store";
 import { useProfileStore } from "@/lib/store/profile.store";
-import { createId, formatCurrency, formatKcal, nowIso } from "@/lib/utils/formatting";
+import { createId, nowIso } from "@/lib/utils/formatting";
 import { cn } from "@/lib/utils";
 
 const starterPrompts = [
-  "Build me one realistic plan for today using my calories, protein, habits, and safe spending.",
-  "Review my recent logs and tell me the highest-impact thing to fix this week.",
-  "Make me a cheap high-protein meal plan from my usual foods.",
-  "How do I stay on track tonight without overspending?",
-  "What should I meal prep before tomorrow?",
-  "Where am I drifting from my goals, and what should I do next?",
+  {
+    title: "Today",
+    prompt: "Build me one realistic plan for today using my calories, protein, habits, and safe spending.",
+    icon: Sparkles,
+  },
+  {
+    title: "Meals",
+    prompt: "Make me a cheap high-protein meal plan from my usual foods.",
+    icon: UtensilsCrossed,
+  },
+  {
+    title: "Fitness",
+    prompt: "Review my recent logs and tell me the highest-impact thing to fix this week.",
+    icon: Dumbbell,
+  },
+  {
+    title: "Budget",
+    prompt: "How do I stay on track tonight without overspending?",
+    icon: WalletCards,
+  },
 ];
 
 export function AssistantPage() {
-  const session = useAuthStore((state) => state.session);
+  const authSession = useAuthStore((state) => state.session);
   const profile = useProfileStore((state) => state.profile);
   const settings = useProfileStore((state) => state.settings);
   const logs = useFoodStore((state) => state.logs);
@@ -44,7 +58,9 @@ export function AssistantPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+
   const context = useMemo(
     () =>
       buildAssistantContext({
@@ -62,31 +78,8 @@ export function AssistantPage() {
       }),
     [budgetProfile, foodEntries, foodLibrary, habitEntries, habits, logs, mealTemplates, profile, settings, transactions, weightEntries],
   );
-  const contextChips = useMemo(
-    () => [
-      {
-        label: "Calories",
-        value: formatKcal(context.targets?.calories),
-        icon: Flame,
-      },
-      {
-        label: "Protein",
-        value: context.targets?.protein ? `${context.targets.protein} g` : "--",
-        icon: Dumbbell,
-      },
-      {
-        label: "Safe spend",
-        value: formatCurrency(context.budget.cycle.safeToSpendToday, context.budget.currency, context.budget.currencySymbol),
-        icon: CircleDollarSign,
-      },
-      {
-        label: "Logged",
-        value: `${context.nutrition.last7Days.loggedDays}/7 days`,
-        icon: UtensilsCrossed,
-      },
-    ],
-    [context],
-  );
+
+  const activeTitle = sessions.find((chat) => chat.id === sessionId)?.title ?? "Assistant";
 
   const refreshSessions = async () => {
     const loaded = await getAssistantSessions();
@@ -114,11 +107,13 @@ export function AssistantPage() {
     setSessionId(null);
     setMessages([]);
     setInput("");
+    setHistoryOpen(false);
   };
 
-  const openSession = (session: AssistantSession) => {
-    setSessionId(session.id);
-    setMessages(session.messages);
+  const openSession = (chat: AssistantSession) => {
+    setSessionId(chat.id);
+    setMessages(chat.messages);
+    setHistoryOpen(false);
   };
 
   const removeSession = async (id: string) => {
@@ -129,7 +124,7 @@ export function AssistantPage() {
   };
 
   const persist = async (nextMessages: ChatMessage[]) => {
-    const title = nextMessages.find((message) => message.role === "user")?.content.slice(0, 48) || "New chat";
+    const title = nextMessages.find((message) => message.role === "user")?.content.slice(0, 56) || "New chat";
     const saved = await saveAssistantSession({ id: sessionId ?? undefined, title, messages: nextMessages });
     setSessionId(saved.id);
     await refreshSessions();
@@ -138,34 +133,45 @@ export function AssistantPage() {
   const send = async (content = input) => {
     const trimmed = content.trim();
     if (!trimmed || loading) return;
+
     const userMessage: ChatMessage = { id: createId(), role: "user", content: trimmed, createdAt: nowIso() };
     const next = [...messages, userMessage];
     setMessages(next);
     setInput("");
     setLoading(true);
+
     try {
       const response = await fetch("/api/assistant", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+          ...(authSession?.access_token ? { Authorization: `Bearer ${authSession.access_token}` } : {}),
         },
         body: JSON.stringify({
           messages: next.map((message) => ({ role: message.role, content: message.content })),
           context,
         }),
       });
-      const payload = (await response.json()) as { content?: string; error?: string };
+      const payload = (await response.json().catch(() => ({}))) as { content?: string; error?: string };
       const assistantMessage: ChatMessage = {
         id: createId(),
         role: "assistant",
-        content: payload.content ?? payload.error ?? "I could not generate a response right now. Please send that again in a moment.",
+        content: response.ok
+          ? payload.content ?? "I could not generate a response right now. Please send that again in a moment."
+          : payload.error ?? "I could not generate a response right now. Please try again in a moment.",
         createdAt: nowIso(),
       };
       const withAssistant = [...next, assistantMessage];
       setMessages(withAssistant);
       await persist(withAssistant);
     } catch (error) {
+      const assistantMessage: ChatMessage = {
+        id: createId(),
+        role: "assistant",
+        content: "I could not reach the assistant right now. Check your connection and try again.",
+        createdAt: nowIso(),
+      };
+      setMessages([...next, assistantMessage]);
       toast.error(error instanceof Error ? error.message : "Assistant request failed.");
     } finally {
       setLoading(false);
@@ -180,140 +186,211 @@ export function AssistantPage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-[calc(100svh-8rem)] w-full max-w-7xl flex-col gap-4 pb-2">
-      <div className="rounded-xl border bg-card/80 p-3 shadow-sm sm:p-4">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                <Bot className="h-4 w-4" />
-              </div>
-              <h1 className="text-xl font-semibold">FitBudget Coach</h1>
-              <Badge variant="secondary">Personal data ready</Badge>
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">Fitness, meals, calories, habits, and spending in one coach.</p>
-          </div>
-          <Button className="w-full sm:w-auto" onClick={startNewChat}>
+    <div className="flex h-[calc(100svh-7.5rem)] min-h-[34rem] w-full overflow-hidden bg-background lg:h-screen lg:min-h-0">
+      <aside className="hidden w-80 shrink-0 flex-col border-r bg-card/70 lg:flex">
+        <div className="flex h-14 items-center gap-2 border-b px-3">
+          <Button className="h-10 flex-1 justify-start" variant="ghost" onClick={startNewChat}>
             <MessageSquarePlus className="h-4 w-4" />
-            New Chat
+            New chat
           </Button>
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {contextChips.map((chip) => {
-            const Icon = chip.icon;
-            return (
-              <div key={chip.label} className="min-w-0 rounded-lg border bg-background/70 p-3">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Icon className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">{chip.label}</span>
-                </div>
-                <p className="mt-1 truncate text-sm font-semibold data-number">{chip.value}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+        <ChatHistory sessions={sessions} sessionId={sessionId} onOpen={openSession} onDelete={(id) => void removeSession(id)} />
+      </aside>
 
-      <div className="-mx-4 px-4 lg:hidden">
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          <Button size="sm" variant={!sessionId ? "default" : "outline"} onClick={startNewChat}>
-            New
-          </Button>
-          {sessions.map((session) => (
-            <Button key={session.id} size="sm" variant={session.id === sessionId ? "default" : "outline"} className="max-w-52 shrink-0 justify-start truncate" onClick={() => openSession(session)}>
-              {session.title}
+      <main className="flex min-w-0 flex-1 flex-col">
+        <header className="flex h-14 shrink-0 items-center justify-between border-b bg-background/95 px-3 backdrop-blur sm:px-4">
+          <div className="flex min-w-0 items-center gap-2">
+            <Button className="lg:hidden" size="icon" variant="ghost" onClick={() => setHistoryOpen(true)} aria-label="Open chat history">
+              <Menu className="h-5 w-5" />
             </Button>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-[17rem_1fr]">
-        <aside className="hidden rounded-xl border bg-card p-3 lg:block">
-          <Button className="mb-3 w-full justify-start" variant="outline" onClick={startNewChat}>
-            <MessageSquarePlus className="h-4 w-4" />
-            New Chat
-          </Button>
-          <div className="space-y-1">
-            {sessions.map((session) => (
-              <div key={session.id} className={cn("group flex items-center gap-1 rounded-lg px-2 py-1.5", session.id === sessionId && "bg-primary/10")}>
-                <button className="flex min-w-0 flex-1 items-center gap-2 text-left text-sm" onClick={() => openSession(session)}>
-                  <MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  <span className="truncate">{session.title}</span>
-                </button>
-                <Button className="h-7 w-7 opacity-0 group-hover:opacity-100" size="icon" variant="ghost" onClick={() => void removeSession(session.id)}>
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </aside>
-
-        <section className="flex min-h-[64svh] flex-1 flex-col overflow-hidden rounded-xl border bg-background sm:min-h-[70vh]">
-          <div className="flex-1 overflow-y-auto px-3 py-5 sm:px-6 sm:py-6">
-            <div className="mx-auto flex w-full max-w-3xl flex-col gap-5">
-              {messages.length === 0 && (
-                <div className="py-4 text-center sm:py-8">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border bg-card">
-                    <Sparkles className="h-5 w-5 text-primary" />
-                  </div>
-                  <h2 className="mt-4 text-xl font-semibold sm:text-2xl">Ask your coach anything.</h2>
-                  <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
-                    One assistant reads your food, fitness, habits, and spending together.
-                  </p>
-                  <div className="mt-5 grid gap-2 text-left sm:grid-cols-2">
-                    {starterPrompts.map((prompt) => (
-                      <button key={prompt} className="rounded-lg border bg-card p-3 text-left text-sm leading-5 transition-colors hover:border-primary" onClick={() => void send(prompt)}>
-                        {prompt}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {messages.map((message) => (
-                <div key={message.id} className={cn("flex gap-3", message.role === "user" ? "justify-end" : "justify-start")}>
-                  {message.role === "assistant" && (
-                    <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                      <Bot className="h-4 w-4" />
-                    </div>
-                  )}
-                  <div className={cn("max-w-[92%] break-words whitespace-pre-wrap rounded-2xl px-4 py-3 text-[15px] leading-6 sm:max-w-[84%] sm:text-sm", message.role === "user" ? "bg-primary text-primary-foreground" : "bg-card")}>
-                    {message.content}
-                  </div>
-                </div>
-              ))}
-              {loading && (
-                <div className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-                    <Bot className="h-4 w-4" />
-                  </div>
-                  <div className="rounded-2xl bg-card px-4 py-3 text-sm text-muted-foreground">Coaching...</div>
-                </div>
-              )}
-              <div ref={scrollRef} />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold">{activeTitle}</p>
             </div>
           </div>
-          <form
-            className="sticky bottom-0 border-t bg-background/95 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur sm:p-4"
-            onSubmit={(event: FormEvent<HTMLFormElement>) => {
-              event.preventDefault();
-              void send();
-            }}
-          >
-            <div className="mx-auto flex max-w-3xl items-end gap-2 rounded-xl border bg-card p-2 shadow-sm">
-              <Textarea
-                value={input}
-                onChange={(event) => setInput(event.target.value)}
-                onKeyDown={onComposerKeyDown}
-                className="max-h-36 min-h-11 resize-none border-0 bg-transparent text-base focus-visible:ring-0 sm:text-sm"
-                placeholder="Ask FitBudget Coach"
-              />
-              <Button type="submit" size="icon" disabled={loading || !input.trim()} className="h-11 w-11 shrink-0 rounded-xl">
-                <Send className="h-4 w-4" />
+          <Button size="icon" variant="ghost" onClick={startNewChat} aria-label="Start new chat">
+            <MessageSquarePlus className="h-5 w-5" />
+          </Button>
+        </header>
+
+        <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6">
+          <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+            {messages.length === 0 && (
+              <div className="flex min-h-[58vh] flex-col items-center justify-center py-8 text-center">
+                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full border bg-card">
+                  <Bot className="h-5 w-5" />
+                </div>
+                <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">What can I help with?</h1>
+                <div className="mt-8 grid w-full gap-2 sm:grid-cols-2">
+                  {starterPrompts.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={item.prompt}
+                        className="group min-h-20 rounded-lg border bg-card px-4 py-3 text-left transition-colors hover:border-primary/60 hover:bg-accent"
+                        onClick={() => void send(item.prompt)}
+                      >
+                        <div className="flex items-center gap-2 text-sm font-medium">
+                          <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
+                          {item.title}
+                        </div>
+                        <p className="mt-1 line-clamp-2 text-sm leading-5 text-muted-foreground">{item.prompt}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {messages.map((message) => (
+              <MessageRow key={message.id} message={message} />
+            ))}
+
+            {loading && (
+              <div className="flex items-start gap-3">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-card">
+                  <Bot className="h-4 w-4" />
+                </div>
+                <div className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">Thinking...</div>
+              </div>
+            )}
+            <div ref={scrollRef} />
+          </div>
+        </div>
+
+        <form
+          className="shrink-0 bg-background px-3 pb-3 sm:px-6 sm:pb-5"
+          onSubmit={(event: FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            void send();
+          }}
+        >
+          <div className="mx-auto flex max-w-3xl items-end gap-2 rounded-[26px] border bg-card p-2 shadow-sm">
+            <Textarea
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              onKeyDown={onComposerKeyDown}
+              className="max-h-40 min-h-11 resize-none border-0 bg-transparent px-3 py-3 text-base leading-6 focus-visible:ring-0 sm:text-sm"
+              placeholder="Ask anything"
+            />
+            <Button type="submit" size="icon" disabled={loading || !input.trim()} className="h-10 w-10 shrink-0 rounded-full" aria-label="Send message">
+              <ArrowUp className="h-5 w-5" />
+            </Button>
+          </div>
+        </form>
+      </main>
+
+      <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
+        <DialogContent className="left-0 top-0 h-dvh max-h-none w-[86vw] max-w-sm translate-x-0 translate-y-0 gap-0 rounded-none border-l-0 border-y-0 p-0 sm:w-96 lg:hidden">
+          <DialogHeader className="border-b px-4 py-4">
+            <DialogTitle>Chats</DialogTitle>
+          </DialogHeader>
+          <div className="flex h-[calc(100dvh-4rem)] flex-col">
+            <div className="border-b p-3">
+              <Button className="w-full justify-start" variant="outline" onClick={startNewChat}>
+                <MessageSquarePlus className="h-4 w-4" />
+                New chat
               </Button>
             </div>
-          </form>
-        </section>
+            <ChatHistory sessions={sessions} sessionId={sessionId} onOpen={openSession} onDelete={(id) => void removeSession(id)} />
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function ChatHistory({
+  sessions,
+  sessionId,
+  onOpen,
+  onDelete,
+}: {
+  sessions: AssistantSession[];
+  sessionId: string | null;
+  onOpen: (session: AssistantSession) => void;
+  onDelete: (id: string) => void;
+}) {
+  return (
+    <div className="min-h-0 flex-1 overflow-y-auto px-2 py-3">
+      {sessions.length === 0 ? (
+        <p className="px-3 py-2 text-sm text-muted-foreground">No chats yet.</p>
+      ) : (
+        <div className="space-y-1">
+          {sessions.map((chat) => (
+            <div key={chat.id} className={cn("group flex items-center gap-1 rounded-lg px-2 py-1.5", chat.id === sessionId && "bg-primary/10")}>
+              <button className="flex min-w-0 flex-1 items-center gap-2 text-left text-sm" onClick={() => onOpen(chat)}>
+                <MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="truncate">{chat.title}</span>
+              </button>
+              <Button className="h-8 w-8 opacity-100 lg:opacity-0 lg:group-hover:opacity-100" size="icon" variant="ghost" onClick={() => onDelete(chat.id)} aria-label="Delete chat">
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MessageRow({ message }: { message: ChatMessage }) {
+  const user = message.role === "user";
+
+  return (
+    <div className={cn("flex items-start gap-3", user ? "justify-end" : "justify-start")}>
+      {!user && (
+        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-card">
+          <Bot className="h-4 w-4" />
+        </div>
+      )}
+      <div
+        className={cn(
+          "min-w-0 text-[15px] leading-7 sm:text-sm sm:leading-6",
+          user ? "max-w-[86%] rounded-[22px] bg-muted px-4 py-2.5" : "w-full max-w-3xl px-1 py-1 text-foreground",
+        )}
+      >
+        <FormattedMessage content={message.content} />
       </div>
+    </div>
+  );
+}
+
+function FormattedMessage({ content }: { content: string }) {
+  const blocks = content.trim().split(/\n{2,}/);
+
+  return (
+    <div className="space-y-3">
+      {blocks.map((block, index) => {
+        const lines = block.split("\n").map((line) => line.trimEnd());
+        const bulletLines = lines.every((line) => /^[-*]\s+/.test(line.trim()));
+        const numberLines = lines.every((line) => /^\d+\.\s+/.test(line.trim()));
+
+        if (bulletLines) {
+          return (
+            <ul key={`${block}-${index}`} className="list-disc space-y-1 pl-5">
+              {lines.map((line) => (
+                <li key={line}>{line.replace(/^[-*]\s+/, "")}</li>
+              ))}
+            </ul>
+          );
+        }
+
+        if (numberLines) {
+          return (
+            <ol key={`${block}-${index}`} className="list-decimal space-y-1 pl-5">
+              {lines.map((line) => (
+                <li key={line}>{line.replace(/^\d+\.\s+/, "")}</li>
+              ))}
+            </ol>
+          );
+        }
+
+        return (
+          <p key={`${block}-${index}`} className="whitespace-pre-wrap break-words">
+            {block}
+          </p>
+        );
+      })}
     </div>
   );
 }

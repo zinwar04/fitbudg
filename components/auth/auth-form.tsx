@@ -113,7 +113,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
               {isSignup ? "Create your FitBudget account." : "Welcome back to FitBudget."}
             </h1>
             <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
-              Track food, weight, habits, spending, and AI conversations from one secure account.
+              Track food, weight, habits, spending, and personal coaching from one secure account.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
               {["Daily food logging", "Budget clarity", "Mobile ready"].map((item) => (

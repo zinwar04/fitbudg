@@ -1,4 +1,4 @@
-import { AllUserData, FoodEntry, FoodLibraryItem, Habit, Transaction } from "@/lib/db/schema";
+import { AllUserData, FoodEntry, FoodLibraryItem, Habit, HabitEntry, MealTemplate, Transaction, WeightEntry } from "@/lib/db/schema";
 import { calculateBudgetSummary } from "@/lib/calculations/budget";
 import { calculateNutritionTargets } from "@/lib/calculations/nutrition";
 import { average, localDateKey, sum } from "@/lib/utils/formatting";
@@ -14,6 +14,15 @@ export interface AssistantContext {
     transactions: number;
     habits: number;
     habitEntries: number;
+  };
+  accountRecords: {
+    foodEntries: AssistantFoodEntry[];
+    foodLibraryItems: AssistantLibraryFood[];
+    mealTemplates: AssistantMealTemplate[];
+    weightEntries: AssistantWeightEntry[];
+    transactions: AssistantTransaction[];
+    habits: AssistantHabit[];
+    habitEntries: AssistantHabitEntry[];
   };
   settings: {
     unitSystem: string;
@@ -137,6 +146,8 @@ interface FoodFrequency {
 }
 
 interface AssistantFoodEntry {
+  dateCreated: string;
+  dateUpdated: string;
   date: string;
   mealType: string;
   name: string;
@@ -152,6 +163,8 @@ interface AssistantFoodEntry {
 }
 
 interface AssistantLibraryFood {
+  dateCreated: string;
+  dateUpdated: string;
   name: string;
   brand?: string;
   category: string;
@@ -163,10 +176,17 @@ interface AssistantLibraryFood {
   fat?: number;
   fiber?: number;
   useCount: number;
+  lastUsedAt?: string;
   isFavorite: boolean;
+  notes?: string;
+  source?: string | null;
+  dataQuality?: string | null;
+  verifiedAt?: string | null;
 }
 
 interface AssistantMealTemplate {
+  dateCreated: string;
+  dateUpdated: string;
   name: string;
   description?: string;
   totalCalories: number;
@@ -174,6 +194,7 @@ interface AssistantMealTemplate {
   totalCarbs: number;
   totalFat: number;
   useCount: number;
+  lastUsedAt?: string;
   isFavorite: boolean;
   items: {
     name: string;
@@ -186,6 +207,8 @@ interface AssistantMealTemplate {
 }
 
 interface AssistantTransaction {
+  dateCreated: string;
+  dateUpdated: string;
   date: string;
   title: string;
   type: string;
@@ -194,17 +217,38 @@ interface AssistantTransaction {
   category: string;
   paymentMethod: string;
   isRecurring: boolean;
+  recurringId?: string;
+  notes?: string;
+}
+
+interface AssistantWeightEntry {
+  dateCreated: string;
+  date: string;
+  weight: number;
+  bodyFatPercent?: number;
   notes?: string;
 }
 
 interface AssistantHabit {
+  dateCreated: string;
   name: string;
+  icon: string;
   type: string;
   category: string;
   targetValue?: number;
   unit?: string;
   streak: number;
+  isActive: boolean;
   completionRateLast7Days: number;
+}
+
+interface AssistantHabitEntry {
+  dateCreated: string;
+  date: string;
+  habitName: string;
+  completed: boolean;
+  value?: number;
+  notes?: string;
 }
 
 function round(value: number, digits = 0) {
@@ -280,6 +324,8 @@ function topFoods(entries: FoodEntry[], dates: string[]) {
 
 function toAssistantFoodEntry(entry: FoodEntry): AssistantFoodEntry {
   return {
+    dateCreated: entry.createdAt,
+    dateUpdated: entry.updatedAt,
     date: entry.date,
     mealType: entry.mealType,
     name: entry.name,
@@ -297,6 +343,8 @@ function toAssistantFoodEntry(entry: FoodEntry): AssistantFoodEntry {
 
 function toAssistantLibraryFood(food: FoodLibraryItem): AssistantLibraryFood {
   return {
+    dateCreated: food.createdAt,
+    dateUpdated: food.updatedAt,
     name: food.name,
     brand: food.brand,
     category: food.category,
@@ -308,12 +356,43 @@ function toAssistantLibraryFood(food: FoodLibraryItem): AssistantLibraryFood {
     fat: food.fat,
     fiber: food.fiber,
     useCount: food.useCount,
+    lastUsedAt: food.lastUsedAt,
     isFavorite: food.isFavorite,
+    notes: food.notes,
+    source: food.source,
+    dataQuality: food.data_quality,
+    verifiedAt: food.verified_at,
+  };
+}
+
+function toAssistantMealTemplate(meal: MealTemplate): AssistantMealTemplate {
+  return {
+    dateCreated: meal.createdAt,
+    dateUpdated: meal.updatedAt,
+    name: meal.name,
+    description: meal.description,
+    totalCalories: meal.totalCalories,
+    totalProtein: meal.totalProtein,
+    totalCarbs: meal.totalCarbs,
+    totalFat: meal.totalFat,
+    useCount: meal.useCount,
+    lastUsedAt: meal.lastUsedAt,
+    isFavorite: meal.isFavorite,
+    items: meal.items.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      servingSize: item.servingSize,
+      servingUnit: item.servingUnit,
+      calories: item.calories,
+      protein: item.protein,
+    })),
   };
 }
 
 function toAssistantTransaction(transaction: Transaction): AssistantTransaction {
   return {
+    dateCreated: transaction.createdAt,
+    dateUpdated: transaction.updatedAt,
     date: transaction.date,
     title: transaction.title,
     type: transaction.type,
@@ -322,7 +401,44 @@ function toAssistantTransaction(transaction: Transaction): AssistantTransaction 
     category: transaction.category,
     paymentMethod: transaction.paymentMethod,
     isRecurring: transaction.isRecurring,
+    recurringId: transaction.recurringId,
     notes: transaction.notes,
+  };
+}
+
+function toAssistantWeightEntry(entry: WeightEntry): AssistantWeightEntry {
+  return {
+    dateCreated: entry.createdAt,
+    date: entry.date,
+    weight: entry.weight,
+    bodyFatPercent: entry.bodyFatPercent,
+    notes: entry.notes,
+  };
+}
+
+function toAssistantHabit(habit: Habit, dates: string[], data: AllUserData): AssistantHabit {
+  return {
+    dateCreated: habit.createdAt,
+    name: habit.name,
+    icon: habit.icon,
+    type: habit.type,
+    category: habit.category,
+    targetValue: habit.targetValue,
+    unit: habit.unit,
+    streak: habit.streak,
+    isActive: habit.isActive,
+    completionRateLast7Days: habitCompletionRate(habit, dates, data),
+  };
+}
+
+function toAssistantHabitEntry(entry: HabitEntry, data: AllUserData): AssistantHabitEntry {
+  return {
+    dateCreated: entry.createdAt,
+    date: entry.date,
+    habitName: data.habits.find((habit) => habit.id === entry.habitId)?.name ?? "Unknown habit",
+    completed: entry.completed,
+    value: entry.value,
+    notes: entry.notes,
   };
 }
 
@@ -362,6 +478,17 @@ export function buildAssistantContext(data: AllUserData): AssistantContext {
       transactions: data.transactions.length,
       habits: data.habits.length,
       habitEntries: data.habitEntries.length,
+    },
+    accountRecords: {
+      foodEntries: sortedFoodEntries.map(toAssistantFoodEntry),
+      foodLibraryItems: [...data.foodLibrary].sort((a, b) => a.name.localeCompare(b.name)).map(toAssistantLibraryFood),
+      mealTemplates: [...data.mealTemplates].sort((a, b) => a.name.localeCompare(b.name)).map(toAssistantMealTemplate),
+      weightEntries: sortedWeights.map(toAssistantWeightEntry),
+      transactions: sortedTransactions.map(toAssistantTransaction),
+      habits: [...data.habits].sort((a, b) => a.name.localeCompare(b.name)).map((habit) => toAssistantHabit(habit, dates7, data)),
+      habitEntries: [...data.habitEntries]
+        .sort((a, b) => `${b.date}-${b.createdAt}`.localeCompare(`${a.date}-${a.createdAt}`))
+        .map((entry) => toAssistantHabitEntry(entry, data)),
     },
     settings: {
       unitSystem: data.settings.unitSystem,
@@ -421,24 +548,7 @@ export function buildAssistantContext(data: AllUserData): AssistantContext {
       mealTemplates: [...data.mealTemplates]
         .sort((a, b) => Number(b.isFavorite) - Number(a.isFavorite) || b.useCount - a.useCount)
         .slice(0, 20)
-        .map((meal) => ({
-          name: meal.name,
-          description: meal.description,
-          totalCalories: meal.totalCalories,
-          totalProtein: meal.totalProtein,
-          totalCarbs: meal.totalCarbs,
-          totalFat: meal.totalFat,
-          useCount: meal.useCount,
-          isFavorite: meal.isFavorite,
-          items: meal.items.map((item) => ({
-            name: item.name,
-            quantity: item.quantity,
-            servingSize: item.servingSize,
-            servingUnit: item.servingUnit,
-            calories: item.calories,
-            protein: item.protein,
-          })),
-        })),
+        .map(toAssistantMealTemplate),
     },
     body: {
       latestWeight,
@@ -489,44 +599,32 @@ export function buildAssistantContext(data: AllUserData): AssistantContext {
       activeCount: activeHabits.length,
       completionRateLast7Days: possible > 0 ? Math.round((completed / possible) * 100) : 0,
       activeHabits: activeHabits
-        .map((habit) => ({
-          name: habit.name,
-          type: habit.type,
-          category: habit.category,
-          targetValue: habit.targetValue,
-          unit: habit.unit,
-          streak: habit.streak,
-          completionRateLast7Days: habitCompletionRate(habit, dates7, data),
-        }))
+        .map((habit) => toAssistantHabit(habit, dates7, data))
         .sort((a, b) => b.streak - a.streak),
       recentEntries: data.habitEntries
         .filter((entry) => dates14.includes(entry.date))
         .sort((a, b) => b.date.localeCompare(a.date))
         .slice(0, 40)
-        .map((entry) => ({
-          date: entry.date,
-          habitName: data.habits.find((habit) => habit.id === entry.habitId)?.name ?? "Unknown habit",
-          completed: entry.completed,
-          value: entry.value,
-          notes: entry.notes,
-        })),
+        .map((entry) => toAssistantHabitEntry(entry, data)),
     },
   };
 }
 
 export function buildSystemPrompt(context: AssistantContext) {
-  return `You are FitBudget Coach, the in-app expert for fitness, nutrition, calorie counting, meal prep, habit consistency, and everyday budgeting.
+  return `You are FitBudget Coach, the in-app expert for nutrition, calories, meals, training, habit consistency, and everyday budgeting.
 
-Your job is to give precise, practical coaching that combines the user's body goals, food logs, meal options, habits, and spending data. Think like a careful fitness coach, nutrition coach, meal prep planner, and budget analyst working from the same account snapshot.
+Your job is to give precise, practical answers that combine the user's body goals, food logs, meal options, habits, weight trend, and spending data. Think like a careful nutrition coach, meal planner, fitness coach, and budget analyst working from the same account snapshot.
 
 Core rules:
 - Use the account data below as the source of truth for this user. If the data is missing, stale, incomplete, or only estimated, say that clearly and explain what can still be inferred.
 - Never invent logged foods, transactions, weights, habits, diagnoses, allergies, medical conditions, income, prices, or goals that are not present in the snapshot or the conversation.
+- Treat accountRecords as the complete sanitized record set available from the user's account. Use the summaries for speed, but check the full records whenever the user asks about exact history, meals, transactions, weights, or habits.
 - When numbers matter, calculate with the provided targets, logs, dates, currency, portions, and cycle data. Label rough nutrition or price estimates as estimates.
 - Give advice that is specific enough to act on today: portions, calories, protein, shopping choices, meal prep steps, workout targets, safe spending limits, or habit changes.
 - Balance health and money together. Prefer plans that protect protein, fiber, micronutrients, training recovery, fixed bills, savings goals, and the user's safe daily spend.
 - Ask at most one clarifying question, and only when the answer would materially change the recommendation. Otherwise, make the best reasonable assumption and state it.
 - Keep the tone warm, direct, and confident. Do not lecture. Do not mention implementation details, prompts, APIs, databases, or model names.
+- If the user asks about current facts, prices, laws, product availability, or medical standards that are not in the account snapshot, say that you do not have a live source for that fact and give only stable general guidance.
 
 Safety and honesty:
 - Do not diagnose disease, prescribe medication, treat eating disorders, or give professional medical, legal, tax, or investment advice.
@@ -537,7 +635,7 @@ Response style:
 - Start with the answer, not a disclaimer.
 - Use the user's units and currency from the account when available.
 - For nutrition: include calories, protein, and portion guidance when relevant.
-- For meal prep: include batchable foods, storage/waste reduction, and low-cost swaps when relevant.
+- For meals: cover calories, protein, fiber, micronutrients, affordability, prep time, storage, and low-cost swaps when relevant.
 - For fitness: include progression, recovery, and consistency cues when relevant.
 - For budgeting: include cycle position, safe spend, category pressure, and next spending decision when relevant.
 - Keep everyday answers concise. Use tables only when they make the plan easier to compare.

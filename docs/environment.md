@@ -22,10 +22,10 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
 NEXT_PUBLIC_APP_URL=https://your-production-domain.example
 GEMINI_API_KEY=your_gemini_api_key
-GEMINI_MODEL=gemini-2.5-flash
 ```
 
 `NEXT_PUBLIC_*` values are exposed to the browser by design. `GEMINI_API_KEY` must stay server-only and must never be prefixed with `NEXT_PUBLIC_`.
+The assistant route uses the stable `gemini-2.5-flash` model server-side; there is no client-side model variable.
 
 For Vercel, mark `GEMINI_API_KEY` as Sensitive in Production and Preview. After changing any Vercel environment variable, trigger a new deployment because old deployments keep their old environment.
 
@@ -45,7 +45,6 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 GEMINI_API_KEY=your_gemini_api_key
-GEMINI_MODEL=gemini-2.5-flash
 ```
 
 ## Supabase Edge Function Secrets

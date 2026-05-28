@@ -62,7 +62,7 @@ const mobileNav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/fitness/log", label: "Log", icon: UtensilsCrossed },
   { href: "/budget/overview", label: "Budget", icon: CircleDollarSign },
-  { href: "/habits", label: "Habits", icon: Sparkles },
+  { href: "/assistant", label: "Assistant", icon: Bot },
 ];
 
 type NavItemConfig = (typeof primaryNav)[number];
@@ -116,6 +116,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const openDialog = useUiStore((state) => state.openDialog);
   const [online, setOnline] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const isAssistantRoute = pathname === "/assistant";
 
   useEffect(() => {
     setOnline(navigator.onLine);
@@ -209,7 +210,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </aside>
 
-        <main className={cn("min-h-screen pb-24 transition-all lg:pb-0", sidebarCollapsed ? "lg:pl-16" : "lg:pl-72")}>
+        <main className={cn("min-h-screen transition-all lg:pb-0", isAssistantRoute ? "pb-0" : "pb-24", sidebarCollapsed ? "lg:pl-16" : "lg:pl-72")}>
           <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b bg-background/90 px-4 backdrop-blur lg:hidden">
             <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-xs text-primary-foreground">FB</span>
@@ -240,7 +241,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.18 }}
-              className="mx-auto w-full max-w-7xl px-4 py-5 sm:px-6 lg:px-8"
+              className={cn("mx-auto w-full", isAssistantRoute ? "max-w-none px-0 py-0" : "max-w-7xl px-4 py-5 sm:px-6 lg:px-8")}
             >
               {children}
             </motion.div>
