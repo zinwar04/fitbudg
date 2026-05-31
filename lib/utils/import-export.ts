@@ -1,8 +1,18 @@
 import { FoodCategory } from "@/lib/db/schema";
 import type { FoodLibraryInput, MealTemplateInput } from "@/lib/db/food.service";
+import { ComparableFood, foodDuplicateKey } from "@/lib/food/duplicates";
 import { foodCategories, servingUnits } from "@/lib/utils/constants";
 
 type Cell = string | number | boolean | null | undefined;
+
+const allowedFoodImportExtensions = [".csv", ".xlsx"];
+const allowedFoodImportTypes = new Set([
+  "",
+  "text/csv",
+  "application/csv",
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+]);
 
 const foodHeaderMap: Record<string, keyof FoodLibraryInput> = {
   name: "name",
@@ -65,6 +75,18 @@ export function downloadTextFile(filename: string, content: string, type = "text
   link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+export function validateFoodImportFile(file: File) {
+  const name = file.name.toLowerCase();
+  const hasAllowedExtension = allowedFoodImportExtensions.some((extension) => name.endsWith(extension));
+  if (!hasAllowedExtension || !allowedFoodImportTypes.has(file.type)) {
+    throw new Error("Use a FitBudget food import file in CSV or XLSX format.");
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    throw new Error("Food import files must be smaller than 5 MB.");
+  }
 }
 
 export function foodsToCsv(foods: FoodLibraryInput[]) {
@@ -161,6 +183,11 @@ export function parseFoodRows(rows: Cell[][]): FoodLibraryInput[] {
   const [headerRow, ...dataRows] = rows;
   if (!headerRow) return [];
   const headers = headerRow.map((header) => foodHeaderMap[normalizeHeader(header)]);
+  const requiredHeaders: (keyof FoodLibraryInput)[] = ["name", "caloriesPerServing", "servingSize", "servingUnit"];
+  const missing = requiredHeaders.filter((key) => !headers.includes(key));
+  if (missing.length > 0) {
+    throw new Error("Use the FitBudget food import template with name, calories, serving size, and serving unit columns.");
+  }
 
   return dataRows
     .map((row) => {
@@ -190,6 +217,25 @@ export function parseFoodRows(rows: Cell[][]): FoodLibraryInput[] {
       };
     })
     .filter((food) => food.name && food.caloriesPerServing > 0 && food.servingSize > 0);
+}
+
+export function removeDuplicateFoodInputs(existingFoods: ComparableFood[], importedFoods: FoodLibraryInput[]) {
+  const existingKeys = new Set(existingFoods.map(foodDuplicateKey));
+  const importKeys = new Set<string>();
+  const accepted: FoodLibraryInput[] = [];
+  const skipped: FoodLibraryInput[] = [];
+
+  importedFoods.forEach((food) => {
+    const key = foodDuplicateKey(food);
+    if (existingKeys.has(key) || importKeys.has(key)) {
+      skipped.push(food);
+      return;
+    }
+    importKeys.add(key);
+    accepted.push(food);
+  });
+
+  return { accepted, skipped };
 }
 
 export function parseMealTemplateRows(rows: Cell[][]): MealTemplateInput[] {

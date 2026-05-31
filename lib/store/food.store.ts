@@ -24,6 +24,7 @@ import {
   duplicateFoodEntry,
   getFoodData,
   moveFoodEntry,
+  removeDuplicateFoodLibraryItems,
   toggleFoodFavorite,
   updateFoodEntry,
   updateFoodLibraryItem,
@@ -53,6 +54,7 @@ interface FoodState {
   addFood: (input: FoodLibraryInput) => Promise<FoodLibraryItem | null>;
   importExternalFood: (food: NormalizedExternalFood) => Promise<{ item: FoodLibraryItem; created: boolean } | null>;
   importFoods: (inputs: FoodLibraryInput[]) => Promise<void>;
+  cleanupDuplicateFoods: () => Promise<void>;
   updateFood: (id: string, input: Partial<FoodLibraryInput>) => Promise<void>;
   deleteFood: (id: string) => Promise<void>;
   toggleFavorite: (id: string) => Promise<void>;
@@ -192,9 +194,20 @@ export const useFoodStore = create<FoodState>()(
     },
     importFoods: async (inputs) => {
       try {
-        await addFoodLibraryItems(inputs);
+        const result = await addFoodLibraryItems(inputs);
         await get().load();
-        toast.success(`${inputs.length} foods imported.`);
+        if (result.created.length > 0) toast.success(`${result.created.length} foods imported.`);
+        if (result.skipped > 0) toast.warning(`${result.skipped} duplicate foods skipped.`);
+      } catch (error) {
+        toast.error(messageFromError(error));
+      }
+    },
+    cleanupDuplicateFoods: async () => {
+      try {
+        const result = await removeDuplicateFoodLibraryItems();
+        await get().load();
+        if (result.removed > 0) toast.success(`${result.removed} duplicate foods removed.`);
+        else toast.success("No duplicate foods found.");
       } catch (error) {
         toast.error(messageFromError(error));
       }

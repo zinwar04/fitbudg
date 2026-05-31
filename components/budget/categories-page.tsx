@@ -42,6 +42,15 @@ export function CategoriesPage() {
     setBudgets((current) => [...current, { category, limit: 0 }]);
   };
 
+  const addCustomCategory = () => {
+    const category = toCategoryKey(customName);
+    if (!category || budgets.some((budget) => budget.category === category)) return;
+    setBudgets((current) => [...current, { category, limit: customLimit }]);
+    setCustomName("");
+    setCustomLimit(0);
+    setCustomOpen(false);
+  };
+
   return (
     <>
       <PageHeader
@@ -102,21 +111,13 @@ export function CategoriesPage() {
             <DialogTitle>Add custom budget bucket</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
-            FitBudget stores transactions in the fixed portable schema, so custom buckets are tracked under Other while keeping your chosen limit.
+            Custom categories become available when you add or edit transactions, so spending can be tracked separately instead of falling into Other.
           </p>
           <Input value={customName} onChange={(event) => setCustomName(event.target.value)} placeholder="Custom label" />
           <Input type="number" value={customLimit} onChange={(event) => setCustomLimit(Number(event.target.value))} placeholder="Limit" />
           <DialogFooter>
             <Button variant="outline" onClick={() => setCustomOpen(false)}>Cancel</Button>
-            <Button
-              onClick={() => {
-                setBudgets((current) => [...current, { category: "other", limit: customLimit }]);
-                setCustomName("");
-                setCustomLimit(0);
-                setCustomOpen(false);
-              }}
-              disabled={!customName.trim()}
-            >
+            <Button onClick={addCustomCategory} disabled={!customName.trim() || budgets.some((budget) => budget.category === toCategoryKey(customName))}>
               Add Bucket
             </Button>
           </DialogFooter>
@@ -124,4 +125,13 @@ export function CategoriesPage() {
       </Dialog>
     </>
   );
+}
+
+function toCategoryKey(value: string): TransactionCategory {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 40) as TransactionCategory;
 }

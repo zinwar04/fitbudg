@@ -1,6 +1,5 @@
-import { AppearanceSettingsPage } from "@/components/settings/settings-pages";
+import { redirect } from "next/navigation";
 
 export default function AppearanceSettingsRoute() {
-  return <AppearanceSettingsPage />;
+  redirect("/settings/profile");
 }
-

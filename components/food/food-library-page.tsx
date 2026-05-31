@@ -16,7 +16,7 @@ import { FoodCategory, FoodLibraryItem, MealType } from "@/lib/db/schema";
 import { useFoodStore } from "@/lib/store/food.store";
 import { foodCategories, mealTypes } from "@/lib/utils/constants";
 import { formatKcal, localDateKey, titleCase } from "@/lib/utils/formatting";
-import { downloadTextFile, foodsToCsv, parseFoodRows, readSpreadsheetRows } from "@/lib/utils/import-export";
+import { downloadTextFile, foodsToCsv, parseFoodRows, readSpreadsheetRows, removeDuplicateFoodInputs, validateFoodImportFile } from "@/lib/utils/import-export";
 import { cn } from "@/lib/utils";
 
 type SortOption = "name" | "calHigh" | "calLow" | "proteinHigh" | "proteinLow" | "mostUsed" | "recent" | "favorites";
@@ -25,6 +25,7 @@ export function FoodLibraryPage() {
   const library = useFoodStore((state) => state.library);
   const addEntry = useFoodStore((state) => state.addEntry);
   const importFoods = useFoodStore((state) => state.importFoods);
+  const cleanupDuplicateFoods = useFoodStore((state) => state.cleanupDuplicateFoods);
   const deleteFood = useFoodStore((state) => state.deleteFood);
   const toggleFavorite = useFoodStore((state) => state.toggleFavorite);
   const [query, setQuery] = useState("");
@@ -96,13 +97,20 @@ export function FoodLibraryPage() {
     event.target.value = "";
     if (!file) return;
     try {
+      validateFoodImportFile(file);
       const rows = await readSpreadsheetRows(file);
       const foods = parseFoodRows(rows);
       if (foods.length === 0) {
         toast.error("No valid foods found. Include name, calories, serving size, and unit columns.");
         return;
       }
-      await importFoods(foods);
+      const { accepted, skipped } = removeDuplicateFoodInputs(library, foods);
+      if (skipped.length > 0) toast.warning(`${skipped.length} duplicate foods skipped.`);
+      if (accepted.length === 0) {
+        toast.error("Every row matched an existing or repeated food.");
+        return;
+      }
+      await importFoods(accepted);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Food import failed.");
     }
@@ -121,6 +129,9 @@ export function FoodLibraryPage() {
             </Button>
             <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
               <FileUp className="h-4 w-4" /> Import
+            </Button>
+            <Button variant="outline" onClick={() => void cleanupDuplicateFoods()}>
+              <Trash2 className="h-4 w-4" /> Remove Duplicates
             </Button>
             <Button variant="outline" onClick={() => setManualOpen(true)}>
               Log Manual Food

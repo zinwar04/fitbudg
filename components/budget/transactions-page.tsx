@@ -31,6 +31,10 @@ export function TransactionsPage() {
   const [type, setType] = useState<"all" | "expense" | "income">("all");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Transaction | null>(null);
+  const categoryOptions = useMemo(
+    () => Array.from(new Set([...transactionCategories, ...profile.categoryBudgets.map((budget) => budget.category), ...transactions.map((transaction) => transaction.category)])),
+    [profile.categoryBudgets, transactions],
+  );
 
   const filtered = useMemo(() => {
     const range = dateRange(preset, profile);
@@ -107,7 +111,7 @@ export function TransactionsPage() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button size="sm" variant={category === "all" ? "default" : "outline"} onClick={() => setCategory("all")}>All</Button>
-            {transactionCategories.map((item) => (
+            {categoryOptions.map((item) => (
               <Button key={item} size="sm" variant={category === item ? "default" : "outline"} onClick={() => setCategory(item)}>
                 {titleCase(item)}
               </Button>

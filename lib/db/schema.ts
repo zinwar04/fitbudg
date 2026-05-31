@@ -152,7 +152,7 @@ export interface CategoryBudget {
   limit: number;
 }
 
-export type TransactionCategory =
+export type DefaultTransactionCategory =
   | "food"
   | "transport"
   | "rent"
@@ -166,6 +166,8 @@ export type TransactionCategory =
   | "savings"
   | "income"
   | "other";
+
+export type TransactionCategory = DefaultTransactionCategory | (string & {});
 
 export interface Transaction {
   id: string;

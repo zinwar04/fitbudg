@@ -52,10 +52,6 @@ const primaryNav = [
 
 const settingsNav = [
   { href: "/settings/profile", label: "Profile", icon: Settings },
-  { href: "/settings/fitness", label: "Fitness Settings", icon: Target },
-  { href: "/settings/budget", label: "Budget Settings", icon: CircleDollarSign },
-  { href: "/settings/appearance", label: "Appearance", icon: Moon },
-  { href: "/settings/data", label: "Data", icon: Database },
 ];
 
 const mobileNav = [
@@ -356,7 +352,7 @@ function MobileMenuItem({ item, active, onSelect }: { item: NavItemConfig; activ
 }
 
 function isMobileRootActive(pathname: string, href: string) {
-  if (href === "/dashboard" || href === "/habits") {
+  if (href === "/dashboard" || href === "/assistant") {
     return pathname === href || pathname.startsWith(`${href}/`);
   }
 

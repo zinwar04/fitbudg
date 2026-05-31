@@ -208,7 +208,7 @@ create table if not exists public.transactions (
   type text not null check (type in ('expense', 'income')),
   amount numeric not null check (amount >= 0),
   currency text not null check (btrim(currency) <> ''),
-  category text not null check (category in ('food', 'transport', 'rent', 'bills', 'internet', 'shopping', 'health', 'education', 'entertainment', 'family', 'savings', 'income', 'other')),
+  category text not null check (btrim(category) <> ''),
   "paymentMethod" text not null check ("paymentMethod" in ('cash', 'card', 'bank', 'other')),
   date date not null,
   title text not null check (btrim(title) <> ''),

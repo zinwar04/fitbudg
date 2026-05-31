@@ -1,6 +1,5 @@
-import { FitnessSettingsPage } from "@/components/settings/settings-pages";
+import { redirect } from "next/navigation";
 
 export default function FitnessSettingsRoute() {
-  return <FitnessSettingsPage />;
+  redirect("/settings/profile");
 }
-

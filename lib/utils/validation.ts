@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { foodCategories, mealTypes, transactionCategories } from "@/lib/utils/constants";
+import { foodCategories, mealTypes } from "@/lib/utils/constants";
 
 export const profileSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
@@ -49,7 +49,7 @@ export const foodEntrySchema = z.object({
 export const transactionSchema = z.object({
   type: z.enum(["expense", "income"]),
   amount: z.coerce.number().min(1, "Amount must be greater than 0"),
-  category: z.enum(transactionCategories),
+  category: z.string().trim().min(1, "Category is required").max(40, "Category is too long"),
   paymentMethod: z.enum(["cash", "card", "bank", "other"]),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use a valid date"),
   title: z.string().trim().min(1, "Title is required"),

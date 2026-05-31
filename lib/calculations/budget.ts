@@ -90,11 +90,25 @@ export function calculateBudgetSummary(profile: BudgetProfile, transactions: Tra
   const averageDailySpend = average(groupDailySpend(expenses).map((day) => day.spent));
   const largestExpense =
     expenses.length > 0 ? [...expenses].sort((a, b) => b.amount - a.amount)[0] : null;
-  const categorySpend = profile.categoryBudgets.map((budget) => ({
-    category: budget.category,
-    limit: budget.limit,
-    spent: sum(expenses.filter((transaction) => transaction.category === budget.category).map((transaction) => transaction.amount)),
-  }));
+  const knownCategories = new Set(profile.categoryBudgets.map((budget) => budget.category));
+  const missingCategorySpend = expenses
+    .filter((transaction) => !knownCategories.has(transaction.category))
+    .reduce<Record<string, number>>((record, transaction) => {
+      record[transaction.category] = (record[transaction.category] ?? 0) + transaction.amount;
+      return record;
+    }, {});
+  const categorySpend = [
+    ...profile.categoryBudgets.map((budget) => ({
+      category: budget.category,
+      limit: budget.limit,
+      spent: sum(expenses.filter((transaction) => transaction.category === budget.category).map((transaction) => transaction.amount)),
+    })),
+    ...Object.entries(missingCategorySpend).map(([category, spent]) => ({
+      category,
+      limit: 0,
+      spent,
+    })),
+  ];
   const topCategory = categorySpend.length > 0 ? [...categorySpend].sort((a, b) => b.spent - a.spent)[0] : null;
 
   return {

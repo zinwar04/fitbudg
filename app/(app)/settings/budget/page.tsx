@@ -1,6 +1,5 @@
-import { BudgetSettingsPage } from "@/components/settings/settings-pages";
+import { redirect } from "next/navigation";
 
 export default function BudgetSettingsRoute() {
-  return <BudgetSettingsPage />;
+  redirect("/settings/profile");
 }
-

@@ -11,6 +11,7 @@ import {
 } from "@/lib/db/schema";
 import { getSupabaseClient } from "@/lib/db/supabase.client";
 import { requireUserId, stripUserId, stripUserIdArray, withUserId } from "@/lib/db/supabase.service";
+import { foodDuplicateKey } from "@/lib/food/duplicates";
 import { createId, nowIso } from "@/lib/utils/formatting";
 
 export interface FoodData {
@@ -193,11 +194,24 @@ export async function addFoodLibraryItem(input: FoodLibraryInput) {
 }
 
 export async function addFoodLibraryItems(inputs: FoodLibraryInput[]) {
-  if (inputs.length === 0) return [];
+  if (inputs.length === 0) return { created: [], skipped: 0 };
   const supabase = getSupabaseClient();
   const userId = await requireUserId();
   const timestamp = nowIso();
-  const rows = inputs.map((input) =>
+  const { data: existing, error: existingError } = await supabase.from("food_library_items").select("*");
+  if (existingError) throw existingError;
+  const knownKeys = new Set(stripUserIdArray<FoodLibraryItem>(existing ?? []).map(foodDuplicateKey));
+  const importKeys = new Set<string>();
+  const deduped = inputs.filter((input) => {
+    const key = foodDuplicateKey(input);
+    if (knownKeys.has(key) || importKeys.has(key)) return false;
+    importKeys.add(key);
+    return true;
+  });
+
+  if (deduped.length === 0) return { created: [], skipped: inputs.length };
+
+  const rows = deduped.map((input) =>
     withUserId("food_library_items", userId, {
       ...input,
       source: input.source ?? "manual",
@@ -209,7 +223,55 @@ export async function addFoodLibraryItems(inputs: FoodLibraryInput[]) {
   );
   const { data, error } = await supabase.from("food_library_items").insert(rows).select("*");
   if (error) throw error;
-  return stripUserIdArray(data ?? []);
+  return { created: stripUserIdArray<FoodLibraryItem>(data ?? []), skipped: inputs.length - deduped.length };
+}
+
+export async function removeDuplicateFoodLibraryItems() {
+  const supabase = getSupabaseClient();
+  const { data: libraryRows, error: libraryError } = await supabase.from("food_library_items").select("*");
+  if (libraryError) throw libraryError;
+  const library = stripUserIdArray<FoodLibraryItem>(libraryRows ?? []);
+  const groups = new Map<string, FoodLibraryItem[]>();
+
+  library.forEach((food) => {
+    const key = foodDuplicateKey(food);
+    groups.set(key, [...(groups.get(key) ?? []), food]);
+  });
+
+  const duplicateGroups = Array.from(groups.values()).filter((group) => group.length > 1);
+  let removed = 0;
+
+  for (const group of duplicateGroups) {
+    const [keep, ...duplicates] = [...group].sort(
+      (a, b) =>
+        Number(b.isFavorite) - Number(a.isFavorite) ||
+        b.useCount - a.useCount ||
+        (b.lastUsedAt ?? "").localeCompare(a.lastUsedAt ?? "") ||
+        a.createdAt.localeCompare(b.createdAt),
+    );
+    const duplicateIds = duplicates.map((food) => food.id);
+    const timestamp = nowIso();
+
+    await supabase.from("food_entries").update({ foodLibraryId: keep.id, updatedAt: timestamp }).in("foodLibraryId", duplicateIds);
+
+    const { data: templates, error: templatesError } = await supabase.from("meal_templates").select("*");
+    if (templatesError) throw templatesError;
+    await Promise.all(
+      stripUserIdArray<MealTemplate>(templates ?? [])
+        .map((template) => {
+          const items = template.items.map((item) => (duplicateIds.includes(item.foodLibraryId) ? { ...item, foodLibraryId: keep.id } : item));
+          const changed = items.some((item, index) => item.foodLibraryId !== template.items[index]?.foodLibraryId);
+          return changed ? supabase.from("meal_templates").update({ items, updatedAt: timestamp }).eq("id", template.id) : null;
+        })
+        .filter(Boolean),
+    );
+
+    const { error: deleteError } = await supabase.from("food_library_items").delete().in("id", duplicateIds);
+    if (deleteError) throw deleteError;
+    removed += duplicateIds.length;
+  }
+
+  return { removed, groups: duplicateGroups.length };
 }
 
 export async function updateFoodLibraryItem(id: string, input: Partial<FoodLibraryInput>) {

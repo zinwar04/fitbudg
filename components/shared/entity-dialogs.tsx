@@ -1042,6 +1042,10 @@ export function TransactionDialog({
   const profile = useBudgetStore((state) => state.profile);
   const addTransaction = useBudgetStore((state) => state.addTransaction);
   const updateTransaction = useBudgetStore((state) => state.updateTransaction);
+  const categoryOptions = useMemo(
+    () => Array.from(new Set([...transactionCategories, ...profile.categoryBudgets.map((budget) => budget.category), ...(transaction?.category ? [transaction.category] : [])])),
+    [profile.categoryBudgets, transaction?.category],
+  );
   const form = useForm<TransactionFormValues>({
     resolver: zodResolver(transactionSchema) as unknown as Resolver<TransactionFormValues>,
     mode: "onBlur",
@@ -1095,7 +1099,7 @@ export function TransactionDialog({
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Category" error={form.formState.errors.category?.message}>
               <select className="h-10 w-full rounded-lg border bg-background px-3 text-sm" {...form.register("category")}>
-                {transactionCategories.map((category) => (
+                {categoryOptions.map((category) => (
                   <option key={category} value={category}>
                     {titleCase(category)}
                   </option>
