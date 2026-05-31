@@ -4,9 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import {
-  BarChart3,
   Bot,
-  ChefHat,
   ChevronLeft,
   ChevronRight,
   CheckCircle2,
@@ -14,7 +12,6 @@ import {
   LayoutDashboard,
   LineChart,
   LogOut,
-  Library,
   Menu,
   Moon,
   Plus,
@@ -22,6 +19,7 @@ import {
   Scale,
   Sun,
   UtensilsCrossed,
+  UserRound,
   type LucideIcon,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -57,29 +55,14 @@ const mobileNav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/nutrition", label: "Food", icon: UtensilsCrossed, match: ["/nutrition", "/fitness", "/foods"] },
   { href: "/budget", label: "Budget", icon: CircleDollarSign, match: ["/budget"] },
-  { href: "/habits", label: "Habits", icon: CheckCircle2 },
+  { href: "/insights", label: "Insights", icon: LineChart },
+  { href: "/settings/profile", label: "Profile", icon: UserRound, match: ["/settings"] },
 ];
 
 const mobileMenuGroups: { title: string; items: NavItemConfig[] }[] = [
   {
-    title: "Review",
-    items: [primaryNav[4]],
-  },
-  {
-    title: "Nutrition and Body",
-    items: [
-      { href: "/nutrition/history", label: "History", icon: BarChart3 },
-      { href: "/nutrition/weight", label: "Weight", icon: Scale },
-      { href: "/nutrition/foods", label: "My Foods", icon: Library },
-      { href: "/nutrition/meals", label: "Templates", icon: ChefHat },
-    ],
-  },
-  {
-    title: "Budget",
-    items: [
-      { href: "/budget/transactions", label: "Transactions", icon: ReceiptText },
-      { href: "/budget/categories", label: "Categories", icon: Library },
-    ],
+    title: "Also available",
+    items: [primaryNav[3]],
   },
 ];
 
@@ -231,7 +214,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Button size="icon" variant="ghost" onClick={toggleTheme} aria-label="Toggle theme">
                 {settings.theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
-              <Button size="icon" variant="ghost" onClick={() => setMobileMenuOpen(true)} aria-label="Open navigation menu">
+              <Button size="icon" variant="ghost" onClick={() => setMobileMenuOpen(true)} aria-label="Open shortcuts">
                 <Menu className="h-4 w-4" />
               </Button>
             </div>
@@ -268,19 +251,6 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </Link>
               );
             })}
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(true)}
-              className="relative flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground"
-            >
-              {(mobileMenuOpen || !mobileNav.some((item) => isNavActive(pathname, item))) && (
-                <motion.span layoutId="mobile-nav-active" className="absolute inset-x-4 top-2 h-8 rounded-full bg-primary/10" />
-              )}
-              <Menu className={cn("relative h-5 w-5", (mobileMenuOpen || !mobileNav.some((item) => isNavActive(pathname, item))) && "text-primary")} />
-              <span className={cn("relative", (mobileMenuOpen || !mobileNav.some((item) => isNavActive(pathname, item))) && "font-medium text-primary")}>
-                More
-              </span>
-            </button>
           </div>
         </nav>
 
@@ -318,8 +288,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Dialog open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <DialogContent className="bottom-0 left-0 top-auto max-h-[88vh] w-full max-w-none translate-x-0 translate-y-0 gap-0 overflow-y-auto rounded-b-none rounded-t-2xl p-0 sm:w-full lg:hidden">
             <DialogHeader className="border-b px-4 py-4 pr-12">
-              <DialogTitle>All FitBudget Features</DialogTitle>
-              <DialogDescription>Every page is available here on mobile.</DialogDescription>
+              <DialogTitle>Shortcuts</DialogTitle>
+              <DialogDescription>Fast paths for today.</DialogDescription>
             </DialogHeader>
             <div className="space-y-5 px-4 py-4">
               <Link
