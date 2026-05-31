@@ -20,7 +20,7 @@ type SettingsSection = "profile" | "fitness" | "budget" | "appearance";
 
 const sections: { id: SettingsSection; label: string; icon: typeof UserRound }[] = [
   { id: "profile", label: "Profile", icon: UserRound },
-  { id: "fitness", label: "Fitness", icon: Dumbbell },
+  { id: "fitness", label: "Body Goals", icon: Dumbbell },
   { id: "budget", label: "Budget", icon: WalletCards },
   { id: "appearance", label: "Appearance", icon: Palette },
 ];
@@ -37,6 +37,10 @@ export function ProfileSettingsPage() {
   const [settingsDraft, setSettingsDraft] = useState(settings);
   const [budgetDraft, setBudgetDraft] = useState(budgetProfile);
   const targets = useMemo(() => calculateNutritionTargets(profileDraft), [profileDraft]);
+  const dirty = useMemo(
+    () => JSON.stringify(profileDraft) !== JSON.stringify(profile) || JSON.stringify(settingsDraft) !== JSON.stringify(settings) || JSON.stringify(budgetDraft) !== JSON.stringify(budgetProfile),
+    [budgetDraft, budgetProfile, profile, profileDraft, settings, settingsDraft],
+  );
 
   if (!profileDraft) return <MissingProfile />;
 
@@ -61,9 +65,12 @@ export function ProfileSettingsPage() {
         title="Profile"
         description="Your body, goals, budget, and app preferences in one place."
         action={
-          <Button onClick={() => void saveAll()}>
-            <Save className="h-4 w-4" /> Save All
-          </Button>
+          <div className="flex items-center gap-2">
+            {dirty && <Badge variant="outline">Unsaved changes</Badge>}
+            <Button onClick={() => void saveAll()} disabled={!dirty}>
+              <Save className="h-4 w-4" /> Save All
+            </Button>
+          </div>
         }
       />
 
@@ -127,15 +134,15 @@ export function ProfileSettingsPage() {
         })}
       </div>
 
-      {active === "profile" && <ProfilePanel draft={profileDraft} setDraft={setProfileDraft} onSave={() => void saveProfile(profileDraft)} />}
-      {active === "fitness" && <FitnessPanel draft={profileDraft} setDraft={setProfileDraft} targets={targets} onSave={() => void saveProfile(profileDraft)} />}
-      {active === "budget" && <BudgetPanel draft={budgetDraft} setDraft={setBudgetDraft} onSave={() => void saveBudgetProfile(budgetDraft)} />}
-      {active === "appearance" && <AppearancePanel draft={settingsDraft} setDraft={setSettingsDraft} onSave={() => void saveSettings(settingsDraft)} />}
+      {active === "profile" && <ProfilePanel draft={profileDraft} setDraft={setProfileDraft} />}
+      {active === "fitness" && <FitnessPanel draft={profileDraft} setDraft={setProfileDraft} targets={targets} />}
+      {active === "budget" && <BudgetPanel draft={budgetDraft} setDraft={setBudgetDraft} />}
+      {active === "appearance" && <AppearancePanel draft={settingsDraft} setDraft={setSettingsDraft} />}
     </>
   );
 }
 
-function ProfilePanel({ draft, setDraft, onSave }: { draft: UserProfile; setDraft: (draft: UserProfile) => void; onSave: () => void }) {
+function ProfilePanel({ draft, setDraft }: { draft: UserProfile; setDraft: (draft: UserProfile) => void }) {
   return (
     <Card>
       <CardHeader>
@@ -148,9 +155,6 @@ function ProfilePanel({ draft, setDraft, onSave }: { draft: UserProfile; setDraf
         <SelectSetting label="Units" value={draft.unitSystem} options={["metric", "imperial"]} onChange={(value) => setDraft({ ...draft, unitSystem: value as UserProfile["unitSystem"] })} />
         <InputSetting label="Height (cm)" type="number" value={draft.height} onNumber={(value) => setDraft({ ...draft, height: value })} />
         <InputSetting label="Current weight (kg)" type="number" value={draft.weight} onNumber={(value) => setDraft({ ...draft, weight: value })} />
-        <Button className="sm:col-span-2" onClick={onSave}>
-          <Save className="h-4 w-4" /> Save Profile
-        </Button>
       </CardContent>
     </Card>
   );
@@ -160,29 +164,24 @@ function FitnessPanel({
   draft,
   setDraft,
   targets,
-  onSave,
 }: {
   draft: UserProfile;
   setDraft: (draft: UserProfile) => void;
   targets: ReturnType<typeof calculateNutritionTargets>;
-  onSave: () => void;
 }) {
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_22rem]">
       <Card>
         <CardHeader>
-          <CardTitle>Fitness Settings</CardTitle>
+          <CardTitle>Body Goal Settings</CardTitle>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
-          <SelectSetting label="Fitness goal" value={draft.fitnessGoal} options={Object.keys(fitnessGoalLabels)} onChange={(value) => setDraft({ ...draft, fitnessGoal: value as FitnessGoal })} />
+          <SelectSetting label="Body goal" value={draft.fitnessGoal} options={Object.keys(fitnessGoalLabels)} onChange={(value) => setDraft({ ...draft, fitnessGoal: value as FitnessGoal })} />
           <SelectSetting label="Activity" value={draft.activityLevel} options={Object.keys(activityLabels)} onChange={(value) => setDraft({ ...draft, activityLevel: value as UserProfile["activityLevel"] })} />
           <InputSetting label="Goal weight (kg)" type="number" value={draft.goalWeight} onNumber={(value) => setDraft({ ...draft, goalWeight: value })} />
           <InputSetting label="Weekly change (kg)" type="number" value={draft.weeklyWeightDelta} onNumber={(value) => setDraft({ ...draft, weeklyWeightDelta: value })} />
           <OptionalNumberSetting label="Body fat %" value={draft.bodyFatPercent} onChange={(value) => setDraft({ ...draft, bodyFatPercent: value })} />
           <OptionalNumberSetting label="Protein override (g/day)" value={draft.targetProteinOverride} onChange={(value) => setDraft({ ...draft, targetProteinOverride: value })} />
-          <Button className="sm:col-span-2" onClick={onSave}>
-            <Dumbbell className="h-4 w-4" /> Save Fitness
-          </Button>
         </CardContent>
       </Card>
       <Card>
@@ -201,7 +200,7 @@ function FitnessPanel({
   );
 }
 
-function BudgetPanel({ draft, setDraft, onSave }: { draft: BudgetProfile; setDraft: (draft: BudgetProfile) => void; onSave: () => void }) {
+function BudgetPanel({ draft, setDraft }: { draft: BudgetProfile; setDraft: (draft: BudgetProfile) => void }) {
   return (
     <Card>
       <CardHeader>
@@ -220,15 +219,12 @@ function BudgetPanel({ draft, setDraft, onSave }: { draft: BudgetProfile; setDra
           <p className="mt-2">Set this to payday so budget pacing matches real spending pressure.</p>
         </div>
         <div className="rounded-lg border bg-muted/25 p-3 text-xs leading-5 text-muted-foreground sm:col-span-2">{financialDisclaimer}</div>
-        <Button className="sm:col-span-2" onClick={onSave}>
-          <WalletCards className="h-4 w-4" /> Save Budget
-        </Button>
       </CardContent>
     </Card>
   );
 }
 
-function AppearancePanel({ draft, setDraft, onSave }: { draft: AppSettings; setDraft: (draft: AppSettings) => void; onSave: () => void }) {
+function AppearancePanel({ draft, setDraft }: { draft: AppSettings; setDraft: (draft: AppSettings) => void }) {
   const move = (index: number, direction: -1 | 1) => {
     const next = [...(draft.dashboardWidgetOrder.length ? draft.dashboardWidgetOrder : dashboardWidgetOrder)];
     const target = index + direction;
@@ -268,9 +264,6 @@ function AppearancePanel({ draft, setDraft, onSave }: { draft: AppSettings; setD
               ))}
             </div>
           </div>
-          <Button onClick={onSave}>
-            <Palette className="h-4 w-4" /> Save Appearance
-          </Button>
         </CardContent>
       </Card>
 

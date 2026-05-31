@@ -14,13 +14,23 @@ export async function getCurrentAuthState(): Promise<AuthStateSnapshot> {
   }
 
   const supabase = getSupabaseClient();
-  const { data, error } = await supabase.auth.getSession();
+  const { data, error } = await withTimeout(supabase.auth.getSession(), 6000, "Authentication check timed out. Please open the login page and try again.");
   if (error) throw error;
 
   return {
     session: data.session,
     user: data.session?.user ?? null,
   };
+}
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timeout = window.setTimeout(() => reject(new Error(message)), timeoutMs);
+    promise
+      .then(resolve)
+      .catch(reject)
+      .finally(() => window.clearTimeout(timeout));
+  });
 }
 
 export async function signUpWithEmail(email: string, password: string, name: string) {

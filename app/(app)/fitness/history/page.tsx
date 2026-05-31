@@ -1,6 +1,5 @@
-import { HistoryPage } from "@/components/fitness/history-page";
+import { redirect } from "next/navigation";
 
 export default function FitnessHistoryRoute() {
-  return <HistoryPage />;
+  redirect("/nutrition/history");
 }
-

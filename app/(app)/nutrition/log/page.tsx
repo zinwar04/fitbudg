@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default function FitnessLogRoute() {
+export default function NutritionLogRoute() {
   redirect("/nutrition");
 }

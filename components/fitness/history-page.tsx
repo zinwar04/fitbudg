@@ -58,10 +58,10 @@ export function HistoryPage() {
     <>
       <PageHeader
         title="Calorie History"
-        description="Calendar, list, and chart views for logged days, targets, streaks, and rolling averages."
+        description={`${loggedDays.length} logged days · ${formatKcal(averageCalories)} average · ${bestStreak} day best streak`}
         action={
           <Button asChild>
-            <Link href="/fitness/log">Open Food Log</Link>
+            <Link href="/nutrition">Log Food</Link>
           </Button>
         }
       />
@@ -111,7 +111,7 @@ export function HistoryPage() {
                 return (
                   <Link
                     key={date}
-                    href={`/fitness/log?date=${date}`}
+                    href={`/nutrition?date=${date}`}
                     className={cn("min-h-20 rounded-lg border p-2 text-left hover:border-primary", row?.count ? "bg-card" : "bg-muted/30")}
                   >
                     <p className="text-xs text-muted-foreground">{Number(date.slice(-2))}</p>
@@ -135,11 +135,11 @@ export function HistoryPage() {
         <Card>
           <CardContent className="p-4">
             {loggedDays.length === 0 ? (
-              <EmptyState icon={CalendarDays} title="No logged days in this range" description="Pick a wider range or add food entries to see history." action={<Button asChild><Link href="/fitness/log">Log Food</Link></Button>} />
+              <EmptyState icon={CalendarDays} title="No logged days in this range" description="Pick a wider range or add food entries to see history." action={<Button asChild><Link href="/nutrition">Log Food</Link></Button>} />
             ) : (
               <div className="space-y-2">
                 {[...loggedDays].reverse().map((day) => (
-                  <Link key={day.date} href={`/fitness/log?date=${day.date}`} className="flex flex-col gap-2 rounded-lg border p-3 hover:border-primary sm:flex-row sm:items-center sm:justify-between">
+                  <Link key={day.date} href={`/nutrition?date=${day.date}`} className="flex flex-col gap-2 rounded-lg border p-3 hover:border-primary sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <p className="font-medium">{formatDateKey(day.date)}</p>
                       <p className="text-sm text-muted-foreground">{day.count} entries</p>

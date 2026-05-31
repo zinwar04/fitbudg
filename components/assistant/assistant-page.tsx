@@ -1,12 +1,14 @@
 "use client";
 
 import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUp, Bot, Dumbbell, Menu, MessageSquare, MessageSquarePlus, Sparkles, Trash2, UtensilsCrossed, WalletCards } from "lucide-react";
+import { ArrowUp, Bot, CheckCircle2, Flame, Menu, MessageSquare, MessageSquarePlus, Scale, Sparkles, Trash2, UtensilsCrossed, WalletCards, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { buildAssistantContext } from "@/lib/assistant/context";
+import { calculateBudgetSummary } from "@/lib/calculations/budget";
+import { calculateNutritionTargets } from "@/lib/calculations/nutrition";
 import { AssistantSession, ChatMessage } from "@/lib/db/schema";
 import { deleteAssistantSession, getAssistantSessions, saveAssistantSession } from "@/lib/db/assistant.service";
 import { useAuthStore } from "@/lib/store/auth.store";
@@ -14,33 +16,16 @@ import { useBudgetStore } from "@/lib/store/budget.store";
 import { useFoodStore } from "@/lib/store/food.store";
 import { useHabitsStore } from "@/lib/store/habits.store";
 import { useProfileStore } from "@/lib/store/profile.store";
-import { createId, nowIso } from "@/lib/utils/formatting";
+import { createId, formatCurrency, formatKcal, localDateKey, nowIso, sum } from "@/lib/utils/formatting";
 import { cn } from "@/lib/utils";
 
-const starterPrompts = [
-  {
-    title: "Today",
-    prompt: "Build me one realistic plan for today using my calories, protein, habits, and safe spending.",
-    icon: Sparkles,
-  },
-  {
-    title: "Meals",
-    prompt: "Make me a cheap high-protein meal plan from my usual foods.",
-    icon: UtensilsCrossed,
-  },
-  {
-    title: "Fitness",
-    prompt: "Review my recent logs and tell me the highest-impact thing to fix this week.",
-    icon: Dumbbell,
-  },
-  {
-    title: "Budget",
-    prompt: "How do I stay on track tonight without overspending?",
-    icon: WalletCards,
-  },
-];
+interface StarterPrompt {
+  title: string;
+  prompt: string;
+  icon: LucideIcon;
+}
 
-export function AssistantPage() {
+export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
   const authSession = useAuthStore((state) => state.session);
   const profile = useProfileStore((state) => state.profile);
   const settings = useProfileStore((state) => state.settings);
@@ -77,6 +62,22 @@ export function AssistantPage() {
         habitEntries,
       }),
     [budgetProfile, foodEntries, foodLibrary, habitEntries, habits, logs, mealTemplates, profile, settings, transactions, weightEntries],
+  );
+
+  const starterPrompts = useMemo(
+    () =>
+      buildStarterPrompts({
+        profile,
+        budgetProfile,
+        foodEntries,
+        foodLibrary,
+        mealTemplates,
+        weightEntries,
+        transactions,
+        habits,
+        habitEntries,
+      }),
+    [budgetProfile, foodEntries, foodLibrary, habitEntries, habits, mealTemplates, profile, transactions, weightEntries],
   );
 
   const activeTitle = sessions.find((chat) => chat.id === sessionId)?.title ?? "Assistant";
@@ -186,8 +187,8 @@ export function AssistantPage() {
   };
 
   return (
-    <div className="flex h-[calc(100svh-7.5rem)] min-h-[34rem] w-full overflow-hidden bg-background lg:h-screen lg:min-h-0">
-      <aside className="hidden w-80 shrink-0 flex-col border-r bg-card/70 lg:flex">
+    <div className={cn("flex w-full overflow-hidden bg-background", embedded ? "h-full min-h-0" : "h-[calc(100svh-7.5rem)] min-h-[34rem] lg:h-screen lg:min-h-0")}>
+      <aside className={cn("hidden w-80 shrink-0 flex-col border-r bg-card/70", !embedded && "lg:flex")}>
         <div className="flex h-14 items-center gap-2 border-b px-3">
           <Button className="h-10 flex-1 justify-start" variant="ghost" onClick={startNewChat}>
             <MessageSquarePlus className="h-4 w-4" />
@@ -198,9 +199,9 @@ export function AssistantPage() {
       </aside>
 
       <main className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 shrink-0 items-center justify-between border-b bg-background/95 px-3 backdrop-blur sm:px-4">
+        <header className={cn("flex h-14 shrink-0 items-center justify-between border-b bg-background/95 px-3 backdrop-blur sm:px-4", embedded && "pr-12")}>
           <div className="flex min-w-0 items-center gap-2">
-            <Button className="lg:hidden" size="icon" variant="ghost" onClick={() => setHistoryOpen(true)} aria-label="Open chat history">
+            <Button className={cn(!embedded && "lg:hidden")} size="icon" variant="ghost" onClick={() => setHistoryOpen(true)} aria-label="Open chat history">
               <Menu className="h-5 w-5" />
             </Button>
             <div className="min-w-0">
@@ -213,9 +214,9 @@ export function AssistantPage() {
         </header>
 
         <div className="flex-1 overflow-y-auto px-4 py-5 sm:px-6">
-          <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+          <div className={cn("mx-auto flex w-full flex-col gap-6", embedded ? "max-w-full" : "max-w-3xl")}>
             {messages.length === 0 && (
-              <div className="flex min-h-[58vh] flex-col items-center justify-center py-8 text-center">
+              <div className={cn("flex flex-col items-center justify-center py-8 text-center", embedded ? "min-h-[44vh]" : "min-h-[58vh]")}>
                 <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full border bg-card">
                   <Bot className="h-5 w-5" />
                 </div>
@@ -264,7 +265,7 @@ export function AssistantPage() {
             void send();
           }}
         >
-          <div className="mx-auto flex max-w-3xl items-end gap-2 rounded-[26px] border bg-card p-2 shadow-sm">
+          <div className={cn("mx-auto flex items-end gap-2 rounded-[26px] border bg-card p-2 shadow-sm", embedded ? "max-w-full" : "max-w-3xl")}>
             <Textarea
               value={input}
               onChange={(event) => setInput(event.target.value)}
@@ -297,6 +298,74 @@ export function AssistantPage() {
       </Dialog>
     </div>
   );
+}
+
+function buildStarterPrompts({
+  profile,
+  budgetProfile,
+  foodEntries,
+  foodLibrary,
+  mealTemplates,
+  weightEntries,
+  transactions,
+  habits,
+  habitEntries,
+}: {
+  profile: ReturnType<typeof useProfileStore.getState>["profile"];
+  budgetProfile: ReturnType<typeof useBudgetStore.getState>["profile"];
+  foodEntries: ReturnType<typeof useFoodStore.getState>["entries"];
+  foodLibrary: ReturnType<typeof useFoodStore.getState>["library"];
+  mealTemplates: ReturnType<typeof useFoodStore.getState>["mealTemplates"];
+  weightEntries: ReturnType<typeof useFoodStore.getState>["weights"];
+  transactions: ReturnType<typeof useBudgetStore.getState>["transactions"];
+  habits: ReturnType<typeof useHabitsStore.getState>["habits"];
+  habitEntries: ReturnType<typeof useHabitsStore.getState>["entries"];
+}): StarterPrompt[] {
+  const today = localDateKey();
+  const targets = calculateNutritionTargets(profile);
+  const todayEntries = foodEntries.filter((entry) => entry.date === today);
+  const todayCalories = sum(todayEntries.map((entry) => entry.calories));
+  const budget = calculateBudgetSummary(budgetProfile, transactions);
+  const activeHabits = habits.filter((habit) => habit.isActive);
+  const completedHabits = activeHabits.filter((habit) => habitEntries.some((entry) => entry.habitId === habit.id && entry.date === today && entry.completed)).length;
+  const latestWeight = [...weightEntries].sort((a, b) => b.date.localeCompare(a.date))[0];
+
+  return [
+    {
+      title: "Today",
+      prompt: targets
+        ? `Am I on track today? I have logged ${formatKcal(todayCalories)} of my ${formatKcal(targets.calories)} target, completed ${completedHabits}/${activeHabits.length} habits, and my safe spend today is ${formatCurrency(budget.safeToSpendToday, budgetProfile.currency, budgetProfile.currencySymbol)}.`
+        : "Help me create a realistic food, habit, and spending plan for today from my account data.",
+      icon: Sparkles,
+    },
+    {
+      title: foodLibrary.length || mealTemplates.length ? "Meals" : "First meal",
+      prompt:
+        foodLibrary.length || mealTemplates.length
+          ? "Build a cheap high-protein meal idea from my saved foods and meal templates. Keep it realistic for my calorie target and budget."
+          : "I have not built my food library yet. What should I add first so logging becomes fast and useful?",
+      icon: UtensilsCrossed,
+    },
+    {
+      title: transactions.length ? "Money" : "Budget setup",
+      prompt: transactions.length
+        ? `Summarize my spending pattern for this budget cycle and tell me the one decision that would keep me safest. My current safe daily spend is ${formatCurrency(budget.safeToSpendToday, budgetProfile.currency, budgetProfile.currencySymbol)}.`
+        : "Help me set up a practical first budget and category limits for the way I actually spend.",
+      icon: WalletCards,
+    },
+    {
+      title: latestWeight ? "Body trend" : "Next log",
+      prompt: latestWeight
+        ? `Review my latest weight trend and food consistency. My latest weigh-in was ${latestWeight.weight} kg on ${latestWeight.date}. What should I focus on this week?`
+        : "When should I log my weight, and how often should I weigh in without overthinking it?",
+      icon: latestWeight ? Scale : CheckCircle2,
+    },
+    {
+      title: "Quick fix",
+      prompt: "Look across my food, habits, weight, and budget data. What is the single highest-impact improvement I can make in the next 24 hours?",
+      icon: Flame,
+    },
+  ];
 }
 
 function ChatHistory({

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { addDays, format, startOfWeek } from "date-fns";
 import { motion } from "framer-motion";
 import { ArrowRight, Check, CircleDollarSign, Flame, Plus, ReceiptText, Scale, Sparkles, UtensilsCrossed } from "lucide-react";
@@ -66,8 +66,7 @@ export function DashboardClient() {
       return [];
     }
   }, [budgetProfile, entries, habitEntries, habits, library, logs, mealTemplates, profile, settings, transactions, weights]);
-  const [insightIndex, setInsightIndex] = useState(0);
-  const insight = insights[insightIndex % Math.max(1, insights.length)];
+  const insight = insights.find((item) => item.severity === "danger") ?? insights.find((item) => item.severity === "warning") ?? insights[0];
   const weekData = useMemo(() => {
     const start = startOfWeek(new Date(), { weekStartsOn: settings.firstDayOfWeek });
     return Array.from({ length: 7 }, (_, index) => {
@@ -133,14 +132,15 @@ export function DashboardClient() {
           icon={Sparkles}
           label="Next insight"
           value={insight?.title ?? "Log more data"}
-          detail={insight?.category ? titleCase(insight.category) : "personalized guidance"}
+          detail={insight ? `${insights.length} insights available` : "personalized guidance"}
           tone={insight?.severity === "danger" ? "danger" : insight?.severity === "warning" ? "warning" : "default"}
         />
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Widget className="lg:row-span-2" index={0}>
-          <Link href="/fitness/log" className="block">
+      <div className="space-y-7">
+        <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+        <Widget index={0}>
+          <Link href="/nutrition" className="block">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Flame className="h-4 w-4 text-primary" /> Daily Calorie Ring
@@ -178,7 +178,10 @@ export function DashboardClient() {
                   <div key={entry.id} className="flex items-center justify-between rounded-lg border p-2">
                     <div>
                       <p className="text-sm font-medium">{entry.name}</p>
-                      <Badge variant="secondary">{titleCase(entry.mealType)}</Badge>
+                      <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <span className={cn("h-2 w-2 rounded-full", mealDotClass(entry.mealType))} />
+                        {titleCase(entry.mealType)}
+                      </p>
                     </div>
                     <p className="data-number text-sm">{formatKcal(entry.calories)}</p>
                   </div>
@@ -188,6 +191,9 @@ export function DashboardClient() {
           </CardContent>
         </Widget>
 
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-3">
         <Widget index={2}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -271,11 +277,14 @@ export function DashboardClient() {
           </CardContent>
         </Widget>
 
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-3">
         <Widget index={5}>
           <CardHeader className="flex-row items-center justify-between space-y-0">
             <CardTitle>Week at a Glance</CardTitle>
             <Button asChild size="sm" variant="outline">
-              <Link href="/fitness/history">Open</Link>
+              <Link href="/nutrition/history">Full History</Link>
             </Button>
           </CardHeader>
           <CardContent>
@@ -285,14 +294,14 @@ export function DashboardClient() {
 
         <Widget index={6}>
           <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Smart Insight Spotlight</CardTitle>
-            <Button size="sm" variant="ghost" onClick={() => setInsightIndex((index) => index + 1)}>
-              Next
+            <CardTitle>Top Insight</CardTitle>
+            <Button asChild size="sm" variant="ghost">
+              <Link href="/insights">1 of {Math.max(insights.length, 1)}</Link>
             </Button>
           </CardHeader>
           <CardContent>
             {insight ? (
-              <button type="button" onClick={() => setInsightIndex((index) => index + 1)} className="w-full rounded-lg border bg-muted/30 p-4 text-left">
+              <div className="w-full rounded-lg border bg-muted/30 p-4 text-left">
                 <Badge variant={insight.severity === "danger" || insight.severity === "warning" ? "destructive" : "secondary"}>{titleCase(insight.category)}</Badge>
                 <h3 className="mt-3 font-semibold">{insight.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{insight.description}</p>
@@ -301,7 +310,7 @@ export function DashboardClient() {
                     {insight.actionLabel ?? "Open"} <ArrowRight className="h-3 w-3" />
                   </Link>
                 )}
-              </button>
+              </div>
             ) : (
               <EmptyState icon={Sparkles} title="Not enough data yet" description="Log a meal, transaction, or habit and insights will start to appear." />
             )}
@@ -331,6 +340,7 @@ export function DashboardClient() {
             )}
           </CardContent>
         </Widget>
+        </section>
       </div>
     </>
   );
@@ -422,4 +432,15 @@ function Macro({ label, value, goal }: { label: string; value: number; goal: num
       <Progress value={percent(value, goal)} />
     </div>
   );
+}
+
+function mealDotClass(mealType: string) {
+  const map: Record<string, string> = {
+    breakfast: "bg-amber-500",
+    lunch: "bg-blue-500",
+    dinner: "bg-violet-500",
+    snack: "bg-emerald-500",
+    other: "bg-muted-foreground",
+  };
+  return map[mealType] ?? "bg-muted-foreground";
 }

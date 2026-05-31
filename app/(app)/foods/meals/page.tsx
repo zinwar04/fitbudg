@@ -1,6 +1,5 @@
-import { MealTemplatesPage } from "@/components/food/meal-templates-page";
+import { redirect } from "next/navigation";
 
 export default function MealTemplatesRoute() {
-  return <MealTemplatesPage />;
+  redirect("/nutrition/meals");
 }
-

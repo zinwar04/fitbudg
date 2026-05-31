@@ -1,6 +1,5 @@
-import { FoodLibraryPage } from "@/components/food/food-library-page";
+import { redirect } from "next/navigation";
 
 export default function FoodLibraryRoute() {
-  return <FoodLibraryPage />;
+  redirect("/nutrition/foods");
 }
-

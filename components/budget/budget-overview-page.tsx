@@ -25,39 +25,14 @@ export function BudgetOverviewPage() {
   return (
     <>
       <PageHeader
-        title="Budget Overview"
-        description="An honest snapshot of your current budget cycle, pacing, categories, and safe daily spend."
+        title="Budget"
+        description={`Day ${summary.dayInCycle} of ${summary.daysInCycle} · ${formatCurrency(summary.remaining, currency, symbol)} remaining · ${summary.pacing === "onTrack" ? "on track" : summary.pacing === "spendingFast" ? "spending fast" : "over budget"}`}
         action={
           <Button onClick={() => openDialog("transaction")}>
             <ReceiptText className="h-4 w-4" /> Add Transaction
           </Button>
         }
       />
-      <Card className="mb-4 overflow-hidden">
-        <CardContent className="p-5">
-          <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Remaining this cycle</p>
-              <p className={`mt-1 text-4xl font-semibold data-number ${summary.remaining < 0 ? "text-red-500" : summary.paceRatio > 1.1 ? "text-amber-500" : "text-emerald-500"}`}>
-                {formatCurrency(summary.remaining, currency, symbol)}
-              </p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Day {summary.dayInCycle} of {summary.daysInCycle} · Safe daily spend: {formatCurrency(summary.safeDailySpend, currency, symbol)}
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Cycle {formatDateKey(summary.cycleStart)} to {formatDateKey(summary.cycleEnd)}
-              </p>
-            </div>
-            <Badge variant={summary.pacing === "onTrack" ? "secondary" : summary.pacing === "spendingFast" ? "outline" : "destructive"}>
-              {summary.pacing === "onTrack" ? "On Track" : summary.pacing === "spendingFast" ? "Spending Fast" : "Over Budget"}
-            </Badge>
-          </div>
-          <Progress value={percent(summary.spent, profile.monthlyBudget)} className="h-3" />
-          <p className="mt-2 text-sm text-muted-foreground">
-            {formatCurrency(summary.spent, currency, symbol)} spent of {formatCurrency(profile.monthlyBudget, currency, symbol)}
-          </p>
-        </CardContent>
-      </Card>
 
       <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <MetricCard icon={ReceiptText} label="Largest expense" value={summary.largestExpense ? formatCurrency(summary.largestExpense.amount, currency, symbol) : "--"} detail={summary.largestExpense?.title} />
@@ -102,6 +77,32 @@ export function BudgetOverviewPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card className="mt-4 overflow-hidden">
+        <CardContent className="p-5">
+          <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Remaining this cycle</p>
+              <p className={`mt-1 text-4xl font-semibold data-number ${summary.remaining < 0 ? "text-red-500" : summary.paceRatio > 1.1 ? "text-amber-500" : "text-emerald-500"}`}>
+                {formatCurrency(summary.remaining, currency, symbol)}
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Safe daily spend: {formatCurrency(summary.safeDailySpend, currency, symbol)}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Cycle {formatDateKey(summary.cycleStart)} to {formatDateKey(summary.cycleEnd)}
+              </p>
+            </div>
+            <Badge variant={summary.pacing === "onTrack" ? "secondary" : summary.pacing === "spendingFast" ? "outline" : "destructive"}>
+              {summary.pacing === "onTrack" ? "On Track" : summary.pacing === "spendingFast" ? "Spending Fast" : "Over Budget"}
+            </Badge>
+          </div>
+          <Progress value={percent(summary.spent, profile.monthlyBudget)} className="h-3" />
+          <p className="mt-2 text-sm text-muted-foreground">
+            {formatCurrency(summary.spent, currency, symbol)} spent of {formatCurrency(profile.monthlyBudget, currency, symbol)}
+          </p>
+        </CardContent>
+      </Card>
     </>
   );
 }

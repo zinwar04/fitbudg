@@ -57,8 +57,8 @@ export function FoodLogPage() {
   return (
     <>
       <PageHeader
-        title="Food Diary"
-        description="Fast daily logging with meal groups, macros, date navigation, and undo-friendly actions."
+        title="Log Food"
+        description={`${format(parseISO(`${date}T00:00:00`), "EEEE, MMM d")} · ${formatKcal(consumed)} logged · ${formatKcal((targets?.calories ?? 0) - consumed)} remaining`}
         action={
           <Button onClick={() => openAdd("lunch", false)}>
             <Plus className="h-4 w-4" /> Quick Add
@@ -132,7 +132,8 @@ export function FoodLogPage() {
                         <div key={entry.id} className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between">
                           <div className="min-w-0">
                             <p className="font-medium">{entry.name}</p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+                              <span className={cn("h-2 w-2 rounded-full", mealDotClass(entry.mealType))} />
                               {entry.quantity} x {entry.servingSize} {entry.servingUnit}
                             </p>
                             <div className="mt-2 flex flex-wrap gap-2">
@@ -213,4 +214,15 @@ function Macro({ label, value, goal }: { label: string; value: number; goal: num
       <Progress value={percent(value, goal)} />
     </div>
   );
+}
+
+function mealDotClass(mealType: string) {
+  const map: Record<string, string> = {
+    breakfast: "bg-amber-500",
+    lunch: "bg-blue-500",
+    dinner: "bg-violet-500",
+    snack: "bg-emerald-500",
+    other: "bg-muted-foreground",
+  };
+  return map[mealType] ?? "bg-muted-foreground";
 }

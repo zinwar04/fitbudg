@@ -68,7 +68,7 @@ export function WeightPage() {
     <>
       <PageHeader
         title="Weight Tracker"
-        description="Log weigh-ins, body fat, notes, and trend toward your goal."
+        description={`${current ? `Current ${formatWeight(displayWeight(current.weight), weightUnit)}` : "No weigh-ins yet"} · Goal ${formatWeight(displayWeight(profile?.goalWeight), weightUnit)} · ${projectedDate}`}
         action={
           <Button onClick={openAdd}>
             <Plus className="h-4 w-4" /> Log Weight

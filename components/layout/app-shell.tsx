@@ -6,102 +6,79 @@ import { ReactNode, useEffect, useMemo, useState } from "react";
 import {
   BarChart3,
   Bot,
+  ChefHat,
   ChevronLeft,
   ChevronRight,
+  CheckCircle2,
   CircleDollarSign,
-  Dumbbell,
   LayoutDashboard,
+  LineChart,
   LogOut,
   Library,
   Menu,
+  Moon,
   Plus,
   ReceiptText,
-  Sparkles,
-  Target,
+  Scale,
+  Sun,
   UtensilsCrossed,
-  Weight,
+  type LucideIcon,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { AssistantPage } from "@/components/assistant/assistant-page";
+import { BrandMark } from "@/components/shared/brand-mark";
 import { AppLoadingSkeleton } from "@/components/shared/app-loading-skeleton";
 import { QuickDialogHost } from "@/components/shared/quick-dialogs";
 import { cn } from "@/lib/utils";
 import { useAppBoot } from "@/lib/store/use-app-boot";
 import { useAuthStore } from "@/lib/store/auth.store";
 import { useProfileStore } from "@/lib/store/profile.store";
-import { useUiStore } from "@/lib/store/ui.store";
+import { QuickDialog, useUiStore } from "@/lib/store/ui.store";
 
-const primaryNav = [
+type NavItemConfig = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  match?: string[];
+};
+
+const primaryNav: NavItemConfig[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/fitness/log", label: "Food Log", icon: UtensilsCrossed },
-  { href: "/fitness/history", label: "History", icon: BarChart3 },
-  { href: "/fitness/weight", label: "Weight", icon: Target },
-  { href: "/foods/library", label: "Food Library", icon: Library },
-  { href: "/foods/meals", label: "Meals", icon: Dumbbell },
-  { href: "/budget/overview", label: "Budget", icon: CircleDollarSign },
-  { href: "/budget/transactions", label: "Transactions", icon: ReceiptText },
-  { href: "/budget/categories", label: "Categories", icon: Menu },
-  { href: "/habits", label: "Habits", icon: Sparkles },
-  { href: "/insights", label: "Insights", icon: Sparkles },
-  { href: "/assistant", label: "Assistant", icon: Bot },
-];
-
-const navGroups = [
-  {
-    title: "Today",
-    items: [primaryNav[0], primaryNav[1], primaryNav[6], primaryNav[11]],
-  },
-  {
-    title: "Food and Body",
-    items: [primaryNav[2], primaryNav[3], primaryNav[4], primaryNav[5]],
-  },
-  {
-    title: "Money",
-    items: [primaryNav[7], primaryNav[8]],
-  },
-  {
-    title: "Progress",
-    items: [primaryNav[9], primaryNav[10]],
-  },
+  { href: "/nutrition", label: "Nutrition", icon: UtensilsCrossed, match: ["/nutrition", "/fitness", "/foods"] },
+  { href: "/budget", label: "Budget", icon: CircleDollarSign, match: ["/budget"] },
+  { href: "/habits", label: "Habits", icon: CheckCircle2 },
+  { href: "/insights", label: "Insights", icon: LineChart },
 ];
 
 const mobileNav = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/fitness/log", label: "Log", icon: UtensilsCrossed },
-  { href: "/budget/overview", label: "Budget", icon: CircleDollarSign },
-  { href: "/assistant", label: "Assistant", icon: Bot },
+  { href: "/nutrition", label: "Food", icon: UtensilsCrossed, match: ["/nutrition", "/fitness", "/foods"] },
+  { href: "/budget", label: "Budget", icon: CircleDollarSign, match: ["/budget"] },
+  { href: "/habits", label: "Habits", icon: CheckCircle2 },
 ];
-
-type NavItemConfig = (typeof primaryNav)[number];
 
 const mobileMenuGroups: { title: string; items: NavItemConfig[] }[] = [
   {
-    title: "Main",
-    items: [
-      primaryNav[0],
-      primaryNav[9],
-      primaryNav[10],
-      primaryNav[11],
-    ],
+    title: "Review",
+    items: [primaryNav[4]],
   },
   {
-    title: "Fitness and Food",
+    title: "Nutrition and Body",
     items: [
-      primaryNav[1],
-      primaryNav[2],
-      primaryNav[3],
-      primaryNav[4],
-      primaryNav[5],
+      { href: "/nutrition/history", label: "History", icon: BarChart3 },
+      { href: "/nutrition/weight", label: "Weight", icon: Scale },
+      { href: "/nutrition/foods", label: "My Foods", icon: Library },
+      { href: "/nutrition/meals", label: "Templates", icon: ChefHat },
     ],
   },
   {
     title: "Budget",
     items: [
-      primaryNav[6],
-      primaryNav[7],
-      primaryNav[8],
+      { href: "/budget/transactions", label: "Transactions", icon: ReceiptText },
+      { href: "/budget/categories", label: "Categories", icon: Library },
     ],
   },
 ];
@@ -109,8 +86,8 @@ const mobileMenuGroups: { title: string; items: NavItemConfig[] }[] = [
 const quickActions = [
   { label: "Food", description: "Log a meal or snack", dialog: "food" as const, icon: UtensilsCrossed },
   { label: "Transaction", description: "Add income or expense", dialog: "transaction" as const, icon: ReceiptText },
-  { label: "Habit", description: "Create or track a habit", dialog: "habit" as const, icon: Sparkles },
-  { label: "Weight", description: "Add a weigh-in", dialog: "weight" as const, icon: Weight },
+  { label: "Habit", description: "Create or track a habit", dialog: "habit" as const, icon: CheckCircle2 },
+  { label: "Weight", description: "Add a weigh-in", dialog: "weight" as const, icon: Scale },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -122,6 +99,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const user = useAuthStore((state) => state.user);
   const signOut = useAuthStore((state) => state.signOut);
   const profile = useProfileStore((state) => state.profile);
+  const settings = useProfileStore((state) => state.settings);
+  const saveSettings = useProfileStore((state) => state.saveSettings);
   const hydrated = useProfileStore((state) => state.hydrated);
   const sidebarCollapsed = useUiStore((state) => state.sidebarCollapsed);
   const setSidebarCollapsed = useUiStore((state) => state.setSidebarCollapsed);
@@ -129,6 +108,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [online, setOnline] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [quickActionsOpen, setQuickActionsOpen] = useState(false);
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const isAssistantRoute = pathname === "/assistant";
 
   useEffect(() => {
@@ -160,6 +140,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     router.replace("/login");
   };
 
+  const toggleTheme = () => {
+    const currentlyDark = document.documentElement.classList.contains("dark");
+    void saveSettings({ theme: currentlyDark ? "light" : "dark" });
+  };
+
   const initials = useMemo(() => {
     const name = profile?.name ?? "FitBudget";
     return name
@@ -184,27 +169,34 @@ export function AppShell({ children }: { children: ReactNode }) {
           )}
         >
           <div className="flex h-16 items-center gap-3 border-b px-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/30">
-              FB
-            </div>
+            <BrandMark />
             {!sidebarCollapsed && (
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">FitBudget</p>
-                <p className="text-xs leading-snug text-muted-foreground">Body and money dashboard</p>
+                <p className="text-xs leading-snug text-muted-foreground">Nutrition, habits, and money</p>
               </div>
             )}
           </div>
-          <nav className="flex-1 overflow-y-auto px-2 py-3">
-            {navGroups.map((group) => (
-              <div key={group.title} className="mb-4 last:mb-0">
-                {!sidebarCollapsed && <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{group.title}</p>}
-                <div className="space-y-1">
-                  {group.items.map((item) => (
-                    <NavItem key={item.href} item={item} active={pathname === item.href || pathname.startsWith(`${item.href}/`)} collapsed={sidebarCollapsed} />
-                  ))}
-                </div>
+          <nav className="flex-1 overflow-y-auto px-2 py-3" aria-label="Primary navigation">
+            <div className="space-y-1">
+              {primaryNav.map((item) => (
+                <NavItem key={item.href} item={item} active={isNavActive(pathname, item)} collapsed={sidebarCollapsed} />
+              ))}
+            </div>
+            {!sidebarCollapsed && (
+              <div className="mt-5 rounded-lg border bg-muted/30 p-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Assistant</p>
+                <button type="button" onClick={() => setAssistantOpen(true)} className="mt-2 flex w-full items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-accent">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <Bot className="h-4 w-4" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-medium">Ask anything</span>
+                    <span className="block truncate text-xs text-muted-foreground">Food, budget, habits, goals</span>
+                  </span>
+                </button>
               </div>
-            ))}
+            )}
           </nav>
           <div className="p-2">
             <AccountSettingsLink
@@ -214,27 +206,30 @@ export function AppShell({ children }: { children: ReactNode }) {
               name={profile?.name ?? user?.email ?? "FitBudget user"}
               status={online ? "Sync on" : "Connection offline"}
             />
-            <Button className="mt-2 w-full" variant="ghost" size={sidebarCollapsed ? "icon" : "default"} onClick={() => setSidebarCollapsed(!sidebarCollapsed)}>
-              {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-              {!sidebarCollapsed && "Collapse"}
-            </Button>
-            <Button className="mt-1 w-full" variant="ghost" size={sidebarCollapsed ? "icon" : "default"} onClick={handleSignOut}>
-              <LogOut className="h-4 w-4" />
-              {!sidebarCollapsed && "Log out"}
-            </Button>
+            <div className={cn("grid gap-1", sidebarCollapsed ? "grid-cols-1" : "grid-cols-3")}>
+              <FooterIconButton label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"} collapsed={sidebarCollapsed} onClick={() => setSidebarCollapsed(!sidebarCollapsed)}>
+                {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              </FooterIconButton>
+              <FooterIconButton label="Toggle theme" collapsed={sidebarCollapsed} onClick={toggleTheme}>
+                {settings.theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </FooterIconButton>
+              <FooterIconButton label="Log out" collapsed={sidebarCollapsed} onClick={handleSignOut}>
+                <LogOut className="h-4 w-4" />
+              </FooterIconButton>
+            </div>
           </div>
         </aside>
 
         <main className={cn("min-h-screen transition-all lg:pb-0", isAssistantRoute ? "pb-0" : "pb-24", sidebarCollapsed ? "lg:pl-16" : "lg:pl-72")}>
           <header className="surface-strong sticky top-0 z-20 flex h-14 items-center justify-between border-b px-4 lg:hidden">
             <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-xs text-primary-foreground shadow-sm shadow-primary/30">FB</span>
+              <BrandMark compact />
               FitBudget
             </Link>
             <div className="flex items-center gap-2">
               {!online && <span className="rounded-full bg-amber-500/15 px-2 py-1 text-xs text-amber-600 dark:text-amber-300">Offline</span>}
-              <Button size="icon" onClick={() => setQuickActionsOpen(true)} aria-label="Open quick actions">
-                <Plus className="h-4 w-4" />
+              <Button size="icon" variant="ghost" onClick={toggleTheme} aria-label="Toggle theme">
+                {settings.theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
               <Button size="icon" variant="ghost" onClick={() => setMobileMenuOpen(true)} aria-label="Open navigation menu">
                 <Menu className="h-4 w-4" />
@@ -264,7 +259,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="grid h-16 grid-cols-5">
             {mobileNav.map((item) => {
               const Icon = item.icon;
-              const active = isMobileRootActive(pathname, item.href);
+              const active = isNavActive(pathname, item);
               return (
                 <Link key={item.href} href={item.href} className="relative flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
                   {active && <motion.span layoutId="mobile-nav-active" className="absolute inset-x-4 top-2 h-8 rounded-full bg-primary/10" />}
@@ -278,16 +273,38 @@ export function AppShell({ children }: { children: ReactNode }) {
               onClick={() => setMobileMenuOpen(true)}
               className="relative flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground"
             >
-              {(mobileMenuOpen || !mobileNav.some((item) => isMobileRootActive(pathname, item.href))) && (
+              {(mobileMenuOpen || !mobileNav.some((item) => isNavActive(pathname, item))) && (
                 <motion.span layoutId="mobile-nav-active" className="absolute inset-x-4 top-2 h-8 rounded-full bg-primary/10" />
               )}
-              <Menu className={cn("relative h-5 w-5", (mobileMenuOpen || !mobileNav.some((item) => isMobileRootActive(pathname, item.href))) && "text-primary")} />
-              <span className={cn("relative", (mobileMenuOpen || !mobileNav.some((item) => isMobileRootActive(pathname, item.href))) && "font-medium text-primary")}>
+              <Menu className={cn("relative h-5 w-5", (mobileMenuOpen || !mobileNav.some((item) => isNavActive(pathname, item))) && "text-primary")} />
+              <span className={cn("relative", (mobileMenuOpen || !mobileNav.some((item) => isNavActive(pathname, item))) && "font-medium text-primary")}>
                 More
               </span>
             </button>
           </div>
         </nav>
+
+        {!isAssistantRoute && (
+          <button
+            type="button"
+            onClick={() => setQuickActionsOpen(true)}
+            className="fixed bottom-20 left-1/2 z-50 flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition-transform hover:-translate-y-0.5 active:translate-y-0 lg:hidden"
+            aria-label="Open quick actions"
+          >
+            <Plus className="h-6 w-6" />
+          </button>
+        )}
+
+        {!isAssistantRoute && (
+          <button
+            type="button"
+            onClick={() => setAssistantOpen(true)}
+            className="fixed bottom-[5.35rem] right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full border bg-card text-primary shadow-lg shadow-slate-950/15 transition-transform hover:-translate-y-0.5 active:translate-y-0 lg:bottom-6 lg:right-6 lg:h-14 lg:w-14"
+            aria-label="Open assistant"
+          >
+            <Bot className="h-5 w-5 lg:h-6 lg:w-6" />
+          </button>
+        )}
 
         <QuickActionsDialog
           open={quickActionsOpen}
@@ -342,7 +359,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                       <MobileMenuItem
                         key={item.href}
                         item={item}
-                        active={pathname === item.href || pathname.startsWith(`${item.href}/`)}
+                        active={isNavActive(pathname, item)}
                         onSelect={() => setMobileMenuOpen(false)}
                       />
                     ))}
@@ -353,6 +370,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <LogOut className="h-4 w-4" /> Log out
               </Button>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={assistantOpen} onOpenChange={setAssistantOpen}>
+          <DialogContent className="bottom-0 left-0 top-auto h-[88dvh] max-h-none w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl p-0 lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-dvh lg:max-w-[30rem] lg:rounded-none lg:border-y-0 lg:border-r-0">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Assistant</DialogTitle>
+              <DialogDescription>Ask about your food, budget, habits, and progress.</DialogDescription>
+            </DialogHeader>
+            <AssistantPage embedded />
           </DialogContent>
         </Dialog>
 
@@ -369,7 +396,7 @@ function QuickActionsDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelect: (dialog: (typeof quickActions)[number]["dialog"]) => void;
+  onSelect: (dialog: Exclude<QuickDialog, null>) => void;
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -455,6 +482,21 @@ function AccountSettingsLink({
   );
 }
 
+function FooterIconButton({ label, collapsed, onClick, children }: { label: string; collapsed: boolean; onClick: () => void; children: ReactNode }) {
+  const button = (
+    <Button className="w-full" variant="ghost" size="icon" onClick={onClick} aria-label={label}>
+      {children}
+    </Button>
+  );
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{button}</TooltipTrigger>
+      <TooltipContent side={collapsed ? "right" : "top"}>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
 function NavItem({ item, active, collapsed }: { item: NavItemConfig; active: boolean; collapsed: boolean }) {
   const Icon = item.icon;
   const content = (
@@ -497,11 +539,7 @@ function MobileMenuItem({ item, active, onSelect }: { item: NavItemConfig; activ
   );
 }
 
-function isMobileRootActive(pathname: string, href: string) {
-  if (href === "/dashboard" || href === "/assistant") {
-    return pathname === href || pathname.startsWith(`${href}/`);
-  }
-
-  const section = href.split("/").slice(0, 2).join("/");
-  return pathname === href || pathname.startsWith(`${section}/`);
+function isNavActive(pathname: string, item: NavItemConfig) {
+  const matches = item.match ?? [item.href];
+  return matches.some((match) => pathname === match || pathname.startsWith(`${match}/`));
 }

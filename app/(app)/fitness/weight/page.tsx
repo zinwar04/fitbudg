@@ -1,6 +1,5 @@
-import { WeightPage } from "@/components/fitness/weight-page";
+import { redirect } from "next/navigation";
 
 export default function FitnessWeightRoute() {
-  return <WeightPage />;
+  redirect("/nutrition/weight");
 }
-

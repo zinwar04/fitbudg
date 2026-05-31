@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { format, subDays } from "date-fns";
-import { CheckCircle2, Edit, Plus, Trash2 } from "lucide-react";
+import { Archive, CheckCircle2, Edit, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -30,6 +30,7 @@ export function HabitsPage() {
   const habits = useHabitsStore((state) => state.habits);
   const entries = useHabitsStore((state) => state.entries);
   const addHabit = useHabitsStore((state) => state.addHabit);
+  const updateHabit = useHabitsStore((state) => state.updateHabit);
   const deleteHabit = useHabitsStore((state) => state.deleteHabit);
   const toggleBoolean = useHabitsStore((state) => state.toggleBoolean);
   const adjustQuantitative = useHabitsStore((state) => state.adjustQuantitative);
@@ -37,6 +38,7 @@ export function HabitsPage() {
   const [editing, setEditing] = useState<Habit | null>(null);
   const today = localDateKey();
   const activeHabits = habits.filter((habit) => habit.isActive);
+  const inactiveHabits = habits.filter((habit) => !habit.isActive);
   const completedToday = activeHabits.filter((habit) => entries.some((entry) => entry.habitId === habit.id && entry.date === today && entry.completed)).length;
   const bestStreak = activeHabits.reduce((best, habit) => Math.max(best, habit.streak), 0);
   const monthCompletionRate = useMemo(() => {
@@ -109,8 +111,8 @@ export function HabitsPage() {
                         <Button variant="ghost" size="icon" onClick={() => { setEditing(habit); setDialogOpen(true); }}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => deleteHabit(habit.id)}>
-                          <Trash2 className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" onClick={() => updateHabit(habit.id, { isActive: false })} aria-label={`Archive ${habit.name}`}>
+                          <Archive className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -131,12 +133,17 @@ export function HabitsPage() {
                       <span className="text-muted-foreground">Current streak</span>
                       <span className="font-semibold data-number">{habit.streak} days</span>
                     </div>
-                    <div className="mt-4 grid grid-cols-10 gap-1">
-                      {Array.from({ length: 30 }, (_, index) => {
-                        const date = format(subDays(new Date(), 29 - index), "yyyy-MM-dd");
+                    <div className="mt-4 grid grid-cols-7 gap-1.5">
+                      {Array.from({ length: 14 }, (_, index) => {
+                        const date = format(subDays(new Date(), 13 - index), "yyyy-MM-dd");
                         const entry = entries.find((item) => item.habitId === habit.id && item.date === date);
-                        return <span key={date} className={`h-3 rounded-sm ${entry?.completed ? "bg-primary" : "bg-muted"}`} title={date} />;
+                        return <span key={date} className={`h-5 rounded-md ${entry?.completed ? "bg-primary" : "bg-muted ring-1 ring-border"}`} title={`${date}${entry?.completed ? " completed" : " open"}`} />;
                       })}
+                    </div>
+                    <div className="mt-1 grid grid-cols-7 gap-1.5 text-center text-[10px] text-muted-foreground">
+                      {Array.from({ length: 7 }, (_, index) => (
+                        <span key={index}>{format(subDays(new Date(), 6 - index), "EEE").slice(0, 1)}</span>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -146,8 +153,39 @@ export function HabitsPage() {
         </div>
       )}
 
+      {inactiveHabits.length > 0 && (
+        <details className="mt-6 rounded-lg border bg-card p-4">
+          <summary className="cursor-pointer text-sm font-semibold">Archived habits ({inactiveHabits.length})</summary>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            {inactiveHabits.map((habit) => {
+              const Icon = getLucideIcon(habit.icon);
+              return (
+                <div key={habit.id} className="flex items-center justify-between gap-3 rounded-lg border bg-muted/20 p-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white" style={{ background: habit.color }}>
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{habit.name}</p>
+                      <p className="text-xs text-muted-foreground">{habit.streak} day streak before archive</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button size="icon" variant="ghost" onClick={() => updateHabit(habit.id, { isActive: true })} aria-label={`Reactivate ${habit.name}`}>
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" onClick={() => deleteHabit(habit.id)} aria-label={`Delete ${habit.name}`}>
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </details>
+      )}
+
       <HabitDialog open={dialogOpen} onOpenChange={setDialogOpen} habit={editing} />
     </>
   );
 }
-

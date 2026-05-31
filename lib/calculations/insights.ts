@@ -75,7 +75,7 @@ export function generateInsights(data: AllUserData): Insight[] {
       description: `You have been eating an average of ${Math.round(averageCalories).toLocaleString("en-US")} kcal/day this week, about ${Math.round(averageCalories - calorieGoal).toLocaleString("en-US")} kcal over your goal.`,
       metric: `${Math.round(averageCalories)} kcal/day average`,
       actionLabel: "Review history",
-      actionRoute: "/fitness/history",
+      actionRoute: "/nutrition/history",
     });
   }
 
@@ -88,7 +88,7 @@ export function generateInsights(data: AllUserData): Insight[] {
       description: `You are averaging ${Math.round(calorieGoal - averageCalories).toLocaleString("en-US")} kcal below your goal this week. Make sure you are eating enough.`,
       metric: `${Math.round(averageCalories)} kcal/day`,
       actionLabel: "Log a meal",
-      actionRoute: "/fitness/log",
+      actionRoute: "/nutrition",
     });
   }
 
@@ -114,7 +114,7 @@ export function generateInsights(data: AllUserData): Insight[] {
       title: "Food log needs a restart",
       description: lastLog ? `You have not logged a meal in ${days} days. Getting back on track starts with one entry.` : "You have not logged a meal yet. Getting started takes less than a minute.",
       actionLabel: "Open food log",
-      actionRoute: "/fitness/log",
+      actionRoute: "/nutrition",
     });
   }
 
@@ -129,7 +129,7 @@ export function generateInsights(data: AllUserData): Insight[] {
         description: `Your weight has trended up by ${delta.toFixed(1)} kg over the last 7 days. Check if your calorie intake is on target.`,
         metric: `+${delta.toFixed(1)} kg`,
         actionLabel: "Open weight log",
-        actionRoute: "/fitness/weight",
+        actionRoute: "/nutrition/weight",
       });
     }
   }
@@ -197,7 +197,7 @@ export function generateInsights(data: AllUserData): Insight[] {
       description: `You have used ${Math.round((budgetSummary.spent / data.budgetProfile.monthlyBudget) * 100)}% of your budget but only ${Math.round((budgetSummary.dayInCycle / budgetSummary.daysInCycle) * 100)}% of the current budget cycle has passed. You may overspend by ${formatCurrency(projectedOverspend, data.budgetProfile.currency, data.budgetProfile.currencySymbol)}.`,
       metric: `${Math.round(budgetSummary.paceRatio * 100)}% pace`,
       actionLabel: "Open budget",
-      actionRoute: "/budget/overview",
+      actionRoute: "/budget",
     });
   } else if (budgetSummary.paceRatio > 0 && budgetSummary.paceRatio < 0.85) {
     addInsight(insights, {
@@ -331,7 +331,7 @@ export function generateInsights(data: AllUserData): Insight[] {
       title: "Food spend without meal log",
       description: `You spent ${formatCurrency(transaction.amount, data.budgetProfile.currency, data.budgetProfile.currencySymbol)} on food on ${formatDateKey(transaction.date)} but did not log any meals. Consider logging what you ate.`,
       actionLabel: "Open food log",
-      actionRoute: "/fitness/log",
+      actionRoute: "/nutrition",
     });
   }
 

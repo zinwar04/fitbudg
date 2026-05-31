@@ -129,8 +129,8 @@ export function FoodLibraryPage() {
   return (
     <>
       <PageHeader
-        title="Food Library"
-        description="Your personal nutrition database for fast, repeatable food logging."
+        title="My Foods"
+        description={`${library.length} saved foods · ${filtered.length} visible · duplicates are checked before imports`}
         action={
           <div className="flex flex-wrap gap-2">
             <input ref={fileInputRef} className="hidden" type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={importFoodFile} />

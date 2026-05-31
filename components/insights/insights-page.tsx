@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { createElement, useMemo, useState } from "react";
 import { format, subDays } from "date-fns";
-import { CheckCircle2, Flame, RefreshCw, Sparkles, Target, WalletCards } from "lucide-react";
+import { CheckCircle2, Flame, Sparkles, Target, WalletCards } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,9 +19,9 @@ import { useBudgetStore } from "@/lib/store/budget.store";
 import { useFoodStore } from "@/lib/store/food.store";
 import { useHabitsStore } from "@/lib/store/habits.store";
 import { useProfileStore } from "@/lib/store/profile.store";
-import { formatCurrency, formatKcal, localDateKey, percent, sum, titleCase } from "@/lib/utils/formatting";
+import { formatCurrency, formatKcal, localDateKey, percent, sum } from "@/lib/utils/formatting";
 
-type Filter = "all" | Insight["category"];
+type Filter = "all" | "foodBody" | "money" | "habits";
 
 export function InsightsPage() {
   const profile = useProfileStore((state) => state.profile);
@@ -91,7 +91,7 @@ export function InsightsPage() {
     [days, safeTransactions],
   );
 
-  const filtered = filter === "all" ? insights : insights.filter((insight) => insight.category === filter);
+  const filtered = filter === "all" ? insights : insights.filter((insight) => matchesFilter(insight, filter));
   const priority = insights.find((insight) => insight.severity === "danger") ?? insights.find((insight) => insight.severity === "warning") ?? insights[0];
   const warnings = insights.filter((insight) => insight.severity === "warning" || insight.severity === "danger").length;
   const positives = insights.filter((insight) => insight.severity === "positive").length;
@@ -104,17 +104,16 @@ export function InsightsPage() {
     <>
       <PageHeader
         title="Insights"
-        description="Patterns, risks, and wins from your food, body, habits, and spending data."
-        action={
-          <Button variant="outline" onClick={() => setGeneratedAt(new Date())}>
-            <RefreshCw className="h-4 w-4" /> Refresh
-          </Button>
-        }
+        description={`Updated ${generatedAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} · ${warnings} warnings · ${positives} wins`}
+        action={<Badge variant="secondary">Updated just now</Badge>}
       />
 
       {insightResult.error && (
-        <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-200">
-          Some saved records had an unexpected shape, so the page loaded with the stable dashboard view. Refresh after editing or importing data to regenerate detailed insights.
+        <div className="mb-4 flex flex-col gap-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-200 sm:flex-row sm:items-center sm:justify-between">
+          <p>Some saved records had an unexpected shape, so the page loaded with the stable dashboard view.</p>
+          <Button variant="outline" size="sm" onClick={() => setGeneratedAt(new Date())}>
+            Try again
+          </Button>
         </div>
       )}
 
@@ -180,9 +179,9 @@ export function InsightsPage() {
       </section>
 
       <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
-        {(["all", "fitness", "budget", "habits", "correlation", "warning", "celebration"] as Filter[]).map((item) => (
+        {(["all", "foodBody", "money", "habits"] as Filter[]).map((item) => (
           <Button key={item} className="shrink-0" size="sm" variant={filter === item ? "default" : "outline"} onClick={() => setFilter(item)}>
-            {item === "all" ? "All" : titleCase(item)}
+            {filterLabel(item)}
           </Button>
         ))}
       </div>
@@ -222,6 +221,34 @@ function PulseRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+function filterLabel(filter: Filter) {
+  const labels: Record<Filter, string> = {
+    all: "All",
+    foodBody: "Food & Body",
+    money: "Money",
+    habits: "Habits",
+  };
+  return labels[filter];
+}
+
+function matchesFilter(insight: Insight, filter: Exclude<Filter, "all">) {
+  if (filter === "foodBody") return insight.category === "fitness" || insight.category === "correlation";
+  if (filter === "money") return insight.category === "budget";
+  return insight.category === "habits";
+}
+
+function insightCategoryLabel(category: Insight["category"]) {
+  const labels: Record<Insight["category"], string> = {
+    fitness: "Food & Body",
+    budget: "Money",
+    habits: "Habits",
+    correlation: "Pattern",
+    warning: "Warning",
+    celebration: "Win",
+  };
+  return labels[category];
+}
+
 function InsightCard({ insight }: { insight: Insight }) {
   const icon = getLucideIcon(insight.icon);
   const tone =
@@ -241,7 +268,7 @@ function InsightCard({ insight }: { insight: Insight }) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant={insight.severity === "danger" || insight.severity === "warning" ? "destructive" : "secondary"}>{titleCase(insight.category)}</Badge>
+            <Badge variant={insight.severity === "danger" || insight.severity === "warning" ? "destructive" : "secondary"}>{insightCategoryLabel(insight.category)}</Badge>
             {insight.metric && <Badge variant="outline">{insight.metric}</Badge>}
           </div>
           <h3 className="mt-3 font-semibold">{insight.title}</h3>

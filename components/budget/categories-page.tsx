@@ -54,8 +54,8 @@ export function CategoriesPage() {
   return (
     <>
       <PageHeader
-        title="Category Budget Manager"
-        description="Edit category limits and compare each one against the active budget cycle."
+        title="Categories"
+        description={`${rows.length} budget buckets · changes stay local until you save`}
         action={
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setCustomOpen(true)}>

@@ -76,7 +76,7 @@ export function MealTemplatesPage() {
     <>
       <PageHeader
         title="Meal Templates"
-        description="Build reusable meals and add all ingredients to your diary in one action."
+        description={`${templates.length} saved templates · log repeat meals without rebuilding them`}
         action={
           <div className="flex flex-wrap gap-2">
             <input ref={fileInputRef} className="hidden" type="file" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={importTemplateFile} />

@@ -1,6 +1,5 @@
-import { BudgetOverviewPage } from "@/components/budget/budget-overview-page";
+import { redirect } from "next/navigation";
 
 export default function BudgetOverviewRoute() {
-  return <BudgetOverviewPage />;
+  redirect("/budget");
 }
-
