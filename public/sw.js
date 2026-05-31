@@ -1,5 +1,5 @@
-const CACHE_NAME = "fitbudget-shell-v2";
-const APP_SHELL = ["/", "/login", "/signup", "/onboarding", "/dashboard", "/manifest.json", "/icon.svg"];
+const CACHE_NAME = "fitbudget-shell-v3";
+const APP_SHELL = ["/login", "/manifest.json", "/icon.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
@@ -22,29 +22,26 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  if (url.pathname.startsWith("/_next/") || url.pathname.startsWith("/api/")) {
+    return;
+  }
+
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-          return response;
-        })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match("/dashboard"))),
+      fetch(request).catch(() => caches.match("/login")),
     );
     return;
   }
 
   event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request).then((response) => {
-        if (response.ok) {
+    fetch(request)
+      .then((response) => {
+        if (response.ok && APP_SHELL.includes(url.pathname)) {
           const copy = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
         }
         return response;
-      });
-    }),
+      })
+      .catch(() => caches.match(request)),
   );
 });

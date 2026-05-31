@@ -48,6 +48,31 @@ function normalizeWeightEntry(entry: WeightEntry): WeightEntry {
   };
 }
 
+function normalizeFoodLibraryItem(item: FoodLibraryItem): FoodLibraryItem {
+  const timestamp = String(item.createdAt ?? item.updatedAt ?? nowIso());
+  return {
+    ...item,
+    id: String(item.id ?? createId()),
+    name: String(item.name ?? "Unnamed food").trim() || "Unnamed food",
+    brand: item.brand ? String(item.brand) : undefined,
+    caloriesPerServing: finiteNumber(item.caloriesPerServing),
+    servingSize: Math.max(0, finiteNumber(item.servingSize, 1)),
+    servingUnit: String(item.servingUnit ?? "serving").trim() || "serving",
+    protein: optionalFiniteNumber(item.protein),
+    carbs: optionalFiniteNumber(item.carbs),
+    fat: optionalFiniteNumber(item.fat),
+    fiber: optionalFiniteNumber(item.fiber),
+    category: item.category ?? "other",
+    isFavorite: Boolean(item.isFavorite),
+    useCount: finiteNumber(item.useCount),
+    lastUsedAt: item.lastUsedAt ? String(item.lastUsedAt) : undefined,
+    notes: item.notes ? String(item.notes) : undefined,
+    source: item.source ?? "manual",
+    createdAt: timestamp,
+    updatedAt: String(item.updatedAt ?? timestamp),
+  };
+}
+
 export async function getFoodData(): Promise<FoodData> {
   const supabase = getSupabaseClient();
   const [logs, entries, library, mealTemplates, weights] = await Promise.all([
@@ -67,7 +92,7 @@ export async function getFoodData(): Promise<FoodData> {
   return {
     logs: stripUserIdArray(logs.data ?? []),
     entries: stripUserIdArray(entries.data ?? []),
-    library: stripUserIdArray(library.data ?? []),
+    library: stripUserIdArray(library.data ?? []).map(normalizeFoodLibraryItem),
     mealTemplates: stripUserIdArray(mealTemplates.data ?? []),
     weights: stripUserIdArray(weights.data ?? []).map(normalizeWeightEntry),
   };
