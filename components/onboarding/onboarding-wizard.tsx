@@ -121,7 +121,7 @@ export function OnboardingWizard() {
             <motion.div
               initial={{ rotate: -10, scale: 0.8 }}
               animate={{ rotate: 0, scale: 1 }}
-              className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground"
+              className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground"
             >
               FB
             </motion.div>
@@ -150,7 +150,7 @@ export function OnboardingWizard() {
               >
                 <div className="grid gap-3 sm:grid-cols-3">
                   {["Food logging", "Budget pacing", "Habit streaks"].map((item) => (
-                    <div key={item} className="rounded-xl border bg-muted/30 p-4 text-sm font-medium">
+                    <div key={item} className="rounded-lg border bg-muted/30 p-4 text-sm font-medium">
                       {item}
                     </div>
                   ))}
@@ -200,7 +200,7 @@ export function OnboardingWizard() {
                         key={goal}
                         type="button"
                         onClick={() => setProfile((current) => ({ ...current, fitnessGoal: goal }))}
-                        className={cn("rounded-xl border bg-card p-4 text-left transition-colors hover:border-primary", profile.fitnessGoal === goal && "border-primary bg-primary/5")}
+                        className={cn("rounded-lg border bg-card p-4 text-left transition-colors hover:border-primary", profile.fitnessGoal === goal && "border-primary bg-primary/5")}
                       >
                         <Icon className="mb-3 h-5 w-5 text-primary" />
                         <p className="font-semibold">{fitnessGoalLabels[goal].title}</p>
@@ -210,7 +210,7 @@ export function OnboardingWizard() {
                   })}
                 </div>
                 {(profile.fitnessGoal === "lose" || profile.fitnessGoal === "gain") && (
-                  <div className="mt-5 rounded-xl border bg-muted/30 p-4">
+                  <div className="mt-5 rounded-lg border bg-muted/30 p-4">
                     <div className="flex items-center justify-between">
                       <Label>Weekly rate</Label>
                       <span className="data-number text-sm">{profile.weeklyWeightDelta.toFixed(2)} kg/week</span>
@@ -240,7 +240,7 @@ export function OnboardingWizard() {
                       key={level}
                       type="button"
                       onClick={() => setProfile((current) => ({ ...current, activityLevel: level }))}
-                      className={cn("rounded-xl border bg-card p-4 text-left transition-colors hover:border-primary", profile.activityLevel === level && "border-primary bg-primary/5")}
+                      className={cn("rounded-lg border bg-card p-4 text-left transition-colors hover:border-primary", profile.activityLevel === level && "border-primary bg-primary/5")}
                     >
                       <p className="font-semibold">{activityLabels[level].title}</p>
                       <p className="mt-1 text-sm text-muted-foreground">{activityLabels[level].description}</p>
@@ -325,10 +325,10 @@ export function OnboardingWizard() {
                     </div>
                   </div>
                   <SelectBlock label="Theme" value={settings.theme} onChange={(value) => setSettings((current) => ({ ...current, theme: value as AppSettings["theme"] }))} options={["light", "dark", "system"]} />
-                  <div className="rounded-xl border bg-muted/20 p-4 text-sm text-muted-foreground">
+                  <div className="rounded-lg border bg-muted/20 p-4 text-sm text-muted-foreground">
                     Your account starts clean. The app will only show data you create yourself after setup.
                   </div>
-                  <div className="rounded-xl border bg-muted/30 p-4 text-sm text-muted-foreground">
+                  <div className="rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground">
                     <p className="font-medium text-foreground">Health Disclaimer</p>
                     <p className="mt-1">{healthDisclaimer}</p>
                     <p className="mt-4 font-medium text-foreground">Financial Disclaimer</p>
@@ -373,7 +373,7 @@ function StepShell({
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
       <div className="mb-6 flex items-start gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
           <Icon className="h-6 w-6" />
         </div>
         <div>
@@ -447,7 +447,7 @@ function SelectBlock({
 
 function PreviewStat({ label, value, detail }: { label: string; value: string; detail: string }) {
   return (
-    <div className="rounded-xl border bg-muted/30 p-4">
+    <div className="rounded-lg border bg-muted/30 p-4">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 text-xl font-semibold data-number">{value}</p>
       <p className="mt-1 text-xs text-muted-foreground">{detail}</p>

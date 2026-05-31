@@ -108,7 +108,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-5xl items-center">
         <div className="grid w-full gap-6 lg:grid-cols-[1fr_28rem]">
           <section className="flex flex-col justify-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground">FB</div>
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground">FB</div>
             <h1 className="mt-6 max-w-xl text-3xl font-semibold tracking-normal sm:text-4xl">
               {isSignup ? "Create your FitBudget account." : "Welcome back to FitBudget."}
             </h1>
@@ -117,7 +117,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
               {["Daily food logging", "Budget clarity", "Mobile ready"].map((item) => (
-                <div key={item} className="rounded-xl border bg-card p-3 text-sm font-medium leading-snug shadow-sm">
+                <div key={item} className="rounded-lg border bg-card p-3 text-sm font-medium leading-snug shadow-sm">
                   {item}
                 </div>
               ))}
@@ -130,7 +130,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             </CardHeader>
             <CardContent>
               {!configured && (
-                <div className="mb-4 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-200">
+                <div className="mb-4 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-700 dark:text-amber-200">
                   Sign in is temporarily unavailable. Please try again soon.
                 </div>
               )}
@@ -146,13 +146,13 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 <Field id="auth-password" label="Password" error={form.formState.errors.password?.message} icon={<LockKeyhole className="h-4 w-4" />}>
                   <Input id="auth-password" type="password" autoComplete={isSignup ? "new-password" : "current-password"} {...form.register("password")} />
                 </Field>
-                {notice && <p className="rounded-xl border bg-muted/40 p-3 text-sm text-muted-foreground">{notice}</p>}
+                {notice && <p className="rounded-lg border bg-muted/40 p-3 text-sm text-muted-foreground">{notice}</p>}
                 <Button type="submit" className="w-full" disabled={loading || !configured}>
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
                   {isSignup ? "Create Account" : "Log In"}
                 </Button>
               </form>
-              <div className="mt-5 flex items-start gap-3 rounded-xl border bg-muted/30 p-3 text-xs text-muted-foreground">
+              <div className="mt-5 flex items-start gap-3 rounded-lg border bg-muted/30 p-3 text-xs text-muted-foreground">
                 <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <p>Your progress is saved securely and available whenever you sign in.</p>
               </div>

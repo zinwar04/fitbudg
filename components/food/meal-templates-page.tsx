@@ -254,7 +254,7 @@ function TemplateDialog({
           <div className="space-y-3">
             <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Template name" />
             <Textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Description" />
-            <div className="rounded-xl border p-3">
+            <div className="rounded-lg border p-3">
               <p className="mb-2 text-sm font-medium">Add ingredients</p>
               <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search food library" />
               <div className="mt-2 max-h-56 space-y-2 overflow-y-auto">
@@ -268,7 +268,7 @@ function TemplateDialog({
             </div>
           </div>
           <div className="space-y-3">
-            <div className="rounded-xl border bg-muted/30 p-3">
+            <div className="rounded-lg border bg-muted/30 p-3">
               <p className="text-sm font-medium">Running total</p>
               <p className="mt-1 text-2xl font-semibold data-number">{formatKcal(totals.calories)}</p>
               <div className="mt-2 flex flex-wrap gap-2">

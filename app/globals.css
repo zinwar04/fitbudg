@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --background: #fafafa;
+  --background: #f7f8fb;
   --foreground: #18181b;
   --card: #ffffff;
   --card-foreground: #18181b;
@@ -11,36 +11,42 @@
   --popover-foreground: #18181b;
   --primary: #10b981;
   --primary-foreground: #ffffff;
-  --secondary: #f4f4f5;
+  --secondary: #eef2f6;
   --secondary-foreground: #18181b;
-  --muted: #f4f4f5;
-  --muted-foreground: #71717a;
-  --accent: #f4f4f5;
+  --muted: #eef2f6;
+  --muted-foreground: #68707d;
+  --accent: #edf7f3;
   --accent-foreground: #18181b;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e4e4e7;
-  --input: #e4e4e7;
+  --border: #dfe5ec;
+  --input: #d9e1ea;
   --ring: var(--primary);
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-strong: rgba(255, 255, 255, 0.94);
+  --surface-muted: rgba(238, 242, 246, 0.72);
 }
 
 .dark {
-  --background: #09090b;
-  --foreground: #fafafa;
-  --card: #18181b;
+  --background: #090b10;
+  --foreground: #f7f8fb;
+  --card: #12161f;
   --card-foreground: #fafafa;
-  --popover: #18181b;
+  --popover: #12161f;
   --popover-foreground: #fafafa;
-  --secondary: #27272a;
+  --secondary: #1b2230;
   --secondary-foreground: #fafafa;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
-  --accent: #27272a;
+  --muted: #1b2230;
+  --muted-foreground: #9aa4b2;
+  --accent: #17251f;
   --accent-foreground: #fafafa;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #27272a;
-  --input: #3f3f46;
+  --border: #252e3d;
+  --input: #303949;
+  --surface: rgba(18, 22, 31, 0.72);
+  --surface-strong: rgba(18, 22, 31, 0.94);
+  --surface-muted: rgba(27, 34, 48, 0.72);
 }
 
 * {
@@ -54,8 +60,30 @@ html {
 body {
   min-height: 100vh;
   color: var(--foreground);
-  background: var(--background);
+  background:
+    linear-gradient(180deg, rgba(16, 185, 129, 0.075), transparent 19rem),
+    linear-gradient(115deg, rgba(59, 130, 246, 0.055), transparent 34rem),
+    var(--background);
   font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--primary) 22%, transparent);
+}
+
+@layer base {
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  select {
+    color: var(--foreground);
+    min-height: 44px;
+  }
 }
 
 @layer utilities {
@@ -71,5 +99,21 @@ body {
   .mobile-safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
-}
 
+  .surface-panel {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+    backdrop-filter: blur(16px);
+  }
+
+  .surface-strong {
+    background: var(--surface-strong);
+    backdrop-filter: blur(18px);
+  }
+
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}

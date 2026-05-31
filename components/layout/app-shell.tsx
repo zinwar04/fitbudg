@@ -19,6 +19,7 @@ import {
   Sparkles,
   Target,
   UtensilsCrossed,
+  Weight,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,25 @@ const primaryNav = [
   { href: "/habits", label: "Habits", icon: Sparkles },
   { href: "/insights", label: "Insights", icon: Sparkles },
   { href: "/assistant", label: "Assistant", icon: Bot },
+];
+
+const navGroups = [
+  {
+    title: "Today",
+    items: [primaryNav[0], primaryNav[1], primaryNav[6], primaryNav[11]],
+  },
+  {
+    title: "Food and Body",
+    items: [primaryNav[2], primaryNav[3], primaryNav[4], primaryNav[5]],
+  },
+  {
+    title: "Money",
+    items: [primaryNav[7], primaryNav[8]],
+  },
+  {
+    title: "Progress",
+    items: [primaryNav[9], primaryNav[10]],
+  },
 ];
 
 const mobileNav = [
@@ -86,6 +106,13 @@ const mobileMenuGroups: { title: string; items: NavItemConfig[] }[] = [
   },
 ];
 
+const quickActions = [
+  { label: "Food", description: "Log a meal or snack", dialog: "food" as const, icon: UtensilsCrossed },
+  { label: "Transaction", description: "Add income or expense", dialog: "transaction" as const, icon: ReceiptText },
+  { label: "Habit", description: "Create or track a habit", dialog: "habit" as const, icon: Sparkles },
+  { label: "Weight", description: "Add a weigh-in", dialog: "weight" as const, icon: Weight },
+];
+
 export function AppShell({ children }: { children: ReactNode }) {
   useAppBoot();
   const pathname = usePathname();
@@ -101,6 +128,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const openDialog = useUiStore((state) => state.openDialog);
   const [online, setOnline] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [quickActionsOpen, setQuickActionsOpen] = useState(false);
   const isAssistantRoute = pathname === "/assistant";
 
   useEffect(() => {
@@ -151,12 +179,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="min-h-screen bg-background text-foreground">
         <aside
           className={cn(
-            "fixed left-0 top-0 z-30 hidden h-screen flex-col border-r bg-card transition-all lg:flex",
+            "surface-strong fixed left-0 top-0 z-30 hidden h-screen flex-col border-r transition-all lg:flex",
             sidebarCollapsed ? "w-16" : "w-72",
           )}
         >
           <div className="flex h-16 items-center gap-3 border-b px-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground shadow-sm shadow-primary/30">
               FB
             </div>
             {!sidebarCollapsed && (
@@ -166,12 +194,19 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
             )}
           </div>
-          <nav className="flex-1 space-y-1 overflow-y-auto p-2">
-            {primaryNav.map((item) => (
-              <NavItem key={item.href} item={item} active={pathname === item.href || pathname.startsWith(`${item.href}/`)} collapsed={sidebarCollapsed} />
+          <nav className="flex-1 overflow-y-auto px-2 py-3">
+            {navGroups.map((group) => (
+              <div key={group.title} className="mb-4 last:mb-0">
+                {!sidebarCollapsed && <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{group.title}</p>}
+                <div className="space-y-1">
+                  {group.items.map((item) => (
+                    <NavItem key={item.href} item={item} active={pathname === item.href || pathname.startsWith(`${item.href}/`)} collapsed={sidebarCollapsed} />
+                  ))}
+                </div>
+              </div>
             ))}
           </nav>
-          <div className="border-t p-2">
+          <div className="p-2">
             <AccountSettingsLink
               active={pathname.startsWith("/settings")}
               collapsed={sidebarCollapsed}
@@ -191,21 +226,18 @@ export function AppShell({ children }: { children: ReactNode }) {
         </aside>
 
         <main className={cn("min-h-screen transition-all lg:pb-0", isAssistantRoute ? "pb-0" : "pb-24", sidebarCollapsed ? "lg:pl-16" : "lg:pl-72")}>
-          <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b bg-background/90 px-4 backdrop-blur lg:hidden">
+          <header className="surface-strong sticky top-0 z-20 flex h-14 items-center justify-between border-b px-4 lg:hidden">
             <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-xs text-primary-foreground">FB</span>
+              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-xs text-primary-foreground shadow-sm shadow-primary/30">FB</span>
               FitBudget
             </Link>
             <div className="flex items-center gap-2">
               {!online && <span className="rounded-full bg-amber-500/15 px-2 py-1 text-xs text-amber-600 dark:text-amber-300">Offline</span>}
+              <Button size="icon" onClick={() => setQuickActionsOpen(true)} aria-label="Open quick actions">
+                <Plus className="h-4 w-4" />
+              </Button>
               <Button size="icon" variant="ghost" onClick={() => setMobileMenuOpen(true)} aria-label="Open navigation menu">
                 <Menu className="h-4 w-4" />
-              </Button>
-              <Button size="icon" variant="ghost" onClick={handleSignOut} aria-label="Log out">
-                <LogOut className="h-4 w-4" />
-              </Button>
-              <Button size="icon" onClick={() => openDialog("food")} aria-label="Quick add food">
-                <Plus className="h-4 w-4" />
               </Button>
             </div>
           </header>
@@ -228,7 +260,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </AnimatePresence>
         </main>
 
-        <nav className="fixed bottom-0 left-0 right-0 z-40 border-t bg-card/95 mobile-safe-bottom backdrop-blur lg:hidden">
+        <nav className="surface-strong fixed bottom-0 left-0 right-0 z-40 border-t mobile-safe-bottom lg:hidden">
           <div className="grid h-16 grid-cols-5">
             {mobileNav.map((item) => {
               const Icon = item.icon;
@@ -257,6 +289,15 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </nav>
 
+        <QuickActionsDialog
+          open={quickActionsOpen}
+          onOpenChange={setQuickActionsOpen}
+          onSelect={(dialog) => {
+            setQuickActionsOpen(false);
+            openDialog(dialog);
+          }}
+        />
+
         <Dialog open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <DialogContent className="bottom-0 left-0 top-auto max-h-[88vh] w-full max-w-none translate-x-0 translate-y-0 gap-0 overflow-y-auto rounded-b-none rounded-t-2xl p-0 sm:w-full lg:hidden">
             <DialogHeader className="border-b px-4 py-4 pr-12">
@@ -268,16 +309,31 @@ export function AppShell({ children }: { children: ReactNode }) {
                 href="/settings/profile"
                 onClick={() => setMobileMenuOpen(false)}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl border bg-muted/30 p-3 transition-colors hover:border-primary hover:bg-primary/5",
+                  "flex items-center gap-3 rounded-lg border bg-muted/30 p-3 transition-colors hover:border-primary hover:bg-primary/5",
                   pathname.startsWith("/settings") && "border-primary bg-primary/5 text-primary",
                 )}
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-background text-xs font-semibold">{initials}</div>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-background text-xs font-semibold shadow-sm">{initials}</div>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{profile?.name ?? user?.email ?? "FitBudget user"}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{online ? "Sync on" : "Connection offline"}</p>
                 </div>
               </Link>
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Quick actions</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {quickActions.map((action) => (
+                    <QuickActionTile
+                      key={action.dialog}
+                      action={action}
+                      onSelect={() => {
+                        setMobileMenuOpen(false);
+                        openDialog(action.dialog);
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
               {mobileMenuGroups.map((group) => (
                 <div key={group.title}>
                   <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{group.title}</p>
@@ -293,6 +349,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </div>
                 </div>
               ))}
+              <Button className="w-full justify-start" variant="outline" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4" /> Log out
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -300,6 +359,57 @@ export function AppShell({ children }: { children: ReactNode }) {
         <QuickDialogHost />
       </div>
     </TooltipProvider>
+  );
+}
+
+function QuickActionsDialog({
+  open,
+  onOpenChange,
+  onSelect,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSelect: (dialog: (typeof quickActions)[number]["dialog"]) => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="bottom-0 left-0 top-auto w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl p-0 sm:left-1/2 sm:top-1/2 sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-lg">
+        <DialogHeader className="border-b px-4 py-4">
+          <DialogTitle>Quick actions</DialogTitle>
+          <DialogDescription>Jump straight into the task you need.</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-2 p-4">
+          {quickActions.map((action) => (
+            <QuickActionTile key={action.dialog} action={action} onSelect={() => onSelect(action.dialog)} />
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function QuickActionTile({
+  action,
+  onSelect,
+}: {
+  action: (typeof quickActions)[number];
+  onSelect: () => void;
+}) {
+  const Icon = action.icon;
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className="flex min-h-16 items-center gap-3 rounded-lg border bg-card p-3 text-left transition-colors hover:border-primary hover:bg-primary/5"
+    >
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <Icon className="h-4 w-4" />
+      </span>
+      <span className="min-w-0">
+        <span className="block text-sm font-medium">{action.label}</span>
+        <span className="block text-xs leading-5 text-muted-foreground">{action.description}</span>
+      </span>
+    </button>
   );
 }
 
@@ -326,7 +436,7 @@ function AccountSettingsLink({
         collapsed && "justify-center px-0",
       )}
     >
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold">{initials}</div>
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-semibold">{initials}</div>
       {!collapsed && (
         <div className="min-w-0">
           <p className="truncate text-sm font-medium">{name}</p>

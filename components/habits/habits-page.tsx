@@ -71,7 +71,7 @@ export function HabitsPage() {
               {suggestions.map((suggestion) => {
                 const Icon = getLucideIcon(suggestion.icon);
                 return (
-                  <button key={suggestion.name} type="button" onClick={() => addHabit(suggestion)} className="rounded-xl border p-3 text-left hover:border-primary">
+                  <button key={suggestion.name} type="button" onClick={() => addHabit(suggestion)} className="rounded-lg border p-3 text-left hover:border-primary">
                     <Icon className="h-5 w-5" style={{ color: suggestion.color }} />
                     <p className="mt-2 text-sm font-medium">{suggestion.name}</p>
                     <p className="mt-1 text-xs text-muted-foreground">{titleCase(suggestion.category)}</p>
@@ -97,7 +97,7 @@ export function HabitsPage() {
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-xl text-white" style={{ background: habit.color }}>
+                        <div className="flex h-11 w-11 items-center justify-center rounded-lg text-white" style={{ background: habit.color }}>
                           <Icon className="h-5 w-5" />
                         </div>
                         <div>

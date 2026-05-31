@@ -443,7 +443,7 @@ export function FoodEntryDialog({
               )}
             </div>
             {selectedFood && (
-              <div className="rounded-xl border bg-muted/30 p-3">
+              <div className="rounded-lg border bg-muted/30 p-3">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
                     <p className="text-sm font-medium">{selectedFood.name}</p>
@@ -476,7 +476,7 @@ export function FoodEntryDialog({
             )}
 
             {(externalLoading || externalResults.length > 0 || externalWarnings.length > 0 || externalQuery) && (
-              <div className="rounded-xl border bg-muted/20 p-3">
+              <div className="rounded-lg border bg-muted/20 p-3">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="text-sm font-medium">External databases</p>
@@ -527,7 +527,7 @@ export function FoodEntryDialog({
             )}
 
             {selectedExternalFood && (
-              <div className="rounded-xl border bg-primary/5 p-3">
+              <div className="rounded-lg border bg-primary/5 p-3">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
                     <p className="text-sm font-medium">{selectedExternalFood.name}</p>
@@ -605,7 +605,7 @@ export function FoodEntryDialog({
               )}
             </div>
             {selectedTemplate && (
-              <div className="rounded-xl border bg-muted/30 p-3">
+              <div className="rounded-lg border bg-muted/30 p-3">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
                     <p className="text-sm font-medium">{selectedTemplate.name}</p>
@@ -852,7 +852,7 @@ function BarcodeScannerDialog({
           <DialogDescription>Use the camera for packaged foods, then log the Open Food Facts result.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-xl border bg-muted">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-lg border bg-muted">
             <video ref={videoRef} className="h-full w-full object-cover" muted playsInline autoPlay />
             {!cameraReady && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-5 text-center text-sm text-muted-foreground">
@@ -861,7 +861,7 @@ function BarcodeScannerDialog({
               </div>
             )}
             {cameraReady && (
-              <div className="pointer-events-none absolute inset-x-8 top-1/2 h-24 -translate-y-1/2 rounded-xl border-2 border-primary/80 shadow-[0_0_0_999px_rgba(0,0,0,0.25)]" />
+              <div className="pointer-events-none absolute inset-x-8 top-1/2 h-24 -translate-y-1/2 rounded-lg border-2 border-primary/80 shadow-[0_0_0_999px_rgba(0,0,0,0.25)]" />
             )}
           </div>
           <div className="flex items-start gap-2 rounded-lg border bg-muted/20 p-3 text-xs text-muted-foreground">

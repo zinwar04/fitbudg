@@ -47,9 +47,9 @@ export function DashboardClient() {
   const carbs = sum(todayEntries.map((entry) => entry.carbs ?? 0));
   const fat = sum(todayEntries.map((entry) => entry.fat ?? 0));
   const budgetSummary = useMemo(() => calculateBudgetSummary(budgetProfile, transactions), [budgetProfile, transactions]);
-  const insights = useMemo(
-    () =>
-      generateInsights({
+  const insights = useMemo(() => {
+    try {
+      return generateInsights({
         profile,
         settings,
         budgetProfile,
@@ -61,9 +61,11 @@ export function DashboardClient() {
         transactions,
         habits,
         habitEntries,
-      }),
-    [budgetProfile, entries, habitEntries, habits, library, logs, mealTemplates, profile, settings, transactions, weights],
-  );
+      });
+    } catch {
+      return [];
+    }
+  }, [budgetProfile, entries, habitEntries, habits, library, logs, mealTemplates, profile, settings, transactions, weights]);
   const [insightIndex, setInsightIndex] = useState(0);
   const insight = insights[insightIndex % Math.max(1, insights.length)];
   const weekData = useMemo(() => {
@@ -84,7 +86,9 @@ export function DashboardClient() {
         .map((entry) => ({ date: entry.date.slice(5), weight: entry.weight })),
     [weights],
   );
-  const activeHabits = habits.filter((habit) => habit.isActive).slice(0, 6);
+  const allActiveHabits = habits.filter((habit) => habit.isActive);
+  const activeHabits = allActiveHabits.slice(0, 6);
+  const completedHabits = allActiveHabits.filter((habit) => habitEntries.some((entry) => entry.habitId === habit.id && entry.date === today && entry.completed)).length;
 
   return (
     <>
@@ -102,6 +106,37 @@ export function DashboardClient() {
           </div>
         }
       />
+
+      <section className="mb-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <DailyFocusCard
+          icon={Flame}
+          label="Calories left"
+          value={formatKcal((targets?.calories ?? 0) - consumed)}
+          detail={`${Math.round(percent(consumed, targets?.calories ?? 0))}% of daily target`}
+          tone={consumed <= (targets?.calories ?? 0) ? "positive" : "danger"}
+        />
+        <DailyFocusCard
+          icon={CircleDollarSign}
+          label="Safe spend"
+          value={formatCurrency(budgetSummary.safeToSpendToday, budgetProfile.currency, budgetProfile.currencySymbol)}
+          detail={`${budgetSummary.daysLeftInCycle} days left in cycle`}
+          tone={budgetSummary.pacing === "onTrack" ? "positive" : "warning"}
+        />
+        <DailyFocusCard
+          icon={Check}
+          label="Habits today"
+          value={`${completedHabits}/${allActiveHabits.length}`}
+          detail={allActiveHabits.length ? "completed" : "no active habits"}
+          tone={completedHabits === allActiveHabits.length && allActiveHabits.length > 0 ? "positive" : "default"}
+        />
+        <DailyFocusCard
+          icon={Sparkles}
+          label="Next insight"
+          value={insight?.title ?? "Log more data"}
+          detail={insight?.category ? titleCase(insight.category) : "personalized guidance"}
+          tone={insight?.severity === "danger" ? "danger" : insight?.severity === "warning" ? "warning" : "default"}
+        />
+      </section>
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Widget className="lg:row-span-2" index={0}>
@@ -194,7 +229,7 @@ export function DashboardClient() {
                       key={habit.id}
                       type="button"
                       onClick={() => (habit.type === "boolean" ? toggleBoolean(habit.id, today) : adjustQuantitative(habit, today, 1))}
-                      className={cn("rounded-xl border p-3 text-center transition-colors hover:border-primary", entry?.completed && "border-primary bg-primary/5")}
+                      className={cn("rounded-lg border p-3 text-center transition-colors hover:border-primary", entry?.completed && "border-primary bg-primary/5")}
                     >
                       <Icon className="mx-auto h-5 w-5" style={{ color: habit.color }} />
                       <p className="mt-2 break-words text-xs font-medium leading-snug">{habit.name}</p>
@@ -257,7 +292,7 @@ export function DashboardClient() {
           </CardHeader>
           <CardContent>
             {insight ? (
-              <button type="button" onClick={() => setInsightIndex((index) => index + 1)} className="w-full rounded-xl border bg-muted/30 p-4 text-left">
+              <button type="button" onClick={() => setInsightIndex((index) => index + 1)} className="w-full rounded-lg border bg-muted/30 p-4 text-left">
                 <Badge variant={insight.severity === "danger" || insight.severity === "warning" ? "destructive" : "secondary"}>{titleCase(insight.category)}</Badge>
                 <h3 className="mt-3 font-semibold">{insight.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{insight.description}</p>
@@ -306,6 +341,42 @@ function Widget({ children, index, className }: { children: React.ReactNode; ind
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04 }}>
       <Card className={cn("h-full overflow-hidden", className)}>{children}</Card>
     </motion.div>
+  );
+}
+
+function DailyFocusCard({
+  icon: Icon,
+  label,
+  value,
+  detail,
+  tone = "default",
+}: {
+  icon: typeof Flame;
+  label: string;
+  value: string;
+  detail: string;
+  tone?: "default" | "positive" | "warning" | "danger";
+}) {
+  const toneClass = {
+    default: "bg-primary/10 text-primary",
+    positive: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-300",
+    warning: "bg-amber-500/10 text-amber-600 dark:text-amber-300",
+    danger: "bg-red-500/10 text-red-600 dark:text-red-300",
+  }[tone];
+
+  return (
+    <Card className="overflow-hidden">
+      <CardContent className="flex min-h-28 items-center gap-3 p-4">
+        <div className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-lg", toneClass)}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+          <p className="mt-1 truncate text-lg font-semibold data-number">{value}</p>
+          <p className="mt-1 truncate text-xs text-muted-foreground">{detail}</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
