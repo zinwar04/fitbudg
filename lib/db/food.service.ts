@@ -11,7 +11,7 @@ import {
 } from "@/lib/db/schema";
 import { getSupabaseClient } from "@/lib/db/supabase.client";
 import { requireUserId, stripUserId, stripUserIdArray, withUserId } from "@/lib/db/supabase.service";
-import { foodDuplicateKey } from "@/lib/food/duplicates";
+import { areLikelyDuplicateFoods, groupLikelyDuplicateFoods } from "@/lib/food/duplicates";
 import { createId, nowIso } from "@/lib/utils/formatting";
 
 export interface FoodData {
@@ -200,12 +200,11 @@ export async function addFoodLibraryItems(inputs: FoodLibraryInput[]) {
   const timestamp = nowIso();
   const { data: existing, error: existingError } = await supabase.from("food_library_items").select("*");
   if (existingError) throw existingError;
-  const knownKeys = new Set(stripUserIdArray<FoodLibraryItem>(existing ?? []).map(foodDuplicateKey));
-  const importKeys = new Set<string>();
+  const existingFoods = stripUserIdArray<FoodLibraryItem>(existing ?? []);
+  const importedFoods: FoodLibraryInput[] = [];
   const deduped = inputs.filter((input) => {
-    const key = foodDuplicateKey(input);
-    if (knownKeys.has(key) || importKeys.has(key)) return false;
-    importKeys.add(key);
+    if (existingFoods.some((food) => areLikelyDuplicateFoods(food, input)) || importedFoods.some((food) => areLikelyDuplicateFoods(food, input))) return false;
+    importedFoods.push(input);
     return true;
   });
 
@@ -231,14 +230,10 @@ export async function removeDuplicateFoodLibraryItems() {
   const { data: libraryRows, error: libraryError } = await supabase.from("food_library_items").select("*");
   if (libraryError) throw libraryError;
   const library = stripUserIdArray<FoodLibraryItem>(libraryRows ?? []);
-  const groups = new Map<string, FoodLibraryItem[]>();
-
-  library.forEach((food) => {
-    const key = foodDuplicateKey(food);
-    groups.set(key, [...(groups.get(key) ?? []), food]);
-  });
-
-  const duplicateGroups = Array.from(groups.values()).filter((group) => group.length > 1);
+  const duplicateGroups = groupLikelyDuplicateFoods(library);
+  const { data: templates, error: templatesError } = await supabase.from("meal_templates").select("*");
+  if (templatesError) throw templatesError;
+  const mealTemplates = stripUserIdArray<MealTemplate>(templates ?? []);
   let removed = 0;
 
   for (const group of duplicateGroups) {
@@ -252,19 +247,21 @@ export async function removeDuplicateFoodLibraryItems() {
     const duplicateIds = duplicates.map((food) => food.id);
     const timestamp = nowIso();
 
-    await supabase.from("food_entries").update({ foodLibraryId: keep.id, updatedAt: timestamp }).in("foodLibraryId", duplicateIds);
+    const { error: entriesError } = await supabase.from("food_entries").update({ foodLibraryId: keep.id, updatedAt: timestamp }).in("foodLibraryId", duplicateIds);
+    if (entriesError) throw entriesError;
 
-    const { data: templates, error: templatesError } = await supabase.from("meal_templates").select("*");
-    if (templatesError) throw templatesError;
-    await Promise.all(
-      stripUserIdArray<MealTemplate>(templates ?? [])
+    const templateUpdates = await Promise.all(
+      mealTemplates
         .map((template) => {
-          const items = template.items.map((item) => (duplicateIds.includes(item.foodLibraryId) ? { ...item, foodLibraryId: keep.id } : item));
-          const changed = items.some((item, index) => item.foodLibraryId !== template.items[index]?.foodLibraryId);
+          const currentItems = Array.isArray(template.items) ? template.items : [];
+          const items = currentItems.map((item) => (duplicateIds.includes(item.foodLibraryId) ? { ...item, foodLibraryId: keep.id } : item));
+          const changed = items.some((item, index) => item.foodLibraryId !== currentItems[index]?.foodLibraryId);
           return changed ? supabase.from("meal_templates").update({ items, updatedAt: timestamp }).eq("id", template.id) : null;
         })
         .filter(Boolean),
     );
+    const templateError = templateUpdates.find((result) => result?.error)?.error;
+    if (templateError) throw templateError;
 
     const { error: deleteError } = await supabase.from("food_library_items").delete().in("id", duplicateIds);
     if (deleteError) throw deleteError;

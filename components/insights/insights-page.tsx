@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { createElement, useMemo, useState } from "react";
 import { format, subDays } from "date-fns";
-import { AlertTriangle, CheckCircle2, Flame, RefreshCw, Sparkles, Target, WalletCards } from "lucide-react";
+import { CheckCircle2, Flame, RefreshCw, Sparkles, Target, WalletCards } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,7 @@ import { ResponsiveBar, ResponsiveLine } from "@/components/shared/chart-frame";
 import { calculateBudgetSummary } from "@/lib/calculations/budget";
 import { generateInsights } from "@/lib/calculations/insights";
 import { calculateNutritionTargets } from "@/lib/calculations/nutrition";
-import { Insight } from "@/lib/db/schema";
+import { FoodEntry, HabitEntry, Insight, Transaction, WeightEntry } from "@/lib/db/schema";
 import { useBudgetStore } from "@/lib/store/budget.store";
 import { useFoodStore } from "@/lib/store/food.store";
 import { useHabitsStore } from "@/lib/store/habits.store";
@@ -37,6 +37,11 @@ export function InsightsPage() {
   const habitEntries = useHabitsStore((state) => state.entries);
   const [filter, setFilter] = useState<Filter>("all");
   const [generatedAt, setGeneratedAt] = useState(new Date());
+  const safeFoodEntries = useMemo(() => normalizeFoodEntries(foodEntries), [foodEntries]);
+  const safeTransactions = useMemo(() => normalizeTransactions(transactions), [transactions]);
+  const safeWeights = useMemo(() => normalizeWeightEntries(weightEntries), [weightEntries]);
+  const safeHabits = useMemo(() => habits.filter((habit) => Boolean(habit?.id && habit?.name)), [habits]);
+  const safeHabitEntries = useMemo(() => normalizeHabitEntries(habitEntries), [habitEntries]);
 
   const data = useMemo(
     () => ({
@@ -44,36 +49,46 @@ export function InsightsPage() {
       settings,
       budgetProfile,
       logs,
-      foodEntries,
+      foodEntries: safeFoodEntries,
       foodLibrary,
       mealTemplates,
-      weightEntries,
-      transactions,
-      habits,
-      habitEntries,
+      weightEntries: safeWeights,
+      transactions: safeTransactions,
+      habits: safeHabits,
+      habitEntries: safeHabitEntries,
     }),
-    [budgetProfile, foodEntries, foodLibrary, habitEntries, habits, logs, mealTemplates, profile, settings, transactions, weightEntries],
+    [budgetProfile, foodLibrary, logs, mealTemplates, profile, safeFoodEntries, safeHabitEntries, safeHabits, safeTransactions, safeWeights, settings],
   );
 
-  const insights = generateInsights(data);
-  const budget = calculateBudgetSummary(budgetProfile, transactions);
+  const insightResult = useMemo(() => {
+    try {
+      return { insights: generateInsights(data), error: null as string | null };
+    } catch (error) {
+      return {
+        insights: [] as Insight[],
+        error: error instanceof Error ? error.message : "Insights could not read part of your saved data.",
+      };
+    }
+  }, [data]);
+  const insights = insightResult.insights;
+  const budget = useMemo(() => calculateBudgetSummary(budgetProfile, safeTransactions), [budgetProfile, safeTransactions]);
   const targets = calculateNutritionTargets(profile);
   const days = useMemo(() => lastDays(14, generatedAt), [generatedAt]);
   const nutritionTrend = useMemo(
     () =>
       days.map((date) => ({
         date: date.slice(5),
-        calories: Math.round(sum(foodEntries.filter((entry) => entry.date === date).map((entry) => entry.calories))),
+        calories: Math.round(sum(safeFoodEntries.filter((entry) => entry.date === date).map((entry) => entry.calories))),
       })),
-    [days, foodEntries],
+    [days, safeFoodEntries],
   );
   const spendTrend = useMemo(
     () =>
       days.map((date) => ({
         date: date.slice(5),
-        spent: Math.round(sum(transactions.filter((transaction) => transaction.date === date && transaction.type === "expense").map((transaction) => transaction.amount))),
+        spent: Math.round(sum(safeTransactions.filter((transaction) => transaction.date === date && transaction.type === "expense").map((transaction) => transaction.amount))),
       })),
-    [days, transactions],
+    [days, safeTransactions],
   );
 
   const filtered = filter === "all" ? insights : insights.filter((insight) => insight.category === filter);
@@ -81,9 +96,9 @@ export function InsightsPage() {
   const warnings = insights.filter((insight) => insight.severity === "warning" || insight.severity === "danger").length;
   const positives = insights.filter((insight) => insight.severity === "positive").length;
   const todayKey = localDateKey();
-  const todayCalories = sum(foodEntries.filter((entry) => entry.date === todayKey).map((entry) => entry.calories));
-  const activeHabits = habits.filter((habit) => habit.isActive);
-  const completedToday = habitEntries.filter((entry) => entry.date === todayKey && entry.completed).length;
+  const todayCalories = sum(safeFoodEntries.filter((entry) => entry.date === todayKey).map((entry) => entry.calories));
+  const activeHabits = safeHabits.filter((habit) => habit.isActive);
+  const completedToday = safeHabitEntries.filter((entry) => entry.date === todayKey && entry.completed).length;
 
   return (
     <>
@@ -96,6 +111,12 @@ export function InsightsPage() {
           </Button>
         }
       />
+
+      {insightResult.error && (
+        <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-200">
+          Some saved records had an unexpected shape, so the page loaded with the stable dashboard view. Refresh after editing or importing data to regenerate detailed insights.
+        </div>
+      )}
 
       <section className="mb-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-lg border bg-card p-4 sm:p-5">
@@ -238,4 +259,69 @@ function InsightCard({ insight }: { insight: Insight }) {
 
 function lastDays(count: number, reference = new Date()) {
   return Array.from({ length: count }, (_, index) => format(subDays(reference, count - index - 1), "yyyy-MM-dd"));
+}
+
+function numberValue(value: unknown, fallback = 0) {
+  const numeric = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(numeric) ? numeric : fallback;
+}
+
+function dateKeyValue(value: unknown) {
+  if (value instanceof Date) return format(value, "yyyy-MM-dd");
+  const text = String(value ?? "").trim();
+  const match = text.match(/^\d{4}-\d{2}-\d{2}/);
+  return match ? match[0] : "";
+}
+
+function normalizeFoodEntries(entries: FoodEntry[]): FoodEntry[] {
+  return entries.flatMap((entry) => {
+    const date = dateKeyValue(entry.date);
+    if (!date || !entry.name) return [];
+    return [{
+      ...entry,
+      date,
+      calories: numberValue(entry.calories),
+      servingSize: numberValue(entry.servingSize, 1),
+      quantity: numberValue(entry.quantity, 1),
+      protein: entry.protein === undefined ? undefined : numberValue(entry.protein),
+      carbs: entry.carbs === undefined ? undefined : numberValue(entry.carbs),
+      fat: entry.fat === undefined ? undefined : numberValue(entry.fat),
+      fiber: entry.fiber === undefined ? undefined : numberValue(entry.fiber),
+    }];
+  });
+}
+
+function normalizeTransactions(transactions: Transaction[]): Transaction[] {
+  return transactions.flatMap((transaction) => {
+    const date = dateKeyValue(transaction.date);
+    if (!date || !transaction.title) return [];
+    return [{
+      ...transaction,
+      date,
+      amount: numberValue(transaction.amount),
+      type: (transaction.type === "income" ? "income" : "expense") as Transaction["type"],
+    }];
+  });
+}
+
+function normalizeWeightEntries(entries: WeightEntry[]): WeightEntry[] {
+  return entries.flatMap((entry) => {
+    const date = dateKeyValue(entry.date);
+    const weight = numberValue(entry.weight);
+    if (!date || weight <= 0) return [];
+    return [{
+      ...entry,
+      date,
+      weight,
+      bodyFatPercent: entry.bodyFatPercent === undefined ? undefined : numberValue(entry.bodyFatPercent),
+    }];
+  });
+}
+
+function normalizeHabitEntries(entries: HabitEntry[]): HabitEntry[] {
+  return entries.flatMap((entry) => {
+    const date = dateKeyValue(entry.date);
+    if (!date || !entry.habitId) return [];
+    return [{ ...entry, date, completed: Boolean(entry.completed) }];
+  });
 }

@@ -9,16 +9,13 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleDollarSign,
-  Database,
   Dumbbell,
   LayoutDashboard,
   LogOut,
   Library,
   Menu,
-  Moon,
   Plus,
   ReceiptText,
-  Settings,
   Sparkles,
   Target,
   UtensilsCrossed,
@@ -48,10 +45,6 @@ const primaryNav = [
   { href: "/habits", label: "Habits", icon: Sparkles },
   { href: "/insights", label: "Insights", icon: Sparkles },
   { href: "/assistant", label: "Assistant", icon: Bot },
-];
-
-const settingsNav = [
-  { href: "/settings/profile", label: "Profile", icon: Settings },
 ];
 
 const mobileNav = [
@@ -90,10 +83,6 @@ const mobileMenuGroups: { title: string; items: NavItemConfig[] }[] = [
       primaryNav[7],
       primaryNav[8],
     ],
-  },
-  {
-    title: "Settings",
-    items: settingsNav,
   },
 ];
 
@@ -183,18 +172,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             ))}
           </nav>
           <div className="border-t p-2">
-            <div className={cn("mb-2 flex items-center gap-3 rounded-lg px-2 py-2", sidebarCollapsed && "justify-center")}>
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-xs font-semibold">{initials}</div>
-              {!sidebarCollapsed && (
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{profile?.name ?? user?.email ?? "FitBudget user"}</p>
-                  <p className="text-xs leading-snug text-muted-foreground">{online ? "Sync on" : "Connection offline"}</p>
-                </div>
-              )}
-            </div>
-            {settingsNav.map((item) => (
-              <NavItem key={item.href} item={item} active={pathname === item.href} collapsed={sidebarCollapsed} />
-            ))}
+            <AccountSettingsLink
+              active={pathname.startsWith("/settings")}
+              collapsed={sidebarCollapsed}
+              initials={initials}
+              name={profile?.name ?? user?.email ?? "FitBudget user"}
+              status={online ? "Sync on" : "Connection offline"}
+            />
             <Button className="mt-2 w-full" variant="ghost" size={sidebarCollapsed ? "icon" : "default"} onClick={() => setSidebarCollapsed(!sidebarCollapsed)}>
               {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
               {!sidebarCollapsed && "Collapse"}
@@ -280,10 +264,20 @@ export function AppShell({ children }: { children: ReactNode }) {
               <DialogDescription>Every page is available here on mobile.</DialogDescription>
             </DialogHeader>
             <div className="space-y-5 px-4 py-4">
-              <div className="rounded-xl border bg-muted/30 p-3">
-                <p className="truncate text-sm font-medium">{profile?.name ?? user?.email ?? "FitBudget user"}</p>
-                <p className="mt-1 text-xs text-muted-foreground">{online ? "Sync on" : "Connection offline"}</p>
-              </div>
+              <Link
+                href="/settings/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 rounded-xl border bg-muted/30 p-3 transition-colors hover:border-primary hover:bg-primary/5",
+                  pathname.startsWith("/settings") && "border-primary bg-primary/5 text-primary",
+                )}
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-background text-xs font-semibold">{initials}</div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{profile?.name ?? user?.email ?? "FitBudget user"}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{online ? "Sync on" : "Connection offline"}</p>
+                </div>
+              </Link>
               {mobileMenuGroups.map((group) => (
                 <div key={group.title}>
                   <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{group.title}</p>
@@ -306,6 +300,48 @@ export function AppShell({ children }: { children: ReactNode }) {
         <QuickDialogHost />
       </div>
     </TooltipProvider>
+  );
+}
+
+function AccountSettingsLink({
+  active,
+  collapsed,
+  initials,
+  name,
+  status,
+}: {
+  active: boolean;
+  collapsed: boolean;
+  initials: string;
+  name: string;
+  status: string;
+}) {
+  const content = (
+    <Link
+      href="/settings/profile"
+      aria-label="Open account settings"
+      className={cn(
+        "mb-2 flex h-12 items-center gap-3 rounded-lg px-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
+        active && "bg-primary/10 text-primary",
+        collapsed && "justify-center px-0",
+      )}
+    >
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-semibold">{initials}</div>
+      {!collapsed && (
+        <div className="min-w-0">
+          <p className="truncate text-sm font-medium">{name}</p>
+          <p className="truncate text-xs leading-snug text-muted-foreground">{status}</p>
+        </div>
+      )}
+    </Link>
+  );
+
+  if (!collapsed) return content;
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{content}</TooltipTrigger>
+      <TooltipContent side="right">Account settings</TooltipContent>
+    </Tooltip>
   );
 }
 

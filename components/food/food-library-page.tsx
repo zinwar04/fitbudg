@@ -38,6 +38,7 @@ export function FoodLibraryPage() {
   const [quickMealType, setQuickMealType] = useState<MealType>("lunch");
   const [quickQuantity, setQuickQuantity] = useState(1);
   const [manualOpen, setManualOpen] = useState(false);
+  const [cleaningDuplicates, setCleaningDuplicates] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = useMemo(() => {
@@ -116,6 +117,15 @@ export function FoodLibraryPage() {
     }
   };
 
+  const removeDuplicates = async () => {
+    setCleaningDuplicates(true);
+    try {
+      await cleanupDuplicateFoods();
+    } finally {
+      setCleaningDuplicates(false);
+    }
+  };
+
   return (
     <>
       <PageHeader
@@ -130,8 +140,8 @@ export function FoodLibraryPage() {
             <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
               <FileUp className="h-4 w-4" /> Import
             </Button>
-            <Button variant="outline" onClick={() => void cleanupDuplicateFoods()}>
-              <Trash2 className="h-4 w-4" /> Remove Duplicates
+            <Button variant="outline" disabled={cleaningDuplicates} onClick={() => void removeDuplicates()}>
+              <Trash2 className="h-4 w-4" /> {cleaningDuplicates ? "Scanning..." : "Remove Duplicates"}
             </Button>
             <Button variant="outline" onClick={() => setManualOpen(true)}>
               Log Manual Food

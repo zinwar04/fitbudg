@@ -1,6 +1,6 @@
 import { FoodCategory } from "@/lib/db/schema";
 import type { FoodLibraryInput, MealTemplateInput } from "@/lib/db/food.service";
-import { ComparableFood, foodDuplicateKey } from "@/lib/food/duplicates";
+import { ComparableFood, areLikelyDuplicateFoods } from "@/lib/food/duplicates";
 import { foodCategories, servingUnits } from "@/lib/utils/constants";
 
 type Cell = string | number | boolean | null | undefined;
@@ -220,18 +220,16 @@ export function parseFoodRows(rows: Cell[][]): FoodLibraryInput[] {
 }
 
 export function removeDuplicateFoodInputs(existingFoods: ComparableFood[], importedFoods: FoodLibraryInput[]) {
-  const existingKeys = new Set(existingFoods.map(foodDuplicateKey));
-  const importKeys = new Set<string>();
   const accepted: FoodLibraryInput[] = [];
   const skipped: FoodLibraryInput[] = [];
 
   importedFoods.forEach((food) => {
-    const key = foodDuplicateKey(food);
-    if (existingKeys.has(key) || importKeys.has(key)) {
+    const alreadyExists = existingFoods.some((existing) => areLikelyDuplicateFoods(existing, food));
+    const alreadyAccepted = accepted.some((acceptedFood) => areLikelyDuplicateFoods(acceptedFood, food));
+    if (alreadyExists || alreadyAccepted) {
       skipped.push(food);
       return;
     }
-    importKeys.add(key);
     accepted.push(food);
   });
 
