@@ -1,0 +1,624 @@
+﻿name,brand,caloriesPerServing,servingSize,servingUnit,protein,carbs,fat,fiber,category,isFavorite,notes
+"White Rice, cooked (50g)",,65,50,g,1.4,14.1,0.1,0.2,carbs,false,USDA/FDC-style cooked plain
+"White Rice, cooked (100g)",,130,100,g,2.7,28.2,0.3,0.4,carbs,false,USDA/FDC-style cooked plain
+"White Rice, cooked (200g)",,260,200,g,5.4,56.4,0.6,0.8,carbs,false,USDA/FDC-style cooked plain
+"Brown Rice, cooked (50g)",,56,50,g,1.1,11.8,0.4,0.9,carbs,false,USDA/FDC-style cooked plain
+"Brown Rice, cooked (100g)",,112,100,g,2.3,23.5,0.8,1.8,carbs,false,USDA/FDC-style cooked plain
+"Brown Rice, cooked (200g)",,224,200,g,4.6,47.0,1.6,3.6,carbs,false,USDA/FDC-style cooked plain
+"Basmati Rice, cooked (50g)",,60,50,g,1.8,12.6,0.2,0.2,carbs,false,Approx cooked plain
+"Basmati Rice, cooked (100g)",,121,100,g,3.5,25.2,0.4,0.4,carbs,false,Approx cooked plain
+"Basmati Rice, cooked (200g)",,242,200,g,7.0,50.4,0.8,0.8,carbs,false,Approx cooked plain
+"Bulgur, cooked (50g)",,42,50,g,1.6,9.3,0.1,2.2,carbs,false,USDA/FDC-style cooked plain
+"Bulgur, cooked (100g)",,83,100,g,3.1,18.6,0.2,4.5,carbs,false,USDA/FDC-style cooked plain
+"Bulgur, cooked (200g)",,166,200,g,6.2,37.2,0.4,9.0,carbs,false,USDA/FDC-style cooked plain
+"Couscous, cooked (50g)",,56,50,g,1.9,11.6,0.1,0.7,carbs,false,USDA/FDC-style cooked plain
+"Couscous, cooked (100g)",,112,100,g,3.8,23.2,0.2,1.4,carbs,false,USDA/FDC-style cooked plain
+"Couscous, cooked (200g)",,224,200,g,7.6,46.4,0.4,2.8,carbs,false,USDA/FDC-style cooked plain
+"Pasta, cooked (50g)",,79,50,g,2.9,15.4,0.5,0.9,carbs,false,USDA/FDC-style cooked plain
+"Pasta, cooked (100g)",,158,100,g,5.8,30.9,0.9,1.8,carbs,false,USDA/FDC-style cooked plain
+"Pasta, cooked (200g)",,316,200,g,11.6,61.8,1.8,3.6,carbs,false,USDA/FDC-style cooked plain
+"Whole Wheat Pasta, cooked (50g)",,62,50,g,2.6,13.2,0.2,1.9,carbs,false,USDA/FDC-style cooked plain
+"Whole Wheat Pasta, cooked (100g)",,124,100,g,5.3,26.5,0.5,3.9,carbs,false,USDA/FDC-style cooked plain
+"Whole Wheat Pasta, cooked (200g)",,248,200,g,10.6,53.0,1.0,7.8,carbs,false,USDA/FDC-style cooked plain
+"Potato, boiled (50g)",,44,50,g,0.9,10.1,0.1,0.9,carbs,false,USDA/FDC-style
+"Potato, boiled (100g)",,87,100,g,1.9,20.1,0.1,1.8,carbs,false,USDA/FDC-style
+"Potato, boiled (200g)",,174,200,g,3.8,40.2,0.2,3.6,carbs,false,USDA/FDC-style
+"Sweet Potato, baked (50g)",,45,50,g,1.0,10.3,0.1,1.6,carbs,false,USDA/FDC-style
+"Sweet Potato, baked (100g)",,90,100,g,2.0,20.7,0.2,3.3,carbs,false,USDA/FDC-style
+"Sweet Potato, baked (200g)",,180,200,g,4.0,41.4,0.4,6.6,carbs,false,USDA/FDC-style
+"Bread, white (50g)",,132,50,g,4.5,24.5,1.6,1.4,bakery,false,USDA/FDC-style
+"Bread, white (100g)",,265,100,g,9.0,49.0,3.2,2.7,bakery,false,USDA/FDC-style
+"Bread, white (200g)",,530,200,g,18.0,98.0,6.4,5.4,bakery,false,USDA/FDC-style
+"Bread, whole wheat (50g)",,124,50,g,6.5,20.5,2.1,3.5,bakery,false,USDA/FDC-style
+"Bread, whole wheat (100g)",,247,100,g,13.0,41.0,4.2,7.0,bakery,false,USDA/FDC-style
+"Bread, whole wheat (200g)",,494,200,g,26.0,82.0,8.4,14.0,bakery,false,USDA/FDC-style
+Sourdough Bread (50g),,144,50,g,5.5,28.0,0.9,1.2,bakery,false,Approx
+Sourdough Bread (100g),,289,100,g,11.0,56.0,1.8,2.4,bakery,false,Approx
+Sourdough Bread (200g),,578,200,g,22.0,112.0,3.6,4.8,bakery,false,Approx
+"Pita Bread, white (50g)",,138,50,g,4.5,27.9,0.6,1.1,bakery,false,USDA/FDC-style
+"Pita Bread, white (100g)",,275,100,g,9.1,55.7,1.2,2.2,bakery,false,USDA/FDC-style
+"Pita Bread, white (200g)",,550,200,g,18.2,111.4,2.4,4.4,bakery,false,USDA/FDC-style
+"Pita Bread, whole wheat (50g)",,131,50,g,4.9,27.5,0.8,3.0,bakery,false,Approx
+"Pita Bread, whole wheat (100g)",,262,100,g,9.8,55.0,1.7,6.1,bakery,false,Approx
+"Pita Bread, whole wheat (200g)",,524,200,g,19.6,110.0,3.4,12.2,bakery,false,Approx
+"Tortilla Wrap, flour (50g)",,155,50,g,4.1,25.0,4.2,1.5,bakery,false,"Approx, varies by brand"
+"Tortilla Wrap, flour (100g)",,310,100,g,8.2,50.0,8.4,3.0,bakery,false,"Approx, varies by brand"
+"Tortilla Wrap, flour (200g)",,620,200,g,16.4,100.0,16.8,6.0,bakery,false,"Approx, varies by brand"
+"Tortilla Wrap, whole wheat (50g)",,140,50,g,4.3,22.5,3.8,3.0,bakery,false,"Approx, varies by brand"
+"Tortilla Wrap, whole wheat (100g)",,280,100,g,8.6,45.0,7.5,6.0,bakery,false,"Approx, varies by brand"
+"Tortilla Wrap, whole wheat (200g)",,560,200,g,17.2,90.0,15.0,12.0,bakery,false,"Approx, varies by brand"
+Naan Bread (50g),,155,50,g,4.5,26.0,4.0,1.0,bakery,false,Approx
+Naan Bread (100g),,310,100,g,9.0,52.0,8.0,2.0,bakery,false,Approx
+Naan Bread (200g),,620,200,g,18.0,104.0,16.0,4.0,bakery,false,Approx
+Lavash Bread (50g),,145,50,g,4.5,28.0,1.1,1.0,bakery,false,Approx
+Lavash Bread (100g),,290,100,g,9.0,56.0,2.2,2.0,bakery,false,Approx
+Lavash Bread (200g),,580,200,g,18.0,112.0,4.4,4.0,bakery,false,Approx
+Samoon Bread (50g),,135,50,g,4.2,27.0,0.8,1.2,bakery,false,Approx Iraqi/Kurdish bread
+Samoon Bread (100g),,270,100,g,8.5,54.0,1.5,2.5,bakery,false,Approx Iraqi/Kurdish bread
+Samoon Bread (200g),,540,200,g,17.0,108.0,3.0,5.0,bakery,false,Approx Iraqi/Kurdish bread
+Barbari Bread (50g),,135,50,g,4.3,26.0,1.1,1.4,bakery,false,Approx Middle Eastern bread
+Barbari Bread (100g),,270,100,g,8.7,52.0,2.1,2.8,bakery,false,Approx Middle Eastern bread
+Barbari Bread (200g),,540,200,g,17.4,104.0,4.2,5.6,bakery,false,Approx Middle Eastern bread
+"Oats, dry (50g)",,194,50,g,8.4,33.1,3.5,5.3,carbs,false,USDA/FDC-style dry
+"Oats, dry (100g)",,389,100,g,16.9,66.3,6.9,10.6,carbs,false,USDA/FDC-style dry
+"Oats, dry (200g)",,778,200,g,33.8,132.6,13.8,21.2,carbs,false,USDA/FDC-style dry
+Cornflakes (50g),,178,50,g,3.8,42.0,0.2,1.6,breakfast,false,Approx
+Cornflakes (100g),,357,100,g,7.5,84.0,0.4,3.3,breakfast,false,Approx
+Cornflakes (200g),,714,200,g,15.0,168.0,0.8,6.6,breakfast,false,Approx
+Granola (50g),,236,50,g,5.0,32.0,10.0,2.5,breakfast,false,"Approx, varies"
+Granola (100g),,471,100,g,10.0,64.0,20.0,5.0,breakfast,false,"Approx, varies"
+Granola (200g),,942,200,g,20.0,128.0,40.0,10.0,breakfast,false,"Approx, varies"
+"Flour, wheat (50g)",,182,50,g,5.2,38.1,0.5,1.4,baking,false,USDA/FDC-style
+"Flour, wheat (100g)",,364,100,g,10.3,76.3,1.0,2.7,baking,false,USDA/FDC-style
+"Flour, wheat (200g)",,728,200,g,20.6,152.6,2.0,5.4,baking,false,USDA/FDC-style
+"Corn, boiled (50g)",,48,50,g,1.7,10.5,0.8,1.2,vegetables,false,USDA/FDC-style
+"Corn, boiled (100g)",,96,100,g,3.4,21.0,1.5,2.4,vegetables,false,USDA/FDC-style
+"Corn, boiled (200g)",,192,200,g,6.8,42.0,3.0,4.8,vegetables,false,USDA/FDC-style
+"Chicken Breast, cooked (50g)",,82,50,g,15.5,0.0,1.8,0.0,protein,false,USDA/FDC-style skinless
+"Chicken Breast, cooked (100g)",,165,100,g,31.0,0.0,3.6,0.0,protein,false,USDA/FDC-style skinless
+"Chicken Breast, cooked (200g)",,330,200,g,62.0,0.0,7.2,0.0,protein,false,USDA/FDC-style skinless
+"Chicken Thigh, cooked (50g)",,104,50,g,13.0,0.0,5.5,0.0,protein,false,USDA/FDC-style
+"Chicken Thigh, cooked (100g)",,209,100,g,26.0,0.0,10.9,0.0,protein,false,USDA/FDC-style
+"Chicken Thigh, cooked (200g)",,418,200,g,52.0,0.0,21.8,0.0,protein,false,USDA/FDC-style
+"Chicken Drumstick, cooked (50g)",,86,50,g,14.0,0.0,2.9,0.0,protein,false,USDA/FDC-style
+"Chicken Drumstick, cooked (100g)",,172,100,g,28.0,0.0,5.7,0.0,protein,false,USDA/FDC-style
+"Chicken Drumstick, cooked (200g)",,344,200,g,56.0,0.0,11.4,0.0,protein,false,USDA/FDC-style
+"Turkey Breast, cooked (50g)",,68,50,g,15.0,0.0,0.5,0.0,protein,false,Approx lean
+"Turkey Breast, cooked (100g)",,135,100,g,30.0,0.0,1.0,0.0,protein,false,Approx lean
+"Turkey Breast, cooked (200g)",,270,200,g,60.0,0.0,2.0,0.0,protein,false,Approx lean
+"Beef, lean cooked (50g)",,108,50,g,13.0,0.0,6.0,0.0,protein,false,USDA/FDC-style
+"Beef, lean cooked (100g)",,217,100,g,26.0,0.0,12.0,0.0,protein,false,USDA/FDC-style
+"Beef, lean cooked (200g)",,434,200,g,52.0,0.0,24.0,0.0,protein,false,USDA/FDC-style
+"Beef Mince 90% lean, cooked (50g)",,88,50,g,13.0,0.0,4.0,0.0,protein,false,Approx
+"Beef Mince 90% lean, cooked (100g)",,176,100,g,26.0,0.0,8.0,0.0,protein,false,Approx
+"Beef Mince 90% lean, cooked (200g)",,352,200,g,52.0,0.0,16.0,0.0,protein,false,Approx
+"Lamb, cooked (50g)",,129,50,g,12.8,0.0,8.2,0.0,protein,false,USDA/FDC-style
+"Lamb, cooked (100g)",,258,100,g,25.6,0.0,16.5,0.0,protein,false,USDA/FDC-style
+"Lamb, cooked (200g)",,516,200,g,51.2,0.0,33.0,0.0,protein,false,USDA/FDC-style
+"Goat Meat, cooked (50g)",,72,50,g,13.6,0.0,1.5,0.0,protein,false,Approx lean
+"Goat Meat, cooked (100g)",,143,100,g,27.1,0.0,3.0,0.0,protein,false,Approx lean
+"Goat Meat, cooked (200g)",,286,200,g,54.2,0.0,6.0,0.0,protein,false,Approx lean
+"Veal, cooked (50g)",,98,50,g,14.5,0.0,3.8,0.0,protein,false,Approx
+"Veal, cooked (100g)",,196,100,g,29.0,0.0,7.6,0.0,protein,false,Approx
+"Veal, cooked (200g)",,392,200,g,58.0,0.0,15.2,0.0,protein,false,Approx
+"Salmon, cooked (50g)",,103,50,g,11.1,0.0,6.2,0.0,protein,false,USDA/FDC-style
+"Salmon, cooked (100g)",,206,100,g,22.1,0.0,12.4,0.0,protein,false,USDA/FDC-style
+"Salmon, cooked (200g)",,412,200,g,44.2,0.0,24.8,0.0,protein,false,USDA/FDC-style
+"Tuna, canned in water, drained (50g)",,58,50,g,12.8,0.0,0.4,0.0,protein,false,USDA/FDC-style
+"Tuna, canned in water, drained (100g)",,116,100,g,25.5,0.0,0.8,0.0,protein,false,USDA/FDC-style
+"Tuna, canned in water, drained (200g)",,232,200,g,51.0,0.0,1.6,0.0,protein,false,USDA/FDC-style
+"Sardines, canned in oil, drained (50g)",,104,50,g,12.3,0.0,5.8,0.0,protein,false,USDA/FDC-style
+"Sardines, canned in oil, drained (100g)",,208,100,g,24.6,0.0,11.5,0.0,protein,false,USDA/FDC-style
+"Sardines, canned in oil, drained (200g)",,416,200,g,49.2,0.0,23.0,0.0,protein,false,USDA/FDC-style
+"Cod, cooked (50g)",,52,50,g,11.4,0.0,0.5,0.0,protein,false,USDA/FDC-style
+"Cod, cooked (100g)",,105,100,g,22.8,0.0,0.9,0.0,protein,false,USDA/FDC-style
+"Cod, cooked (200g)",,210,200,g,45.6,0.0,1.8,0.0,protein,false,USDA/FDC-style
+"Shrimp, cooked (50g)",,50,50,g,12.0,0.1,0.1,0.0,protein,false,USDA/FDC-style
+"Shrimp, cooked (100g)",,99,100,g,24.0,0.2,0.3,0.0,protein,false,USDA/FDC-style
+"Shrimp, cooked (200g)",,198,200,g,48.0,0.4,0.6,0.0,protein,false,USDA/FDC-style
+"Egg, whole raw (50g)",,72,50,g,6.3,0.3,4.8,0.0,protein,false,USDA/FDC-style
+"Egg, whole raw (100g)",,143,100,g,12.6,0.7,9.5,0.0,protein,false,USDA/FDC-style
+"Egg, whole raw (200g)",,286,200,g,25.2,1.4,19.0,0.0,protein,false,USDA/FDC-style
+Egg White (50g),,26,50,g,5.5,0.3,0.1,0.0,protein,false,USDA/FDC-style
+Egg White (100g),,52,100,g,10.9,0.7,0.2,0.0,protein,false,USDA/FDC-style
+Egg White (200g),,104,200,g,21.8,1.4,0.4,0.0,protein,false,USDA/FDC-style
+Egg Yolk (50g),,161,50,g,8.0,1.8,13.2,0.0,protein,false,USDA/FDC-style
+Egg Yolk (100g),,322,100,g,15.9,3.6,26.5,0.0,protein,false,USDA/FDC-style
+Egg Yolk (200g),,644,200,g,31.8,7.2,53.0,0.0,protein,false,USDA/FDC-style
+Turkey Salami (50g),,90,50,g,9.0,1.0,5.5,0.0,processed protein,false,"Approx, varies by brand"
+Turkey Salami (100g),,180,100,g,18.0,2.0,11.0,0.0,processed protein,false,"Approx, varies by brand"
+Turkey Salami (200g),,360,200,g,36.0,4.0,22.0,0.0,processed protein,false,"Approx, varies by brand"
+Chicken Salami (50g),,80,50,g,8.0,1.5,4.5,0.0,processed protein,false,"Approx, varies by brand"
+Chicken Salami (100g),,160,100,g,16.0,3.0,9.0,0.0,processed protein,false,"Approx, varies by brand"
+Chicken Salami (200g),,320,200,g,32.0,6.0,18.0,0.0,processed protein,false,"Approx, varies by brand"
+Beef Sausage (50g),,150,50,g,6.0,1.0,13.5,0.0,processed protein,false,"Approx, varies by brand"
+Beef Sausage (100g),,301,100,g,12.0,2.0,27.0,0.0,processed protein,false,"Approx, varies by brand"
+Beef Sausage (200g),,602,200,g,24.0,4.0,54.0,0.0,processed protein,false,"Approx, varies by brand"
+Chicken Sausage (50g),,95,50,g,8.0,1.5,6.0,0.0,processed protein,false,"Approx, varies by brand"
+Chicken Sausage (100g),,190,100,g,16.0,3.0,12.0,0.0,processed protein,false,"Approx, varies by brand"
+Chicken Sausage (200g),,380,200,g,32.0,6.0,24.0,0.0,processed protein,false,"Approx, varies by brand"
+"Milk, whole (50ml)",,30,50,ml,1.6,2.4,1.6,0.0,dairy,false,USDA/FDC-style per 100ml
+"Milk, whole (100ml)",,61,100,ml,3.2,4.8,3.3,0.0,dairy,false,USDA/FDC-style per 100ml
+"Milk, whole (200ml)",,122,200,ml,6.4,9.6,6.6,0.0,dairy,false,USDA/FDC-style per 100ml
+"Milk, low fat 1% (50ml)",,21,50,ml,1.7,2.5,0.5,0.0,dairy,false,USDA/FDC-style per 100ml
+"Milk, low fat 1% (100ml)",,42,100,ml,3.4,5.0,1.0,0.0,dairy,false,USDA/FDC-style per 100ml
+"Milk, low fat 1% (200ml)",,84,200,ml,6.8,10.0,2.0,0.0,dairy,false,USDA/FDC-style per 100ml
+"Milk, skim (50ml)",,17,50,ml,1.7,2.5,0.1,0.0,dairy,false,USDA/FDC-style per 100ml
+"Milk, skim (100ml)",,34,100,ml,3.4,5.0,0.1,0.0,dairy,false,USDA/FDC-style per 100ml
+"Milk, skim (200ml)",,68,200,ml,6.8,10.0,0.2,0.0,dairy,false,USDA/FDC-style per 100ml
+"Yogurt, plain whole (50g)",,30,50,g,1.8,2.4,1.6,0.0,dairy,false,USDA/FDC-style
+"Yogurt, plain whole (100g)",,61,100,g,3.5,4.7,3.3,0.0,dairy,false,USDA/FDC-style
+"Yogurt, plain whole (200g)",,122,200,g,7.0,9.4,6.6,0.0,dairy,false,USDA/FDC-style
+"Greek Yogurt, plain nonfat (50g)",,30,50,g,5.2,1.8,0.2,0.0,dairy,false,USDA/FDC-style
+"Greek Yogurt, plain nonfat (100g)",,59,100,g,10.3,3.6,0.4,0.0,dairy,false,USDA/FDC-style
+"Greek Yogurt, plain nonfat (200g)",,118,200,g,20.6,7.2,0.8,0.0,dairy,false,USDA/FDC-style
+Labneh (50g),,75,50,g,4.0,2.5,5.0,0.0,dairy,false,Approx Middle Eastern
+Labneh (100g),,150,100,g,8.0,5.0,10.0,0.0,dairy,false,Approx Middle Eastern
+Labneh (200g),,300,200,g,16.0,10.0,20.0,0.0,dairy,false,Approx Middle Eastern
+Cheddar Cheese (50g),,202,50,g,12.5,0.7,16.5,0.0,dairy,false,USDA/FDC-style
+Cheddar Cheese (100g),,403,100,g,25.0,1.3,33.0,0.0,dairy,false,USDA/FDC-style
+Cheddar Cheese (200g),,806,200,g,50.0,2.6,66.0,0.0,dairy,false,USDA/FDC-style
+Feta Cheese (50g),,132,50,g,7.1,2.0,10.7,0.0,dairy,false,USDA/FDC-style
+Feta Cheese (100g),,264,100,g,14.2,4.1,21.3,0.0,dairy,false,USDA/FDC-style
+Feta Cheese (200g),,528,200,g,28.4,8.2,42.6,0.0,dairy,false,USDA/FDC-style
+Cream Cheese (50g),,171,50,g,3.1,2.0,17.0,0.0,dairy,false,USDA/FDC-style
+Cream Cheese (100g),,342,100,g,6.2,4.1,34.0,0.0,dairy,false,USDA/FDC-style
+Cream Cheese (200g),,684,200,g,12.4,8.2,68.0,0.0,dairy,false,USDA/FDC-style
+Butter (50g),,358,50,g,0.5,0.1,40.5,0.0,fats,false,USDA/FDC-style
+Butter (100g),,717,100,g,0.9,0.1,81.0,0.0,fats,false,USDA/FDC-style
+Butter (200g),,1434,200,g,1.8,0.2,162.0,0.0,fats,false,USDA/FDC-style
+Ghee (50g),,450,50,g,0.0,0.0,50.0,0.0,fats,false,Approx
+Ghee (100g),,900,100,g,0.0,0.0,100.0,0.0,fats,false,Approx
+Ghee (200g),,1800,200,g,0.0,0.0,200.0,0.0,fats,false,Approx
+"Lentils, cooked (50g)",,58,50,g,4.5,10.1,0.2,4.0,legumes,false,USDA/FDC-style boiled
+"Lentils, cooked (100g)",,116,100,g,9.0,20.1,0.4,7.9,legumes,false,USDA/FDC-style boiled
+"Lentils, cooked (200g)",,232,200,g,18.0,40.2,0.8,15.8,legumes,false,USDA/FDC-style boiled
+"Chickpeas, cooked (50g)",,82,50,g,4.5,13.7,1.3,3.8,legumes,false,USDA/FDC-style boiled
+"Chickpeas, cooked (100g)",,164,100,g,8.9,27.4,2.6,7.6,legumes,false,USDA/FDC-style boiled
+"Chickpeas, cooked (200g)",,328,200,g,17.8,54.8,5.2,15.2,legumes,false,USDA/FDC-style boiled
+"White Beans, cooked (50g)",,70,50,g,4.1,12.6,0.3,3.1,legumes,false,USDA/FDC-style boiled
+"White Beans, cooked (100g)",,140,100,g,8.2,25.1,0.6,6.3,legumes,false,USDA/FDC-style boiled
+"White Beans, cooked (200g)",,280,200,g,16.4,50.2,1.2,12.6,legumes,false,USDA/FDC-style boiled
+"Kidney Beans, cooked (50g)",,64,50,g,4.3,11.4,0.2,3.2,legumes,false,USDA/FDC-style boiled
+"Kidney Beans, cooked (100g)",,127,100,g,8.7,22.8,0.5,6.4,legumes,false,USDA/FDC-style boiled
+"Kidney Beans, cooked (200g)",,254,200,g,17.4,45.6,1.0,12.8,legumes,false,USDA/FDC-style boiled
+"Black Beans, cooked (50g)",,66,50,g,4.5,11.8,0.2,4.3,legumes,false,USDA/FDC-style boiled
+"Black Beans, cooked (100g)",,132,100,g,8.9,23.7,0.5,8.7,legumes,false,USDA/FDC-style boiled
+"Black Beans, cooked (200g)",,264,200,g,17.8,47.4,1.0,17.4,legumes,false,USDA/FDC-style boiled
+"Fava Beans, cooked (50g)",,55,50,g,3.8,9.8,0.2,2.7,legumes,false,USDA/FDC-style boiled
+"Fava Beans, cooked (100g)",,110,100,g,7.6,19.7,0.4,5.4,legumes,false,USDA/FDC-style boiled
+"Fava Beans, cooked (200g)",,220,200,g,15.2,39.4,0.8,10.8,legumes,false,USDA/FDC-style boiled
+"Peas, cooked (50g)",,42,50,g,2.7,7.8,0.1,2.8,vegetables,false,USDA/FDC-style
+"Peas, cooked (100g)",,84,100,g,5.4,15.6,0.2,5.5,vegetables,false,USDA/FDC-style
+"Peas, cooked (200g)",,168,200,g,10.8,31.2,0.4,11.0,vegetables,false,USDA/FDC-style
+"Green Beans, cooked (50g)",,18,50,g,0.9,4.0,0.1,1.6,vegetables,false,USDA/FDC-style
+"Green Beans, cooked (100g)",,35,100,g,1.9,7.9,0.3,3.2,vegetables,false,USDA/FDC-style
+"Green Beans, cooked (200g)",,70,200,g,3.8,15.8,0.6,6.4,vegetables,false,USDA/FDC-style
+Tomato (50g),,9,50,g,0.5,1.9,0.1,0.6,vegetables,false,USDA/FDC-style
+Tomato (100g),,18,100,g,0.9,3.9,0.2,1.2,vegetables,false,USDA/FDC-style
+Tomato (200g),,36,200,g,1.8,7.8,0.4,2.4,vegetables,false,USDA/FDC-style
+Cucumber (50g),,8,50,g,0.3,1.8,0.1,0.2,vegetables,false,USDA/FDC-style
+Cucumber (100g),,15,100,g,0.7,3.6,0.1,0.5,vegetables,false,USDA/FDC-style
+Cucumber (200g),,30,200,g,1.4,7.2,0.2,1.0,vegetables,false,USDA/FDC-style
+Lettuce (50g),,8,50,g,0.7,1.4,0.1,0.7,vegetables,false,USDA/FDC-style
+Lettuce (100g),,15,100,g,1.4,2.9,0.2,1.3,vegetables,false,USDA/FDC-style
+Lettuce (200g),,30,200,g,2.8,5.8,0.4,2.6,vegetables,false,USDA/FDC-style
+Onion (50g),,20,50,g,0.6,4.7,0.1,0.8,vegetables,false,USDA/FDC-style
+Onion (100g),,40,100,g,1.1,9.3,0.1,1.7,vegetables,false,USDA/FDC-style
+Onion (200g),,80,200,g,2.2,18.6,0.2,3.4,vegetables,false,USDA/FDC-style
+Carrot (50g),,20,50,g,0.5,4.8,0.1,1.4,vegetables,false,USDA/FDC-style
+Carrot (100g),,41,100,g,0.9,9.6,0.2,2.8,vegetables,false,USDA/FDC-style
+Carrot (200g),,82,200,g,1.8,19.2,0.4,5.6,vegetables,false,USDA/FDC-style
+"Broccoli, cooked (50g)",,18,50,g,1.2,3.6,0.2,1.6,vegetables,false,USDA/FDC-style
+"Broccoli, cooked (100g)",,35,100,g,2.4,7.2,0.4,3.3,vegetables,false,USDA/FDC-style
+"Broccoli, cooked (200g)",,70,200,g,4.8,14.4,0.8,6.6,vegetables,false,USDA/FDC-style
+"Cauliflower, cooked (50g)",,12,50,g,0.9,2.0,0.2,1.1,vegetables,false,USDA/FDC-style
+"Cauliflower, cooked (100g)",,23,100,g,1.8,4.1,0.5,2.3,vegetables,false,USDA/FDC-style
+"Cauliflower, cooked (200g)",,46,200,g,3.6,8.2,1.0,4.6,vegetables,false,USDA/FDC-style
+Cabbage (50g),,12,50,g,0.7,2.9,0.1,1.2,vegetables,false,USDA/FDC-style
+Cabbage (100g),,25,100,g,1.3,5.8,0.1,2.5,vegetables,false,USDA/FDC-style
+Cabbage (200g),,50,200,g,2.6,11.6,0.2,5.0,vegetables,false,USDA/FDC-style
+"Eggplant, cooked (50g)",,18,50,g,0.4,4.3,0.1,1.2,vegetables,false,USDA/FDC-style
+"Eggplant, cooked (100g)",,35,100,g,0.8,8.7,0.2,2.5,vegetables,false,USDA/FDC-style
+"Eggplant, cooked (200g)",,70,200,g,1.6,17.4,0.4,5.0,vegetables,false,USDA/FDC-style
+"Zucchini, cooked (50g)",,8,50,g,0.6,1.6,0.1,0.5,vegetables,false,USDA/FDC-style
+"Zucchini, cooked (100g)",,17,100,g,1.2,3.1,0.3,1.0,vegetables,false,USDA/FDC-style
+"Zucchini, cooked (200g)",,34,200,g,2.4,6.2,0.6,2.0,vegetables,false,USDA/FDC-style
+"Spinach, cooked (50g)",,12,50,g,1.5,1.9,0.1,1.2,vegetables,false,USDA/FDC-style
+"Spinach, cooked (100g)",,23,100,g,3.0,3.8,0.3,2.4,vegetables,false,USDA/FDC-style
+"Spinach, cooked (200g)",,46,200,g,6.0,7.6,0.6,4.8,vegetables,false,USDA/FDC-style
+"Okra, cooked (50g)",,11,50,g,0.9,2.2,0.1,1.2,vegetables,false,USDA/FDC-style
+"Okra, cooked (100g)",,22,100,g,1.9,4.5,0.2,2.5,vegetables,false,USDA/FDC-style
+"Okra, cooked (200g)",,44,200,g,3.8,9.0,0.4,5.0,vegetables,false,USDA/FDC-style
+Bell Pepper (50g),,16,50,g,0.5,3.0,0.1,1.1,vegetables,false,USDA/FDC-style
+Bell Pepper (100g),,31,100,g,1.0,6.0,0.3,2.1,vegetables,false,USDA/FDC-style
+Bell Pepper (200g),,62,200,g,2.0,12.0,0.6,4.2,vegetables,false,USDA/FDC-style
+"Mushroom, cooked (50g)",,14,50,g,1.8,2.2,0.2,1.1,vegetables,false,USDA/FDC-style
+"Mushroom, cooked (100g)",,28,100,g,3.6,4.4,0.5,2.2,vegetables,false,USDA/FDC-style
+"Mushroom, cooked (200g)",,56,200,g,7.2,8.8,1.0,4.4,vegetables,false,USDA/FDC-style
+Garlic (50g),,74,50,g,3.2,16.6,0.2,1.1,vegetables,false,USDA/FDC-style
+Garlic (100g),,149,100,g,6.4,33.1,0.5,2.1,vegetables,false,USDA/FDC-style
+Garlic (200g),,298,200,g,12.8,66.2,1.0,4.2,vegetables,false,USDA/FDC-style
+Pickles (50g),,6,50,g,0.2,1.2,0.1,0.5,vegetables,false,Approx
+Pickles (100g),,12,100,g,0.5,2.4,0.2,1.0,vegetables,false,Approx
+Pickles (200g),,24,200,g,1.0,4.8,0.4,2.0,vegetables,false,Approx
+"Olives, green (50g)",,72,50,g,0.5,1.9,7.7,1.6,fats,false,USDA/FDC-style
+"Olives, green (100g)",,145,100,g,1.0,3.8,15.3,3.3,fats,false,USDA/FDC-style
+"Olives, green (200g)",,290,200,g,2.0,7.6,30.6,6.6,fats,false,USDA/FDC-style
+Apple (50g),,26,50,g,0.1,6.9,0.1,1.2,fruit,false,USDA/FDC-style
+Apple (100g),,52,100,g,0.3,13.8,0.2,2.4,fruit,false,USDA/FDC-style
+Apple (200g),,104,200,g,0.6,27.6,0.4,4.8,fruit,false,USDA/FDC-style
+Banana (50g),,44,50,g,0.6,11.4,0.1,1.3,fruit,false,USDA/FDC-style
+Banana (100g),,89,100,g,1.1,22.8,0.3,2.6,fruit,false,USDA/FDC-style
+Banana (200g),,178,200,g,2.2,45.6,0.6,5.2,fruit,false,USDA/FDC-style
+Orange (50g),,24,50,g,0.5,5.9,0.1,1.2,fruit,false,USDA/FDC-style
+Orange (100g),,47,100,g,0.9,11.8,0.1,2.4,fruit,false,USDA/FDC-style
+Orange (200g),,94,200,g,1.8,23.6,0.2,4.8,fruit,false,USDA/FDC-style
+Grapes (50g),,34,50,g,0.3,9.1,0.1,0.5,fruit,false,USDA/FDC-style
+Grapes (100g),,69,100,g,0.7,18.1,0.2,0.9,fruit,false,USDA/FDC-style
+Grapes (200g),,138,200,g,1.4,36.2,0.4,1.8,fruit,false,USDA/FDC-style
+Watermelon (50g),,15,50,g,0.3,3.8,0.1,0.2,fruit,false,USDA/FDC-style
+Watermelon (100g),,30,100,g,0.6,7.6,0.2,0.4,fruit,false,USDA/FDC-style
+Watermelon (200g),,60,200,g,1.2,15.2,0.4,0.8,fruit,false,USDA/FDC-style
+Melon (50g),,17,50,g,0.4,4.1,0.1,0.5,fruit,false,USDA/FDC-style
+Melon (100g),,34,100,g,0.8,8.2,0.2,0.9,fruit,false,USDA/FDC-style
+Melon (200g),,68,200,g,1.6,16.4,0.4,1.8,fruit,false,USDA/FDC-style
+Strawberries (50g),,16,50,g,0.3,3.9,0.1,1.0,fruit,false,USDA/FDC-style
+Strawberries (100g),,32,100,g,0.7,7.7,0.3,2.0,fruit,false,USDA/FDC-style
+Strawberries (200g),,64,200,g,1.4,15.4,0.6,4.0,fruit,false,USDA/FDC-style
+Blueberries (50g),,28,50,g,0.3,7.2,0.1,1.2,fruit,false,USDA/FDC-style
+Blueberries (100g),,57,100,g,0.7,14.5,0.3,2.4,fruit,false,USDA/FDC-style
+Blueberries (200g),,114,200,g,1.4,29.0,0.6,4.8,fruit,false,USDA/FDC-style
+Mango (50g),,30,50,g,0.4,7.5,0.2,0.8,fruit,false,USDA/FDC-style
+Mango (100g),,60,100,g,0.8,15.0,0.4,1.6,fruit,false,USDA/FDC-style
+Mango (200g),,120,200,g,1.6,30.0,0.8,3.2,fruit,false,USDA/FDC-style
+Pomegranate (50g),,42,50,g,0.8,9.3,0.6,2.0,fruit,false,USDA/FDC-style
+Pomegranate (100g),,83,100,g,1.7,18.7,1.2,4.0,fruit,false,USDA/FDC-style
+Pomegranate (200g),,166,200,g,3.4,37.4,2.4,8.0,fruit,false,USDA/FDC-style
+"Dates, Medjool (50g)",,138,50,g,0.9,37.5,0.1,3.4,fruit,false,USDA/FDC-style
+"Dates, Medjool (100g)",,277,100,g,1.8,75.0,0.2,6.7,fruit,false,USDA/FDC-style
+"Dates, Medjool (200g)",,554,200,g,3.6,150.0,0.4,13.4,fruit,false,USDA/FDC-style
+Apricot (50g),,24,50,g,0.7,5.5,0.2,1.0,fruit,false,USDA/FDC-style
+Apricot (100g),,48,100,g,1.4,11.1,0.4,2.0,fruit,false,USDA/FDC-style
+Apricot (200g),,96,200,g,2.8,22.2,0.8,4.0,fruit,false,USDA/FDC-style
+Green Gage Plum (50g),,23,50,g,0.3,5.7,0.1,0.7,fruit,false,Approx plum
+Green Gage Plum (100g),,46,100,g,0.7,11.4,0.3,1.4,fruit,false,Approx plum
+Green Gage Plum (200g),,92,200,g,1.4,22.8,0.6,2.8,fruit,false,Approx plum
+"Fig, fresh (50g)",,37,50,g,0.4,9.6,0.1,1.4,fruit,false,USDA/FDC-style
+"Fig, fresh (100g)",,74,100,g,0.8,19.2,0.3,2.9,fruit,false,USDA/FDC-style
+"Fig, fresh (200g)",,148,200,g,1.6,38.4,0.6,5.8,fruit,false,USDA/FDC-style
+Raisins (50g),,150,50,g,1.6,39.6,0.2,1.9,fruit,false,USDA/FDC-style
+Raisins (100g),,299,100,g,3.1,79.2,0.5,3.7,fruit,false,USDA/FDC-style
+Raisins (200g),,598,200,g,6.2,158.4,1.0,7.4,fruit,false,USDA/FDC-style
+Almonds (50g),,290,50,g,10.6,10.8,24.9,6.2,nuts,false,USDA/FDC-style
+Almonds (100g),,579,100,g,21.2,21.6,49.9,12.5,nuts,false,USDA/FDC-style
+Almonds (200g),,1158,200,g,42.4,43.2,99.8,25.0,nuts,false,USDA/FDC-style
+Walnuts (50g),,327,50,g,7.6,6.8,32.6,3.4,nuts,false,USDA/FDC-style
+Walnuts (100g),,654,100,g,15.2,13.7,65.2,6.7,nuts,false,USDA/FDC-style
+Walnuts (200g),,1308,200,g,30.4,27.4,130.4,13.4,nuts,false,USDA/FDC-style
+Pistachios (50g),,280,50,g,10.1,13.6,22.6,5.3,nuts,false,USDA/FDC-style
+Pistachios (100g),,560,100,g,20.2,27.2,45.3,10.6,nuts,false,USDA/FDC-style
+Pistachios (200g),,1120,200,g,40.4,54.4,90.6,21.2,nuts,false,USDA/FDC-style
+Cashews (50g),,276,50,g,9.1,15.1,21.9,1.6,nuts,false,USDA/FDC-style
+Cashews (100g),,553,100,g,18.2,30.2,43.9,3.3,nuts,false,USDA/FDC-style
+Cashews (200g),,1106,200,g,36.4,60.4,87.8,6.6,nuts,false,USDA/FDC-style
+Peanuts (50g),,284,50,g,12.9,8.1,24.6,4.2,nuts,false,USDA/FDC-style
+Peanuts (100g),,567,100,g,25.8,16.1,49.2,8.5,nuts,false,USDA/FDC-style
+Peanuts (200g),,1134,200,g,51.6,32.2,98.4,17.0,nuts,false,USDA/FDC-style
+Tahini (50g),,298,50,g,8.5,10.5,26.5,4.7,fats,false,USDA/FDC-style
+Tahini (100g),,595,100,g,17.0,21.0,53.0,9.3,fats,false,USDA/FDC-style
+Tahini (200g),,1190,200,g,34.0,42.0,106.0,18.6,fats,false,USDA/FDC-style
+Sesame Seeds (50g),,286,50,g,8.8,11.7,24.9,5.9,seeds,false,USDA/FDC-style
+Sesame Seeds (100g),,573,100,g,17.7,23.4,49.7,11.8,seeds,false,USDA/FDC-style
+Sesame Seeds (200g),,1146,200,g,35.4,46.8,99.4,23.6,seeds,false,USDA/FDC-style
+Chia Seeds (50g),,243,50,g,8.2,21.1,15.3,17.2,seeds,false,USDA/FDC-style
+Chia Seeds (100g),,486,100,g,16.5,42.1,30.7,34.4,seeds,false,USDA/FDC-style
+Chia Seeds (200g),,972,200,g,33.0,84.2,61.4,68.8,seeds,false,USDA/FDC-style
+Flaxseed (50g),,267,50,g,9.2,14.4,21.1,13.7,seeds,false,USDA/FDC-style
+Flaxseed (100g),,534,100,g,18.3,28.9,42.2,27.3,seeds,false,USDA/FDC-style
+Flaxseed (200g),,1068,200,g,36.6,57.8,84.4,54.6,seeds,false,USDA/FDC-style
+Sunflower Seeds (50g),,292,50,g,10.4,10.0,25.8,4.3,seeds,false,USDA/FDC-style
+Sunflower Seeds (100g),,584,100,g,20.8,20.0,51.5,8.6,seeds,false,USDA/FDC-style
+Sunflower Seeds (200g),,1168,200,g,41.6,40.0,103.0,17.2,seeds,false,USDA/FDC-style
+Olive Oil (50g),,442,50,g,0.0,0.0,50.0,0.0,fats,false,USDA/FDC-style
+Olive Oil (100g),,884,100,g,0.0,0.0,100.0,0.0,fats,false,USDA/FDC-style
+Olive Oil (200g),,1768,200,g,0.0,0.0,200.0,0.0,fats,false,USDA/FDC-style
+Vegetable Oil (50g),,442,50,g,0.0,0.0,50.0,0.0,fats,false,USDA/FDC-style
+Vegetable Oil (100g),,884,100,g,0.0,0.0,100.0,0.0,fats,false,USDA/FDC-style
+Vegetable Oil (200g),,1768,200,g,0.0,0.0,200.0,0.0,fats,false,USDA/FDC-style
+Mayonnaise (50g),,340,50,g,0.5,0.3,37.5,0.0,sauce,false,Approx
+Mayonnaise (100g),,680,100,g,1.0,0.6,75.0,0.0,sauce,false,Approx
+Mayonnaise (200g),,1360,200,g,2.0,1.2,150.0,0.0,sauce,false,Approx
+Ketchup (50g),,56,50,g,0.7,13.0,0.1,0.1,sauce,false,Approx
+Ketchup (100g),,112,100,g,1.3,26.0,0.1,0.3,sauce,false,Approx
+Ketchup (200g),,224,200,g,2.6,52.0,0.2,0.6,sauce,false,Approx
+Mustard (50g),,33,50,g,2.2,2.9,2.0,1.6,sauce,false,Approx
+Mustard (100g),,66,100,g,4.4,5.8,4.0,3.3,sauce,false,Approx
+Mustard (200g),,132,200,g,8.8,11.6,8.0,6.6,sauce,false,Approx
+Ranch Dressing (50g),,215,50,g,0.5,3.0,22.5,0.0,sauce,false,Approx
+Ranch Dressing (100g),,430,100,g,1.0,6.0,45.0,0.0,sauce,false,Approx
+Ranch Dressing (200g),,860,200,g,2.0,12.0,90.0,0.0,sauce,false,Approx
+Hummus (50g),,83,50,g,4.0,7.2,4.8,3.0,Middle Eastern,false,Approx chickpea dip
+Hummus (100g),,166,100,g,7.9,14.3,9.6,6.0,Middle Eastern,false,Approx chickpea dip
+Hummus (200g),,332,200,g,15.8,28.6,19.2,12.0,Middle Eastern,false,Approx chickpea dip
+Baba Ghanoush (50g),,60,50,g,1.0,4.0,4.0,1.5,Middle Eastern,false,Approx eggplant dip
+Baba Ghanoush (100g),,120,100,g,2.0,8.0,8.0,3.0,Middle Eastern,false,Approx eggplant dip
+Baba Ghanoush (200g),,240,200,g,4.0,16.0,16.0,6.0,Middle Eastern,false,Approx eggplant dip
+Muhammara (50g),,120,50,g,2.5,11.0,8.0,2.0,Middle Eastern,false,Approx walnut pepper dip
+Muhammara (100g),,240,100,g,5.0,22.0,16.0,4.0,Middle Eastern,false,Approx walnut pepper dip
+Muhammara (200g),,480,200,g,10.0,44.0,32.0,8.0,Middle Eastern,false,Approx walnut pepper dip
+Tzatziki / Cacik (50g),,30,50,g,1.5,2.0,2.0,0.2,Middle Eastern,false,Approx yogurt cucumber
+Tzatziki / Cacik (100g),,60,100,g,3.0,4.0,4.0,0.5,Middle Eastern,false,Approx yogurt cucumber
+Tzatziki / Cacik (200g),,120,200,g,6.0,8.0,8.0,1.0,Middle Eastern,false,Approx yogurt cucumber
+"Dolma, grape leaves/rice (50g)",,80,50,g,2.0,10.5,3.2,1.2,Kurdish/Middle Eastern,false,Approx recipe; varies
+"Dolma, grape leaves/rice (100g)",,160,100,g,4.0,21.0,6.5,2.5,Kurdish/Middle Eastern,false,Approx recipe; varies
+"Dolma, grape leaves/rice (200g)",,320,200,g,8.0,42.0,13.0,5.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Kurdish Dolma mixed vegetables (50g),,78,50,g,2.2,10.0,3.0,1.5,Kurdish/Middle Eastern,false,Approx recipe; varies
+Kurdish Dolma mixed vegetables (100g),,155,100,g,4.5,20.0,6.0,3.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Kurdish Dolma mixed vegetables (200g),,310,200,g,9.0,40.0,12.0,6.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+"Biryani Rice, Iraqi style (50g)",,95,50,g,3.0,13.5,3.2,1.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+"Biryani Rice, Iraqi style (100g)",,190,100,g,6.0,27.0,6.5,2.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+"Biryani Rice, Iraqi style (200g)",,380,200,g,12.0,54.0,13.0,4.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+"Kuba / Kibbeh, fried (50g)",,130,50,g,6.0,12.0,6.5,1.5,Kurdish/Middle Eastern,false,Approx recipe; varies
+"Kuba / Kibbeh, fried (100g)",,260,100,g,12.0,24.0,13.0,3.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+"Kuba / Kibbeh, fried (200g)",,520,200,g,24.0,48.0,26.0,6.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+"Kuba / Kibbeh, boiled (50g)",,92,50,g,5.5,12.0,2.5,1.5,Kurdish/Middle Eastern,false,Approx recipe; varies
+"Kuba / Kibbeh, boiled (100g)",,185,100,g,11.0,24.0,5.0,3.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+"Kuba / Kibbeh, boiled (200g)",,370,200,g,22.0,48.0,10.0,6.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Kofta Kebab (50g),,125,50,g,9.0,1.5,9.0,0.2,Kurdish/Middle Eastern,false,Approx recipe; varies
+Kofta Kebab (100g),,250,100,g,18.0,3.0,18.0,0.5,Kurdish/Middle Eastern,false,Approx recipe; varies
+Kofta Kebab (200g),,500,200,g,36.0,6.0,36.0,1.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Chicken Kebab (50g),,90,50,g,12.0,1.0,4.0,0.1,Kurdish/Middle Eastern,false,Approx recipe; varies
+Chicken Kebab (100g),,180,100,g,24.0,2.0,8.0,0.3,Kurdish/Middle Eastern,false,Approx recipe; varies
+Chicken Kebab (200g),,360,200,g,48.0,4.0,16.0,0.6,Kurdish/Middle Eastern,false,Approx recipe; varies
+Lamb Kebab (50g),,140,50,g,10.0,1.0,10.5,0.1,Kurdish/Middle Eastern,false,Approx recipe; varies
+Lamb Kebab (100g),,280,100,g,20.0,2.0,21.0,0.2,Kurdish/Middle Eastern,false,Approx recipe; varies
+Lamb Kebab (200g),,560,200,g,40.0,4.0,42.0,0.4,Kurdish/Middle Eastern,false,Approx recipe; varies
+Beef Shawarma (50g),,120,50,g,8.0,4.0,8.0,0.5,Middle Eastern,false,Approx meat only; varies
+Beef Shawarma (100g),,240,100,g,16.0,8.0,16.0,1.0,Middle Eastern,false,Approx meat only; varies
+Beef Shawarma (200g),,480,200,g,32.0,16.0,32.0,2.0,Middle Eastern,false,Approx meat only; varies
+Chicken Shawarma (50g),,105,50,g,10.0,2.5,6.0,0.2,Middle Eastern,false,Approx meat only; varies
+Chicken Shawarma (100g),,210,100,g,20.0,5.0,12.0,0.5,Middle Eastern,false,Approx meat only; varies
+Chicken Shawarma (200g),,420,200,g,40.0,10.0,24.0,1.0,Middle Eastern,false,Approx meat only; varies
+"Falafel, fried (50g)",,166,50,g,6.7,15.9,8.9,2.5,Middle Eastern,false,USDA/FDC-style
+"Falafel, fried (100g)",,333,100,g,13.3,31.8,17.8,4.9,Middle Eastern,false,USDA/FDC-style
+"Falafel, fried (200g)",,666,200,g,26.6,63.6,35.6,9.8,Middle Eastern,false,USDA/FDC-style
+Tabbouleh (50g),,60,50,g,1.5,8.5,2.5,1.5,Middle Eastern,false,Approx recipe; varies
+Tabbouleh (100g),,120,100,g,3.0,17.0,5.0,3.0,Middle Eastern,false,Approx recipe; varies
+Tabbouleh (200g),,240,200,g,6.0,34.0,10.0,6.0,Middle Eastern,false,Approx recipe; varies
+Fattoush (50g),,42,50,g,1.0,5.0,2.2,1.2,Middle Eastern,false,Approx recipe; varies
+Fattoush (100g),,85,100,g,2.0,10.0,4.5,2.5,Middle Eastern,false,Approx recipe; varies
+Fattoush (200g),,170,200,g,4.0,20.0,9.0,5.0,Middle Eastern,false,Approx recipe; varies
+"Lentil Soup, Middle Eastern (50g)",,35,50,g,2.0,5.5,0.8,1.5,Kurdish/Middle Eastern,false,Approx recipe; varies
+"Lentil Soup, Middle Eastern (100g)",,70,100,g,4.0,11.0,1.5,3.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+"Lentil Soup, Middle Eastern (200g)",,140,200,g,8.0,22.0,3.0,6.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Chickpea Stew (50g),,62,50,g,3.0,9.0,1.8,2.5,Kurdish/Middle Eastern,false,Approx recipe; varies
+Chickpea Stew (100g),,125,100,g,6.0,18.0,3.5,5.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Chickpea Stew (200g),,250,200,g,12.0,36.0,7.0,10.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+White Bean Stew (50g),,58,50,g,3.0,8.5,1.5,2.5,Kurdish/Middle Eastern,false,Approx recipe; varies
+White Bean Stew (100g),,115,100,g,6.0,17.0,3.0,5.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+White Bean Stew (200g),,230,200,g,12.0,34.0,6.0,10.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Okra Stew (50g),,48,50,g,2.5,4.5,2.0,1.5,Kurdish/Middle Eastern,false,Approx recipe; varies
+Okra Stew (100g),,95,100,g,5.0,9.0,4.0,3.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Okra Stew (200g),,190,200,g,10.0,18.0,8.0,6.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Eggplant Stew (50g),,55,50,g,2.5,5.0,3.0,1.5,Kurdish/Middle Eastern,false,Approx recipe; varies
+Eggplant Stew (100g),,110,100,g,5.0,10.0,6.0,3.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Eggplant Stew (200g),,220,200,g,10.0,20.0,12.0,6.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Kurdish Rice with Vermicelli (50g),,85,50,g,1.8,14.0,2.2,0.5,Kurdish/Middle Eastern,false,Approx recipe; varies
+Kurdish Rice with Vermicelli (100g),,170,100,g,3.5,28.0,4.5,1.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Kurdish Rice with Vermicelli (200g),,340,200,g,7.0,56.0,9.0,2.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Qeema / Minced Meat Stew (50g),,85,50,g,5.0,5.5,4.5,1.5,Kurdish/Middle Eastern,false,Approx recipe; varies
+Qeema / Minced Meat Stew (100g),,170,100,g,10.0,11.0,9.0,3.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Qeema / Minced Meat Stew (200g),,340,200,g,20.0,22.0,18.0,6.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Kurdish Yaprax (50g),,75,50,g,2.0,10.0,2.8,1.2,Kurdish/Middle Eastern,false,Approx stuffed leaves; varies
+Kurdish Yaprax (100g),,150,100,g,4.0,20.0,5.5,2.5,Kurdish/Middle Eastern,false,Approx stuffed leaves; varies
+Kurdish Yaprax (200g),,300,200,g,8.0,40.0,11.0,5.0,Kurdish/Middle Eastern,false,Approx stuffed leaves; varies
+Tashreeb / Thareed (50g),,78,50,g,4.5,8.0,3.0,1.0,Middle Eastern,false,Approx recipe; varies
+Tashreeb / Thareed (100g),,155,100,g,9.0,16.0,6.0,2.0,Middle Eastern,false,Approx recipe; varies
+Tashreeb / Thareed (200g),,310,200,g,18.0,32.0,12.0,4.0,Middle Eastern,false,Approx recipe; varies
+"Mansaf, rice with lamb yogurt (50g)",,110,50,g,6.0,11.5,5.0,0.5,Middle Eastern,false,Approx recipe; varies
+"Mansaf, rice with lamb yogurt (100g)",,220,100,g,12.0,23.0,10.0,1.0,Middle Eastern,false,Approx recipe; varies
+"Mansaf, rice with lamb yogurt (200g)",,440,200,g,24.0,46.0,20.0,2.0,Middle Eastern,false,Approx recipe; varies
+Maqluba (50g),,90,50,g,4.0,12.0,3.0,1.0,Middle Eastern,false,Approx recipe; varies
+Maqluba (100g),,180,100,g,8.0,24.0,6.0,2.0,Middle Eastern,false,Approx recipe; varies
+Maqluba (200g),,360,200,g,16.0,48.0,12.0,4.0,Middle Eastern,false,Approx recipe; varies
+Kabsa Rice with Chicken (50g),,88,50,g,5.0,11.5,2.5,0.8,Middle Eastern,false,Approx recipe; varies
+Kabsa Rice with Chicken (100g),,175,100,g,10.0,23.0,5.0,1.5,Middle Eastern,false,Approx recipe; varies
+Kabsa Rice with Chicken (200g),,350,200,g,20.0,46.0,10.0,3.0,Middle Eastern,false,Approx recipe; varies
+Mandi Rice with Chicken (50g),,85,50,g,5.0,11.5,2.2,0.7,Middle Eastern,false,Approx recipe; varies
+Mandi Rice with Chicken (100g),,170,100,g,10.0,23.0,4.5,1.3,Middle Eastern,false,Approx recipe; varies
+Mandi Rice with Chicken (200g),,340,200,g,20.0,46.0,9.0,2.6,Middle Eastern,false,Approx recipe; varies
+Lahmacun (50g),,125,50,g,5.0,17.0,4.0,1.0,Middle Eastern,false,Approx
+Lahmacun (100g),,250,100,g,10.0,34.0,8.0,2.0,Middle Eastern,false,Approx
+Lahmacun (200g),,500,200,g,20.0,68.0,16.0,4.0,Middle Eastern,false,Approx
+Manakish Zaatar (50g),,155,50,g,4.0,21.5,6.0,1.5,Middle Eastern,false,Approx
+Manakish Zaatar (100g),,310,100,g,8.0,43.0,12.0,3.0,Middle Eastern,false,Approx
+Manakish Zaatar (200g),,620,200,g,16.0,86.0,24.0,6.0,Middle Eastern,false,Approx
+Manakish Cheese (50g),,165,50,g,6.0,19.0,7.5,1.0,Middle Eastern,false,Approx
+Manakish Cheese (100g),,330,100,g,12.0,38.0,15.0,2.0,Middle Eastern,false,Approx
+Manakish Cheese (200g),,660,200,g,24.0,76.0,30.0,4.0,Middle Eastern,false,Approx
+"Sambusa, meat fried (50g)",,140,50,g,5.0,14.0,7.0,1.0,Middle Eastern,false,Approx
+"Sambusa, meat fried (100g)",,280,100,g,10.0,28.0,14.0,2.0,Middle Eastern,false,Approx
+"Sambusa, meat fried (200g)",,560,200,g,20.0,56.0,28.0,4.0,Middle Eastern,false,Approx
+"Sambusa, cheese fried (50g)",,155,50,g,4.5,13.5,9.0,0.8,Middle Eastern,false,Approx
+"Sambusa, cheese fried (100g)",,310,100,g,9.0,27.0,18.0,1.5,Middle Eastern,false,Approx
+"Sambusa, cheese fried (200g)",,620,200,g,18.0,54.0,36.0,3.0,Middle Eastern,false,Approx
+Fasolia Kurdish Stew (50g),,60,50,g,3.0,8.0,2.0,2.5,Kurdish/Middle Eastern,false,Approx recipe; varies
+Fasolia Kurdish Stew (100g),,120,100,g,6.0,16.0,4.0,5.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Fasolia Kurdish Stew (200g),,240,200,g,12.0,32.0,8.0,10.0,Kurdish/Middle Eastern,false,Approx recipe; varies
+Nisk / Lentil dish (50g),,60,50,g,4.0,10.0,0.8,3.5,Kurdish,false,Approx recipe; varies
+Nisk / Lentil dish (100g),,120,100,g,8.0,20.0,1.5,7.0,Kurdish,false,Approx recipe; varies
+Nisk / Lentil dish (200g),,240,200,g,16.0,40.0,3.0,14.0,Kurdish,false,Approx recipe; varies
+Kurdish Chicken Soup (50g),,32,50,g,3.5,3.0,1.0,0.5,Kurdish,false,Approx recipe; varies
+Kurdish Chicken Soup (100g),,65,100,g,7.0,6.0,2.0,1.0,Kurdish,false,Approx recipe; varies
+Kurdish Chicken Soup (200g),,130,200,g,14.0,12.0,4.0,2.0,Kurdish,false,Approx recipe; varies
+Kurdish Bread with Yogurt (50g),,78,50,g,3.0,13.0,1.5,0.8,Kurdish,false,Approx dish; varies
+Kurdish Bread with Yogurt (100g),,155,100,g,6.0,26.0,3.0,1.5,Kurdish,false,Approx dish; varies
+Kurdish Bread with Yogurt (200g),,310,200,g,12.0,52.0,6.0,3.0,Kurdish,false,Approx dish; varies
+Dark Chocolate 70% (50g),,299,50,g,3.9,22.9,21.3,5.5,snack,false,USDA/FDC-style
+Dark Chocolate 70% (100g),,598,100,g,7.8,45.9,42.6,10.9,snack,false,USDA/FDC-style
+Dark Chocolate 70% (200g),,1196,200,g,15.6,91.8,85.2,21.8,snack,false,USDA/FDC-style
+Milk Chocolate (50ml),,268,50,ml,3.9,29.7,14.8,1.7,snack,false,USDA/FDC-style
+Milk Chocolate (100ml),,535,100,ml,7.7,59.4,29.7,3.4,snack,false,USDA/FDC-style
+Milk Chocolate (200ml),,1070,200,ml,15.4,118.8,59.4,6.8,snack,false,USDA/FDC-style
+Potato Chips (50g),,268,50,g,3.5,26.5,17.5,2.4,snack,false,Approx
+Potato Chips (100g),,536,100,g,7.0,53.0,35.0,4.8,snack,false,Approx
+Potato Chips (200g),,1072,200,g,14.0,106.0,70.0,9.6,snack,false,Approx
+"Popcorn, air-popped (50g)",,194,50,g,6.5,38.9,2.2,7.2,snack,false,USDA/FDC-style
+"Popcorn, air-popped (100g)",,387,100,g,12.9,77.8,4.5,14.5,snack,false,USDA/FDC-style
+"Popcorn, air-popped (200g)",,774,200,g,25.8,155.6,9.0,29.0,snack,false,USDA/FDC-style
+"Ice Cream, vanilla (50g)",,104,50,g,1.8,12.0,5.5,0.3,dessert,false,USDA/FDC-style
+"Ice Cream, vanilla (100g)",,207,100,g,3.5,24.0,11.0,0.7,dessert,false,USDA/FDC-style
+"Ice Cream, vanilla (200g)",,414,200,g,7.0,48.0,22.0,1.4,dessert,false,USDA/FDC-style
+Baklava (50g),,215,50,g,3.0,25.0,12.5,1.5,dessert,false,Approx Middle Eastern
+Baklava (100g),,430,100,g,6.0,50.0,25.0,3.0,dessert,false,Approx Middle Eastern
+Baklava (200g),,860,200,g,12.0,100.0,50.0,6.0,dessert,false,Approx Middle Eastern
+Kunafa (50g),,180,50,g,4.0,20.0,9.5,0.5,dessert,false,Approx Middle Eastern
+Kunafa (100g),,360,100,g,8.0,40.0,19.0,1.0,dessert,false,Approx Middle Eastern
+Kunafa (200g),,720,200,g,16.0,80.0,38.0,2.0,dessert,false,Approx Middle Eastern
+Kleicha / Kurdish date cookie (50g),,210,50,g,3.0,30.0,9.0,1.5,Kurdish dessert,false,Approx recipe; varies
+Kleicha / Kurdish date cookie (100g),,420,100,g,6.0,60.0,18.0,3.0,Kurdish dessert,false,Approx recipe; varies
+Kleicha / Kurdish date cookie (200g),,840,200,g,12.0,120.0,36.0,6.0,Kurdish dessert,false,Approx recipe; varies
+Rice Pudding (50g),,55,50,g,1.5,9.0,1.5,0.1,dessert,false,Approx
+Rice Pudding (100g),,110,100,g,3.0,18.0,3.0,0.2,dessert,false,Approx
+Rice Pudding (200g),,220,200,g,6.0,36.0,6.0,0.4,dessert,false,Approx
+"Tea, unsweetened (50ml)",,0,50,ml,0.0,0.0,0.0,0.0,drink,false,Approx
+"Tea, unsweetened (100ml)",,1,100,ml,0.0,0.0,0.0,0.0,drink,false,Approx
+"Tea, unsweetened (200ml)",,2,200,ml,0.0,0.0,0.0,0.0,drink,false,Approx
+"Coffee, black (50ml)",,1,50,ml,0.1,0.0,0.0,0.0,drink,false,Approx
+"Coffee, black (100ml)",,2,100,ml,0.1,0.0,0.0,0.0,drink,false,Approx
+"Coffee, black (200ml)",,4,200,ml,0.2,0.0,0.0,0.0,drink,false,Approx
+Orange Juice (50ml),,22,50,ml,0.3,5.2,0.1,0.1,drink,false,USDA/FDC-style per 100ml
+Orange Juice (100ml),,45,100,ml,0.7,10.4,0.2,0.2,drink,false,USDA/FDC-style per 100ml
+Orange Juice (200ml),,90,200,ml,1.4,20.8,0.4,0.4,drink,false,USDA/FDC-style per 100ml
+Apple Juice (50ml),,23,50,ml,0.1,5.7,0.1,0.1,drink,false,USDA/FDC-style per 100ml
+Apple Juice (100ml),,46,100,ml,0.1,11.3,0.1,0.2,drink,false,USDA/FDC-style per 100ml
+Apple Juice (200ml),,92,200,ml,0.2,22.6,0.2,0.4,drink,false,USDA/FDC-style per 100ml
+Cola Soft Drink (50ml),,21,50,ml,0.0,5.3,0.0,0.0,drink,false,Approx per 100ml
+Cola Soft Drink (100ml),,42,100,ml,0.0,10.6,0.0,0.0,drink,false,Approx per 100ml
+Cola Soft Drink (200ml),,84,200,ml,0.0,21.2,0.0,0.0,drink,false,Approx per 100ml
+"Protein Powder, whey (50g)",,200,50,g,40.0,4.0,3.0,0.0,supplement,false,"Approx, varies by brand"
+"Protein Powder, whey (100g)",,400,100,g,80.0,8.0,6.0,0.0,supplement,false,"Approx, varies by brand"
+"Protein Powder, whey (200g)",,800,200,g,160.0,16.0,12.0,0.0,supplement,false,"Approx, varies by brand"
+Avocado (50g),,80,50,g,1.0,4.2,7.3,3.4,fruit,false,USDA/FDC-style
+Avocado (100g),,160,100,g,2.0,8.5,14.7,6.7,fruit,false,USDA/FDC-style
+Avocado (200g),,320,200,g,4.0,17.0,29.4,13.4,fruit,false,USDA/FDC-style
+Pear (50g),,28,50,g,0.2,7.6,0.1,1.6,fruit,false,USDA/FDC-style
+Pear (100g),,57,100,g,0.4,15.2,0.1,3.1,fruit,false,USDA/FDC-style
+Pear (200g),,114,200,g,0.8,30.4,0.2,6.2,fruit,false,USDA/FDC-style
+Peach (50g),,20,50,g,0.5,4.8,0.1,0.8,fruit,false,USDA/FDC-style
+Peach (100g),,39,100,g,0.9,9.5,0.3,1.5,fruit,false,USDA/FDC-style
+Peach (200g),,78,200,g,1.8,19.0,0.6,3.0,fruit,false,USDA/FDC-style
+Pineapple (50g),,25,50,g,0.2,6.5,0.1,0.7,fruit,false,USDA/FDC-style
+Pineapple (100g),,50,100,g,0.5,13.1,0.1,1.4,fruit,false,USDA/FDC-style
+Pineapple (200g),,100,200,g,1.0,26.2,0.2,2.8,fruit,false,USDA/FDC-style
+Kiwi (50g),,30,50,g,0.6,7.3,0.2,1.5,fruit,false,USDA/FDC-style
+Kiwi (100g),,61,100,g,1.1,14.7,0.5,3.0,fruit,false,USDA/FDC-style
+Kiwi (200g),,122,200,g,2.2,29.4,1.0,6.0,fruit,false,USDA/FDC-style
+Cherry (50g),,32,50,g,0.6,8.0,0.1,1.1,fruit,false,USDA/FDC-style
+Cherry (100g),,63,100,g,1.1,16.0,0.2,2.1,fruit,false,USDA/FDC-style
+Cherry (200g),,126,200,g,2.2,32.0,0.4,4.2,fruit,false,USDA/FDC-style
+"Beetroot, cooked (50g)",,22,50,g,0.8,5.0,0.1,1.0,vegetables,false,USDA/FDC-style
+"Beetroot, cooked (100g)",,44,100,g,1.7,10.0,0.2,2.0,vegetables,false,USDA/FDC-style
+"Beetroot, cooked (200g)",,88,200,g,3.4,20.0,0.4,4.0,vegetables,false,USDA/FDC-style
+"Pumpkin, cooked (50g)",,10,50,g,0.3,2.5,0.1,0.6,vegetables,false,USDA/FDC-style
+"Pumpkin, cooked (100g)",,20,100,g,0.7,4.9,0.1,1.1,vegetables,false,USDA/FDC-style
+"Pumpkin, cooked (200g)",,40,200,g,1.4,9.8,0.2,2.2,vegetables,false,USDA/FDC-style
+"Turnip, cooked (50g)",,11,50,g,0.3,2.5,0.1,1.0,vegetables,false,USDA/FDC-style
+"Turnip, cooked (100g)",,22,100,g,0.7,5.1,0.1,2.0,vegetables,false,USDA/FDC-style
+"Turnip, cooked (200g)",,44,200,g,1.4,10.2,0.2,4.0,vegetables,false,USDA/FDC-style
+Radish (50g),,8,50,g,0.3,1.7,0.1,0.8,vegetables,false,USDA/FDC-style
+Radish (100g),,16,100,g,0.7,3.4,0.1,1.6,vegetables,false,USDA/FDC-style
+Radish (200g),,32,200,g,1.4,6.8,0.2,3.2,vegetables,false,USDA/FDC-style
+Arugula (50g),,12,50,g,1.3,1.9,0.3,0.8,vegetables,false,USDA/FDC-style
+Arugula (100g),,25,100,g,2.6,3.7,0.7,1.6,vegetables,false,USDA/FDC-style
+Arugula (200g),,50,200,g,5.2,7.4,1.4,3.2,vegetables,false,USDA/FDC-style
+Parsley (50g),,18,50,g,1.5,3.1,0.4,1.6,vegetables,false,USDA/FDC-style
+Parsley (100g),,36,100,g,3.0,6.3,0.8,3.3,vegetables,false,USDA/FDC-style
+Parsley (200g),,72,200,g,6.0,12.6,1.6,6.6,vegetables,false,USDA/FDC-style
+Mint (50g),,22,50,g,1.6,4.2,0.3,3.4,herbs,false,Approx
+Mint (100g),,44,100,g,3.3,8.4,0.7,6.8,herbs,false,Approx
+Mint (200g),,88,200,g,6.6,16.8,1.4,13.6,herbs,false,Approx
+Cilantro (50g),,12,50,g,1.1,1.9,0.2,1.4,herbs,false,USDA/FDC-style
+Cilantro (100g),,23,100,g,2.1,3.7,0.5,2.8,herbs,false,USDA/FDC-style
+Cilantro (200g),,46,200,g,4.2,7.4,1.0,5.6,herbs,false,USDA/FDC-style
+"Beef Liver, cooked (50g)",,96,50,g,14.6,2.5,2.6,0.0,protein,false,USDA/FDC-style
+"Beef Liver, cooked (100g)",,191,100,g,29.1,5.1,5.3,0.0,protein,false,USDA/FDC-style
+"Beef Liver, cooked (200g)",,382,200,g,58.2,10.2,10.6,0.0,protein,false,USDA/FDC-style
+"Chicken Liver, cooked (50g)",,84,50,g,12.2,0.5,3.2,0.0,protein,false,USDA/FDC-style
+"Chicken Liver, cooked (100g)",,167,100,g,24.5,0.9,6.5,0.0,protein,false,USDA/FDC-style
+"Chicken Liver, cooked (200g)",,334,200,g,49.0,1.8,13.0,0.0,protein,false,USDA/FDC-style
+"Mackerel, cooked (50g)",,131,50,g,12.0,0.0,9.0,0.0,protein,false,Approx
+"Mackerel, cooked (100g)",,262,100,g,24.0,0.0,18.0,0.0,protein,false,Approx
+"Mackerel, cooked (200g)",,524,200,g,48.0,0.0,36.0,0.0,protein,false,Approx
+"Tilapia, cooked (50g)",,64,50,g,13.0,0.0,1.4,0.0,protein,false,Approx
+"Tilapia, cooked (100g)",,128,100,g,26.0,0.0,2.7,0.0,protein,false,Approx
+"Tilapia, cooked (200g)",,256,200,g,52.0,0.0,5.4,0.0,protein,false,Approx
+"Mussels, cooked (50g)",,86,50,g,12.0,3.7,2.2,0.0,protein,false,Approx
+"Mussels, cooked (100g)",,172,100,g,24.0,7.4,4.5,0.0,protein,false,Approx
+"Mussels, cooked (200g)",,344,200,g,48.0,14.8,9.0,0.0,protein,false,Approx
+"Tofu, firm (50g)",,72,50,g,8.7,1.4,4.3,1.1,protein,false,USDA/FDC-style
+"Tofu, firm (100g)",,144,100,g,17.3,2.8,8.7,2.3,protein,false,USDA/FDC-style
+"Tofu, firm (200g)",,288,200,g,34.6,5.6,17.4,4.6,protein,false,USDA/FDC-style
+Tempeh (50g),,96,50,g,10.2,3.8,5.4,0.7,protein,false,USDA/FDC-style
+Tempeh (100g),,193,100,g,20.3,7.6,10.8,1.4,protein,false,USDA/FDC-style
+Tempeh (200g),,386,200,g,40.6,15.2,21.6,2.8,protein,false,USDA/FDC-style
+Peanut Butter (50g),,294,50,g,12.5,10.0,25.0,3.0,nuts,false,USDA/FDC-style
+Peanut Butter (100g),,588,100,g,25.0,20.0,50.0,6.0,nuts,false,USDA/FDC-style
+Peanut Butter (200g),,1176,200,g,50.0,40.0,100.0,12.0,nuts,false,USDA/FDC-style
+Honey (50g),,152,50,g,0.1,41.2,0.0,0.1,sweetener,false,USDA/FDC-style
+Honey (100g),,304,100,g,0.3,82.4,0.0,0.2,sweetener,false,USDA/FDC-style
+Honey (200g),,608,200,g,0.6,164.8,0.0,0.4,sweetener,false,USDA/FDC-style
+Sugar (50g),,194,50,g,0.0,50.0,0.0,0.0,sweetener,false,USDA/FDC-style
+Sugar (100g),,387,100,g,0.0,100.0,0.0,0.0,sweetener,false,USDA/FDC-style
+Sugar (200g),,774,200,g,0.0,200.0,0.0,0.0,sweetener,false,USDA/FDC-style
+Jam (50g),,139,50,g,0.2,34.5,0.1,0.6,sweetener,false,Approx
+Jam (100g),,278,100,g,0.4,68.9,0.1,1.1,sweetener,false,Approx
+Jam (200g),,556,200,g,0.8,137.8,0.2,2.2,sweetener,false,Approx
+Molasses / Dibs (50g),,145,50,g,0.0,37.5,0.0,0.0,sweetener,false,Approx
+Molasses / Dibs (100g),,290,100,g,0.0,75.0,0.0,0.0,sweetener,false,Approx
+Molasses / Dibs (200g),,580,200,g,0.0,150.0,0.0,0.0,sweetener,false,Approx
+Dried Apricot (50g),,120,50,g,1.7,31.3,0.2,3.6,fruit,false,USDA/FDC-style
+Dried Apricot (100g),,241,100,g,3.4,62.6,0.5,7.3,fruit,false,USDA/FDC-style
+Dried Apricot (200g),,482,200,g,6.8,125.2,1.0,14.6,fruit,false,USDA/FDC-style
+Dried Fig (50g),,124,50,g,1.6,31.9,0.5,4.9,fruit,false,USDA/FDC-style
+Dried Fig (100g),,249,100,g,3.3,63.9,0.9,9.8,fruit,false,USDA/FDC-style
+Dried Fig (200g),,498,200,g,6.6,127.8,1.8,19.6,fruit,false,USDA/FDC-style
+Laban Ayran (50ml),,18,50,ml,1.0,1.8,0.8,0.0,drink,false,Approx per 100ml
+Laban Ayran (100ml),,35,100,ml,2.0,3.5,1.5,0.0,drink,false,Approx per 100ml
+Laban Ayran (200ml),,70,200,ml,4.0,7.0,3.0,0.0,drink,false,Approx per 100ml
+Doogh (50ml),,18,50,ml,1.0,1.8,0.8,0.0,drink,false,Approx per 100ml
+Doogh (100ml),,35,100,ml,2.0,3.5,1.5,0.0,drink,false,Approx per 100ml
+Doogh (200ml),,70,200,ml,4.0,7.0,3.0,0.0,drink,false,Approx per 100ml
+"Egg, whole (1 large egg)",,72,1,egg,6.3,0.4,4.8,0,protein,false,Approx 50g edible portion; USDA/FDC-style
+"Egg, whole (2 large eggs)",,144,2,egg,12.6,0.8,9.6,0,protein,false,Approx 100g edible portion; USDA/FDC-style
+"Bread, white (1 slice)",,80,1,slice,2.7,14.7,1.0,0.8,bakery,false,Approx 30g slice; varies by brand
+"Bread, whole wheat (1 slice)",,74,1,slice,3.9,12.3,1.3,2.1,bakery,false,Approx 30g slice; varies by brand
+"Tortilla Wrap, flour (1 medium wrap)",,190,1,wrap,5.0,31.0,5.0,2.0,bakery,false,Approx 60g wrap; varies by brand
+"Tortilla Wrap, whole wheat (1 medium wrap)",,170,1,wrap,5.2,27.0,4.5,3.6,bakery,false,Approx 60g wrap; varies by brand
+"Dates, Medjool (1 date)",,66,1,date,0.4,18.0,0.0,1.6,fruit,false,Approx 24g date; USDA/FDC-style
+Banana (1 medium),,105,1,medium,1.3,27.0,0.4,3.1,fruit,false,Approx 118g medium banana
+Apple (1 medium),,95,1,medium,0.5,25.0,0.3,4.4,fruit,false,Approx 182g medium apple
+Orange (1 medium),,62,1,medium,1.2,15.4,0.2,3.1,fruit,false,Approx 131g medium orange
+Tomato (1 medium),,22,1,medium,1.1,4.8,0.2,1.5,vegetables,false,Approx 123g medium tomato
+"Chicken Breast, cooked (1 serving)",,165,1,serving,31.0,0,3.6,0,protein,false,Approx 100g serving; USDA/FDC-style
+"White Rice, cooked (1 cup)",,205,1,cup,4.3,44.5,0.4,0.6,carbs,false,Approx 158g cooked cup; USDA/FDC-style
+"Brown Rice, cooked (1 cup)",,216,1,cup,5.0,45.8,1.8,3.5,carbs,false,Approx 195g cooked cup; USDA/FDC-style
+"Bulgur, cooked (1 cup)",,151,1,cup,5.6,33.8,0.4,8.2,carbs,false,Approx 182g cooked cup; USDA/FDC-style
+"Lentils, cooked (1 cup)",,230,1,cup,17.9,39.9,0.8,15.6,legumes,false,Approx 198g cooked cup; USDA/FDC-style
+"Chickpeas, cooked (1 cup)",,269,1,cup,14.5,45.0,4.2,12.5,legumes,false,Approx 164g cooked cup; USDA/FDC-style
+Olive Oil (1 tbsp),,119,1,tbsp,0,0,13.5,0,fats,false,Approx 13.5g tablespoon; USDA/FDC-style
+Olive Oil (1 tsp),,40,1,tsp,0,0,4.5,0,fats,false,Approx 4.5g teaspoon; USDA/FDC-style
+Mayonnaise (1 tbsp),,94,1,tbsp,0.1,0.1,10.3,0,sauce,false,Approx 14g tablespoon; varies by brand
+Ketchup (1 tbsp),,17,1,tbsp,0.2,4.0,0,0.1,sauce,false,Approx 15g tablespoon; varies by brand
+"Protein Powder, whey (1 scoop)",,120,1,scoop,24,2.4,1.8,0,supplement,false,Approx 30g scoop; varies by brand
+"Tuna, canned in water, drained (1 can)",,130,1,can,29,0,1,0,protein,false,Approx drained small can; varies by brand
+Cola Soft Drink (1 bottle),,210,1,bottle,0,53,0,0,drink,false,Approx 500ml bottle
+"Milk, whole (1 cup)",,149,1,cup,7.9,11.7,8.0,0,dairy,false,Approx 244ml cup; USDA/FDC-style
+"Yogurt, plain whole (1 cup)",,149,1,cup,8.5,11.5,8.0,0,dairy,false,Approx 245g cup; USDA/FDC-style
+Cheddar Cheese (1 oz),,114,1,oz,7.1,0.4,9.4,0,dairy,false,Approx 28g ounce; USDA/FDC-style
+"Chicken Breast, cooked (1 oz)",,47,1,oz,8.8,0,1.0,0,protein,false,Approx 28g ounce; USDA/FDC-style
+"Chicken Breast, cooked (1 lb)",,748,1,lb,140.6,0,16.3,0,protein,false,Approx 454g pound; USDA/FDC-style
+"Rice, cooked (small serving)",,130,1,small,2.7,28.2,0.3,0.4,carbs,false,Approx 100g cooked white rice
+"Rice, cooked (large serving)",,260,1,large,5.4,56.4,0.6,0.8,carbs,false,Approx 200g cooked white rice
+Custom Food Placeholder,,0,1,Custom,0,0,0,0,custom,false,Use this row as a template for user-created entries

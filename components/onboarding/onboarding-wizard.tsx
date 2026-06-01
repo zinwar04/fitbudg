@@ -14,7 +14,7 @@ import { calculateNutritionTargets, cmToIn, inToCm, kgToLb, lbToKg } from "@/lib
 import { useAuthStore } from "@/lib/store/auth.store";
 import { useProfileStore } from "@/lib/store/profile.store";
 import { ActivityLevel, AppSettings, BudgetProfile, FitnessGoal, Sex, UnitSystem, UserProfile } from "@/lib/db/schema";
-import { activityLabels, accentOptions, defaultBudgetProfile, defaultSettings, financialDisclaimer, fitnessGoalLabels, healthDisclaimer } from "@/lib/utils/constants";
+import { accentColorMap, activityLabels, accentOptions, defaultBudgetProfile, defaultSettings, financialDisclaimer, fitnessGoalLabels, healthDisclaimer } from "@/lib/utils/constants";
 import { formatCurrency, formatKcal, formatOrdinalDay } from "@/lib/utils/formatting";
 import { cn } from "@/lib/utils";
 
@@ -121,7 +121,7 @@ export function OnboardingWizard() {
             <motion.div
               initial={{ rotate: -10, scale: 0.8 }}
               animate={{ rotate: 0, scale: 1 }}
-              className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground"
+            className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground shadow-[var(--shadow-control)]"
             >
               FB
             </motion.div>
@@ -150,7 +150,7 @@ export function OnboardingWizard() {
               >
                 <div className="grid gap-3 sm:grid-cols-3">
                   {["Food logging", "Budget pacing", "Habit streaks"].map((item) => (
-                    <div key={item} className="rounded-lg border bg-muted/30 p-4 text-sm font-medium">
+                    <div key={item} className="soft-tile rounded-lg p-4 text-sm font-medium">
                       {item}
                     </div>
                   ))}
@@ -200,7 +200,7 @@ export function OnboardingWizard() {
                         key={goal}
                         type="button"
                         onClick={() => setProfile((current) => ({ ...current, fitnessGoal: goal }))}
-                        className={cn("rounded-lg border bg-card p-4 text-left transition-colors hover:border-primary", profile.fitnessGoal === goal && "border-primary bg-primary/5")}
+                        className={cn("interactive-row rounded-lg p-4 text-left", profile.fitnessGoal === goal && "border-primary bg-primary/5")}
                       >
                         <Icon className="mb-3 h-5 w-5 text-primary" />
                         <p className="font-semibold">{fitnessGoalLabels[goal].title}</p>
@@ -210,7 +210,7 @@ export function OnboardingWizard() {
                   })}
                 </div>
                 {(profile.fitnessGoal === "lose" || profile.fitnessGoal === "gain") && (
-                  <div className="mt-5 rounded-lg border bg-muted/30 p-4">
+                  <div className="mt-5 rounded-lg border bg-muted/30 p-4 shadow-[var(--shadow-control)]">
                     <div className="flex items-center justify-between">
                       <Label>Weekly rate</Label>
                       <span className="data-number text-sm">{profile.weeklyWeightDelta.toFixed(2)} kg/week</span>
@@ -240,7 +240,7 @@ export function OnboardingWizard() {
                       key={level}
                       type="button"
                       onClick={() => setProfile((current) => ({ ...current, activityLevel: level }))}
-                      className={cn("rounded-lg border bg-card p-4 text-left transition-colors hover:border-primary", profile.activityLevel === level && "border-primary bg-primary/5")}
+                      className={cn("interactive-row rounded-lg p-4 text-left", profile.activityLevel === level && "border-primary bg-primary/5")}
                     >
                       <p className="font-semibold">{activityLabels[level].title}</p>
                       <p className="mt-1 text-sm text-muted-foreground">{activityLabels[level].description}</p>
@@ -318,17 +318,17 @@ export function OnboardingWizard() {
                           onClick={() => setSettings((current) => ({ ...current, accentColor: accent.value }))}
                           className={cn("rounded-lg border p-2 text-xs", settings.accentColor === accent.value && "border-primary")}
                         >
-                          <span className="mx-auto mb-2 block h-6 w-6 rounded-full" style={{ background: accent.value === "emerald" ? "#10b981" : accent.value === "blue" ? "#3b82f6" : accent.value === "violet" ? "#8b5cf6" : accent.value === "amber" ? "#f59e0b" : "#f43f5e" }} />
+                          <span className="mx-auto mb-2 block h-6 w-6 rounded-full" style={{ background: accentColorMap[accent.value] }} />
                           {accent.label}
                         </button>
                       ))}
                     </div>
                   </div>
                   <SelectBlock label="Theme" value={settings.theme} onChange={(value) => setSettings((current) => ({ ...current, theme: value as AppSettings["theme"] }))} options={["light", "dark", "system"]} />
-                  <div className="rounded-lg border bg-muted/20 p-4 text-sm text-muted-foreground">
+                  <div className="soft-tile rounded-lg p-4 text-sm text-muted-foreground">
                     Your account starts clean. The app will only show data you create yourself after setup.
                   </div>
-                  <div className="rounded-lg border bg-muted/30 p-4 text-sm text-muted-foreground">
+                  <div className="soft-tile rounded-lg p-4 text-sm text-muted-foreground">
                     <p className="font-medium text-foreground">Health Disclaimer</p>
                     <p className="mt-1">{healthDisclaimer}</p>
                     <p className="mt-4 font-medium text-foreground">Financial Disclaimer</p>
@@ -373,7 +373,7 @@ function StepShell({
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
       <div className="mb-6 flex items-start gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-primary/15 bg-primary/10 text-primary">
           <Icon className="h-6 w-6" />
         </div>
         <div>
@@ -434,7 +434,7 @@ function SelectBlock({
   return (
     <div className="space-y-1.5">
       <Label>{label}</Label>
-      <select className="h-10 w-full rounded-lg border bg-background px-3 text-sm" value={value} onChange={(event) => onChange(event.target.value)}>
+      <select className="h-11 w-full rounded-lg border px-3 text-sm" value={value} onChange={(event) => onChange(event.target.value)}>
         {options.map((option) => (
           <option key={option} value={option}>
             {option}
@@ -447,7 +447,7 @@ function SelectBlock({
 
 function PreviewStat({ label, value, detail }: { label: string; value: string; detail: string }) {
   return (
-    <div className="rounded-lg border bg-muted/30 p-4">
+    <div className="soft-tile rounded-lg p-4">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 text-xl font-semibold data-number">{value}</p>
       <p className="mt-1 text-xs text-muted-foreground">{detail}</p>

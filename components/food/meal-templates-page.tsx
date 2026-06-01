@@ -98,7 +98,7 @@ export function MealTemplatesPage() {
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input className="pl-9" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search templates" />
           </div>
-          <select className="h-10 w-full rounded-lg border bg-background px-3 text-sm sm:w-auto" value={sort} onChange={(event) => setSort(event.target.value as SortOption)}>
+          <select className="h-11 w-full rounded-lg border px-3 text-sm sm:w-auto" value={sort} onChange={(event) => setSort(event.target.value as SortOption)}>
             <option value="used">Most Used</option>
             <option value="recent">Recently Added</option>
             <option value="name">Name</option>
@@ -111,7 +111,7 @@ export function MealTemplatesPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((template) => (
-            <Card key={template.id}>
+            <Card key={template.id} className="bg-card/90">
               <CardHeader>
                 <CardTitle className="flex items-start justify-between gap-3">
                   <span>{template.name}</span>
@@ -161,7 +161,7 @@ export function MealTemplatesPage() {
           </DialogHeader>
           <div className="space-y-1.5">
             <label className="text-sm font-medium">Meal type</label>
-            <select className="h-10 w-full rounded-lg border bg-background px-3 text-sm" value={mealType} onChange={(event) => setMealType(event.target.value as MealType)}>
+            <select className="h-11 w-full rounded-lg border px-3 text-sm" value={mealType} onChange={(event) => setMealType(event.target.value as MealType)}>
               {mealTypes.map((type) => (
                 <option key={type} value={type}>
                   {titleCase(type)}
@@ -254,12 +254,12 @@ function TemplateDialog({
           <div className="space-y-3">
             <Input value={name} onChange={(event) => setName(event.target.value)} placeholder="Template name" />
             <Textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Description" />
-            <div className="rounded-lg border p-3">
+            <div className="soft-tile rounded-lg p-3">
               <p className="mb-2 text-sm font-medium">Add ingredients</p>
               <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search food library" />
               <div className="mt-2 max-h-56 space-y-2 overflow-y-auto">
                 {filteredLibrary.map((food) => (
-                  <button key={food.id} type="button" onClick={() => addItem(food.id)} className="flex w-full items-center justify-between rounded-lg border p-2 text-left hover:border-primary">
+                  <button key={food.id} type="button" onClick={() => addItem(food.id)} className="interactive-row flex w-full items-center justify-between rounded-lg p-2 text-left">
                     <span className="text-sm">{food.name}</span>
                     <span className="text-xs text-muted-foreground">{formatKcal(food.caloriesPerServing)}</span>
                   </button>
@@ -268,7 +268,7 @@ function TemplateDialog({
             </div>
           </div>
           <div className="space-y-3">
-            <div className="rounded-lg border bg-muted/30 p-3">
+            <div className="soft-tile rounded-lg p-3">
               <p className="text-sm font-medium">Running total</p>
               <p className="mt-1 text-2xl font-semibold data-number">{formatKcal(totals.calories)}</p>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -279,7 +279,7 @@ function TemplateDialog({
             </div>
             <div className="max-h-80 space-y-2 overflow-y-auto">
               {items.map((item, index) => (
-                <div key={`${item.foodLibraryId}-${index}`} className="rounded-lg border p-2">
+                <div key={`${item.foodLibraryId}-${index}`} className="interactive-row rounded-lg p-2">
                   <div className="flex items-center justify-between gap-2">
                     <div>
                       <p className="text-sm font-medium">{item.name}</p>

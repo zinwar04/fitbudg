@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Activity, ArrowDown, ArrowUp, CalendarDays, Dumbbell, Palette, Save, UserRound, WalletCards } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import { calculateNutritionTargets } from "@/lib/calculations/nutrition";
 import { AppSettings, BudgetProfile, FitnessGoal, UserProfile } from "@/lib/db/schema";
 import { useBudgetStore } from "@/lib/store/budget.store";
 import { useProfileStore } from "@/lib/store/profile.store";
-import { accentOptions, activityLabels, dashboardWidgetOrder, financialDisclaimer, fitnessGoalLabels, healthDisclaimer } from "@/lib/utils/constants";
+import { accentColorMap, accentOptions, activityLabels, dashboardWidgetOrder, financialDisclaimer, fitnessGoalLabels, healthDisclaimer } from "@/lib/utils/constants";
 import { formatCurrency, formatKcal, formatOrdinalDay, titleCase } from "@/lib/utils/formatting";
 import { cn } from "@/lib/utils";
 
@@ -25,14 +26,22 @@ const sections: { id: SettingsSection; label: string; icon: typeof UserRound }[]
   { id: "appearance", label: "Appearance", icon: Palette },
 ];
 
+function sectionFromPath(pathname: string): SettingsSection {
+  if (pathname.includes("/settings/fitness")) return "fitness";
+  if (pathname.includes("/settings/budget")) return "budget";
+  if (pathname.includes("/settings/appearance")) return "appearance";
+  return "profile";
+}
+
 export function ProfileSettingsPage() {
+  const pathname = usePathname();
   const profile = useProfileStore((state) => state.profile);
   const settings = useProfileStore((state) => state.settings);
   const saveProfile = useProfileStore((state) => state.saveProfile);
   const saveSettings = useProfileStore((state) => state.saveSettings);
   const budgetProfile = useBudgetStore((state) => state.profile);
   const saveBudgetProfile = useBudgetStore((state) => state.saveProfile);
-  const [active, setActive] = useState<SettingsSection>("profile");
+  const [active, setActive] = useState<SettingsSection>(() => sectionFromPath(pathname));
   const [profileDraft, setProfileDraft] = useState(profile);
   const [settingsDraft, setSettingsDraft] = useState(settings);
   const [budgetDraft, setBudgetDraft] = useState(budgetProfile);
@@ -75,10 +84,10 @@ export function ProfileSettingsPage() {
       />
 
       <section className="mb-4 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-lg border bg-card p-4 sm:p-5">
+        <div className="rounded-lg border bg-card/90 p-4 shadow-[var(--shadow-card)] sm:p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-center gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-primary text-lg font-semibold text-primary-foreground">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-primary text-lg font-semibold text-primary-foreground shadow-[var(--shadow-control)]">
                 {initials(profileDraft.name)}
               </div>
               <div className="min-w-0">
@@ -101,7 +110,7 @@ export function ProfileSettingsPage() {
           </div>
         </div>
 
-        <div className="rounded-lg border bg-muted/25 p-4 sm:p-5">
+        <div className="soft-tile rounded-lg p-4 sm:p-5">
           <div className="flex items-center gap-2">
             <Activity className="h-4 w-4 text-primary" />
             <p className="text-sm font-semibold">Live calculations</p>
@@ -123,8 +132,8 @@ export function ProfileSettingsPage() {
               type="button"
               onClick={() => setActive(section.id)}
               className={cn(
-                "flex h-12 items-center justify-center gap-2 rounded-lg border bg-card px-3 text-sm font-medium transition-colors",
-                active === section.id ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground hover:border-primary hover:text-foreground",
+                "focus-ring flex h-12 items-center justify-center gap-2 rounded-lg border bg-card/85 px-3 text-sm font-semibold shadow-[var(--shadow-control)] transition-all",
+                active === section.id ? "border-primary bg-primary text-primary-foreground" : "text-muted-foreground hover:border-primary/50 hover:bg-accent hover:text-foreground",
               )}
             >
               <Icon className="h-4 w-4" />
@@ -193,7 +202,7 @@ function FitnessPanel({
           <Stat label="Protein" value={`${targets?.protein ?? "--"} g`} />
           <Stat label="Carbs" value={`${targets?.carbs ?? "--"} g`} />
           <Stat label="Fat" value={`${targets?.fat ?? "--"} g`} />
-          <div className="rounded-lg border bg-muted/25 p-3 text-xs leading-5 text-muted-foreground">{healthDisclaimer}</div>
+        <div className="soft-tile rounded-lg p-3 text-xs leading-5 text-muted-foreground">{healthDisclaimer}</div>
         </CardContent>
       </Card>
     </div>
@@ -211,14 +220,14 @@ function BudgetPanel({ draft, setDraft }: { draft: BudgetProfile; setDraft: (dra
         <InputSetting label="Monthly budget" type="number" value={draft.monthlyBudget} onNumber={(value) => setDraft({ ...draft, monthlyBudget: value })} />
         <InputSetting label="Budget cycle start day" type="number" min={1} max={31} value={draft.monthStartDay} onNumber={(value) => setDraft({ ...draft, monthStartDay: Math.min(31, Math.max(1, Math.round(value || 1))) })} />
         <SelectSetting label="Currency" value={draft.currency} options={["IQD", "USD", "EUR", "TRY"]} onChange={(value) => setDraft({ ...draft, currency: value, currencySymbol: value })} />
-        <div className="rounded-lg border bg-muted/20 p-4 text-sm text-muted-foreground sm:col-span-2">
+        <div className="soft-tile rounded-lg p-4 text-sm text-muted-foreground sm:col-span-2">
           <div className="flex items-center gap-2 font-medium text-foreground">
             <CalendarDays className="h-4 w-4" />
             Cycle starts on the {formatOrdinalDay(draft.monthStartDay)}
           </div>
           <p className="mt-2">Set this to payday so budget pacing matches real spending pressure.</p>
         </div>
-        <div className="rounded-lg border bg-muted/25 p-3 text-xs leading-5 text-muted-foreground sm:col-span-2">{financialDisclaimer}</div>
+        <div className="soft-tile rounded-lg p-3 text-xs leading-5 text-muted-foreground sm:col-span-2">{financialDisclaimer}</div>
       </CardContent>
     </Card>
   );
@@ -244,7 +253,7 @@ function AppearancePanel({ draft, setDraft }: { draft: AppSettings; setDraft: (d
           <SelectSetting label="Theme" value={draft.theme} options={["light", "dark", "system"]} onChange={(value) => setDraft({ ...draft, theme: value as AppSettings["theme"] })} />
           <SelectSetting label="Units" value={draft.unitSystem} options={["metric", "imperial"]} onChange={(value) => setDraft({ ...draft, unitSystem: value as AppSettings["unitSystem"] })} />
           <SelectSetting label="Calorie rounding" value={draft.calorieDisplayRounding} options={["none", "5", "10"]} onChange={(value) => setDraft({ ...draft, calorieDisplayRounding: value as AppSettings["calorieDisplayRounding"] })} />
-          <label className="flex min-h-12 items-center justify-between rounded-lg border px-3 text-sm">
+          <label className="interactive-row flex min-h-12 items-center justify-between rounded-lg px-3 text-sm">
             Show decimal calories
             <Switch checked={draft.showDecimalCalories} onCheckedChange={(checked) => setDraft({ ...draft, showDecimalCalories: checked })} />
           </label>
@@ -256,9 +265,9 @@ function AppearancePanel({ draft, setDraft }: { draft: AppSettings; setDraft: (d
                   key={accent.value}
                   type="button"
                   onClick={() => setDraft({ ...draft, accentColor: accent.value })}
-                  className={cn("flex h-11 items-center gap-2 rounded-lg border px-3 text-sm", draft.accentColor === accent.value ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground")}
+                  className={cn("interactive-row flex h-11 items-center gap-2 rounded-lg px-3 text-sm", draft.accentColor === accent.value ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground")}
                 >
-                  <span className="h-3 w-3 rounded-full" style={{ backgroundColor: accent.value === "emerald" ? "#10b981" : accent.value === "blue" ? "#3b82f6" : accent.value === "violet" ? "#8b5cf6" : accent.value === "amber" ? "#f59e0b" : "#f43f5e" }} />
+                  <span className="h-3 w-3 rounded-full" style={{ backgroundColor: accentColorMap[accent.value] }} />
                   {accent.label}
                 </button>
               ))}
@@ -273,7 +282,7 @@ function AppearancePanel({ draft, setDraft }: { draft: AppSettings; setDraft: (d
         </CardHeader>
         <CardContent className="space-y-2">
           {(draft.dashboardWidgetOrder.length ? draft.dashboardWidgetOrder : dashboardWidgetOrder).map((widget, index) => (
-            <div key={widget} className="flex min-h-12 items-center justify-between rounded-lg border px-3">
+            <div key={widget} className="interactive-row flex min-h-12 items-center justify-between rounded-lg px-3">
               <span className="min-w-0 truncate text-sm font-medium">{titleCase(widget)}</span>
               <div className="flex gap-1">
                 <Button variant="ghost" size="icon" onClick={() => move(index, -1)} aria-label={`Move ${titleCase(widget)} up`}>
@@ -318,7 +327,7 @@ function initials(name: string) {
 
 function ProfileStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border bg-background/70 p-3">
+    <div className="soft-tile rounded-lg p-3">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 truncate text-sm font-semibold data-number">{value}</p>
     </div>
@@ -372,7 +381,7 @@ function SelectSetting({ label, value, options, onChange }: { label: string; val
   return (
     <label className="space-y-1.5 text-sm font-medium">
       <span>{label}</span>
-      <select className="h-10 w-full rounded-lg border bg-background px-3 text-sm" value={value} onChange={(event) => onChange(event.target.value)}>
+      <select className="h-11 w-full rounded-lg border px-3 text-sm" value={value} onChange={(event) => onChange(event.target.value)}>
         {options.map((option) => (
           <option key={option} value={option}>
             {titleCase(option)}

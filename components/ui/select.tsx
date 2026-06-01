@@ -15,7 +15,7 @@ const SelectTrigger = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
-    className={cn("flex h-10 w-full items-center justify-between rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50", className)}
+    className={cn("focus-ring flex h-11 w-full items-center justify-between rounded-lg border border-input bg-card/90 px-3 py-2 text-sm shadow-[var(--shadow-control)] transition-colors hover:border-primary/45 focus:border-primary disabled:cursor-not-allowed disabled:opacity-50", className)}
     {...props}
   >
     {children}
@@ -33,7 +33,7 @@ const SelectContent = React.forwardRef<
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
       ref={ref}
-      className={cn("relative z-50 max-h-80 min-w-32 overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-md", position === "popper" && "translate-y-1", className)}
+      className={cn("relative z-50 max-h-80 min-w-32 overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-[var(--shadow-card)]", position === "popper" && "translate-y-1", className)}
       position={position}
       {...props}
     >
@@ -47,7 +47,7 @@ const SelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
 >(({ className, children, ...props }, ref) => (
-  <SelectPrimitive.Item ref={ref} className={cn("relative flex w-full cursor-default select-none items-center rounded-md py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50", className)} {...props}>
+  <SelectPrimitive.Item ref={ref} className={cn("relative flex min-h-9 w-full cursor-default select-none items-center rounded-md py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50", className)} {...props}>
     <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
         <Check className="h-4 w-4" />
@@ -59,4 +59,3 @@ const SelectItem = React.forwardRef<
 SelectItem.displayName = SelectPrimitive.Item.displayName;
 
 export { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue };
-

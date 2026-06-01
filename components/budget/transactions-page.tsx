@@ -89,7 +89,7 @@ export function TransactionsPage() {
           </div>
         }
       />
-      <Card className="sticky top-16 z-10 mb-4 bg-card/95 backdrop-blur">
+      <Card className="sticky top-16 z-10 mb-4 bg-card/95 backdrop-blur-xl">
         <CardContent className="space-y-3 p-4">
           <div className="flex flex-col gap-3 lg:flex-row">
             <div className="relative flex-1">
@@ -141,14 +141,14 @@ export function TransactionsPage() {
                   </div>
                   <div className="space-y-2">
                     {items.map((transaction) => (
-                      <div key={transaction.id} className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div key={transaction.id} className="interactive-row flex flex-col gap-3 rounded-lg p-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                           <p className="font-medium">{transaction.title}</p>
                           <p className="text-sm text-muted-foreground">{titleCase(transaction.category)} · {titleCase(transaction.paymentMethod)}</p>
                           {transaction.notes && <p className="mt-1 text-sm text-muted-foreground">{transaction.notes}</p>}
                         </div>
                         <div className="flex items-center justify-between gap-2 sm:justify-end">
-                          <p className={`text-lg font-semibold data-number ${transaction.type === "income" ? "text-emerald-500" : "text-red-500"}`}>
+                          <p className={`text-lg font-semibold data-number ${transaction.type === "income" ? "text-[var(--success)]" : "text-[var(--danger)]"}`}>
                             {transaction.type === "income" ? "+" : "-"}{formatCurrency(transaction.amount, transaction.currency, profile.currencySymbol)}
                           </p>
                           <Button variant="ghost" size="icon" onClick={() => { setEditing(transaction); setDialogOpen(true); }}>

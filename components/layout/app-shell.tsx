@@ -144,33 +144,34 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-background text-foreground">
+      <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground">
         <aside
           className={cn(
-            "surface-strong fixed left-0 top-0 z-30 hidden h-screen flex-col border-r transition-all lg:flex",
+            "surface-strong fixed left-0 top-0 z-30 hidden h-screen flex-col border-r border-border/70 shadow-[var(--shadow-card)] transition-all lg:flex",
             sidebarCollapsed ? "w-16" : "w-72",
           )}
         >
-          <div className="flex h-16 items-center gap-3 border-b px-4">
+          <div className="flex h-16 items-center gap-3 border-b border-border/70 px-4">
             <BrandMark />
             {!sidebarCollapsed && (
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">FitBudget</p>
-                <p className="text-xs leading-snug text-muted-foreground">Nutrition, habits, and money</p>
+                <p className="text-xs leading-snug text-muted-foreground">Health and money cockpit</p>
               </div>
             )}
           </div>
-          <nav className="flex-1 overflow-y-auto px-2 py-3" aria-label="Primary navigation">
+          <nav className="scrollbar-soft flex-1 overflow-y-auto px-2.5 py-4" aria-label="Primary navigation">
+            {!sidebarCollapsed && <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Daily system</p>}
             <div className="space-y-1">
               {primaryNav.map((item) => (
                 <NavItem key={item.href} item={item} active={isNavActive(pathname, item)} collapsed={sidebarCollapsed} />
               ))}
             </div>
             {!sidebarCollapsed && (
-              <div className="mt-5 rounded-lg border bg-muted/30 p-3">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Assistant</p>
-                <button type="button" onClick={() => setAssistantOpen(true)} className="mt-2 flex w-full items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-accent">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <div className="mt-6 rounded-lg border border-primary/15 bg-[linear-gradient(135deg,var(--primary-soft),transparent_70%)] p-3 shadow-[var(--shadow-control)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Assistant</p>
+                <button type="button" onClick={() => setAssistantOpen(true)} className="interactive-row mt-2 flex w-full items-center gap-3 rounded-lg p-2 text-left">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-primary/15 bg-primary/10 text-primary">
                     <Bot className="h-4 w-4" />
                   </span>
                   <span className="min-w-0">
@@ -181,7 +182,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
             )}
           </nav>
-          <div className="p-2">
+          <div className="border-t border-border/70 p-2.5">
             <AccountSettingsLink
               active={pathname.startsWith("/settings")}
               collapsed={sidebarCollapsed}
@@ -204,7 +205,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </aside>
 
         <main className={cn("min-h-screen transition-all lg:pb-0", isAssistantRoute ? "pb-0" : "pb-24", sidebarCollapsed ? "lg:pl-16" : "lg:pl-72")}>
-          <header className="surface-strong sticky top-0 z-20 flex h-14 items-center justify-between border-b px-4 lg:hidden">
+          <header className="surface-strong sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border/70 px-4 shadow-[var(--shadow-control)] lg:hidden">
             <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
               <BrandMark compact />
               FitBudget
@@ -220,7 +221,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           </header>
           {!online && (
-            <div className="hidden border-b bg-amber-500/10 px-6 py-2 text-xs text-amber-700 dark:text-amber-300 lg:block">
+            <div className="hidden border-b border-amber-500/20 bg-amber-500/10 px-6 py-2 text-xs text-amber-700 dark:text-amber-300 lg:block">
               Connection is offline. Changes need the network to save.
             </div>
           )}
@@ -238,16 +239,16 @@ export function AppShell({ children }: { children: ReactNode }) {
           </AnimatePresence>
         </main>
 
-        <nav className="surface-strong fixed bottom-0 left-0 right-0 z-40 border-t mobile-safe-bottom lg:hidden">
+        <nav className="surface-strong fixed bottom-0 left-0 right-0 z-40 border-t border-border/70 shadow-[var(--shadow-card)] mobile-safe-bottom lg:hidden">
           <div className="grid h-16 grid-cols-5">
             {mobileNav.map((item) => {
               const Icon = item.icon;
               const active = isNavActive(pathname, item);
               return (
-                <Link key={item.href} href={item.href} className="relative flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
-                  {active && <motion.span layoutId="mobile-nav-active" className="absolute inset-x-4 top-2 h-8 rounded-full bg-primary/10" />}
-                  <Icon className={cn("relative h-5 w-5", active && "text-primary")} />
-                  <span className={cn("relative", active && "font-medium text-primary")}>{item.label}</span>
+                <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} className="relative flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
+                  {active && <motion.span layoutId="mobile-nav-active" className="absolute inset-x-2 inset-y-2 rounded-lg bg-primary shadow-[var(--shadow-control)]" />}
+                  <Icon className={cn("relative h-5 w-5", active ? "text-primary-foreground" : "text-muted-foreground")} />
+                  <span className={cn("relative", active ? "font-semibold text-primary-foreground" : "text-muted-foreground")}>{item.label}</span>
                 </Link>
               );
             })}
@@ -258,7 +259,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={() => setQuickActionsOpen(true)}
-            className="fixed bottom-20 left-1/2 z-50 flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition-transform hover:-translate-y-0.5 active:translate-y-0 lg:hidden"
+            className="fixed bottom-20 left-1/2 z-50 flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5 active:translate-y-0 lg:hidden"
             aria-label="Open quick actions"
           >
             <Plus className="h-6 w-6" />
@@ -269,7 +270,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={() => setAssistantOpen(true)}
-            className="fixed bottom-[5.35rem] right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full border bg-card text-primary shadow-lg shadow-slate-950/15 transition-transform hover:-translate-y-0.5 active:translate-y-0 lg:bottom-6 lg:right-6 lg:h-14 lg:w-14"
+            className="fixed bottom-[5.35rem] right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full border bg-card text-primary shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5 active:translate-y-0 lg:bottom-6 lg:right-6 lg:h-14 lg:w-14"
             aria-label="Open assistant"
           >
             <Bot className="h-5 w-5 lg:h-6 lg:w-6" />
@@ -296,11 +297,11 @@ export function AppShell({ children }: { children: ReactNode }) {
                 href="/settings/profile"
                 onClick={() => setMobileMenuOpen(false)}
                 className={cn(
-                  "flex items-center gap-3 rounded-lg border bg-muted/30 p-3 transition-colors hover:border-primary hover:bg-primary/5",
+                  "interactive-row flex items-center gap-3 rounded-lg p-3",
                   pathname.startsWith("/settings") && "border-primary bg-primary/5 text-primary",
                 )}
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-background text-xs font-semibold shadow-sm">{initials}</div>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-semibold text-primary-foreground shadow-sm">{initials}</div>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{profile?.name ?? user?.email ?? "FitBudget user"}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{online ? "Sync on" : "Connection offline"}</p>
@@ -397,9 +398,9 @@ function QuickActionTile({
     <button
       type="button"
       onClick={onSelect}
-      className="flex min-h-16 items-center gap-3 rounded-lg border bg-card p-3 text-left transition-colors hover:border-primary hover:bg-primary/5"
+      className="interactive-row flex min-h-16 items-center gap-3 rounded-lg p-3 text-left"
     >
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-primary/15 bg-primary/10 text-primary">
         <Icon className="h-4 w-4" />
       </span>
       <span className="min-w-0">
@@ -427,17 +428,18 @@ function AccountSettingsLink({
     <Link
       href="/settings/profile"
       aria-label="Open account settings"
+      aria-current={active ? "page" : undefined}
       className={cn(
-        "mb-2 flex h-12 items-center gap-3 rounded-lg px-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
-        active && "bg-primary/10 text-primary",
+        "mb-2 flex h-12 items-center gap-3 rounded-lg px-2 text-sm text-muted-foreground transition-all hover:bg-accent hover:text-foreground",
+        active && "bg-primary text-primary-foreground shadow-[var(--shadow-control)] hover:bg-primary hover:text-primary-foreground",
         collapsed && "justify-center px-0",
       )}
     >
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-xs font-semibold">{initials}</div>
+      <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-semibold", active ? "bg-primary-foreground/15 text-primary-foreground" : "bg-muted text-foreground")}>{initials}</div>
       {!collapsed && (
         <div className="min-w-0">
           <p className="truncate text-sm font-medium">{name}</p>
-          <p className="truncate text-xs leading-snug text-muted-foreground">{status}</p>
+          <p className={cn("truncate text-xs leading-snug", active ? "text-primary-foreground/75" : "text-muted-foreground")}>{status}</p>
         </div>
       )}
     </Link>
@@ -472,9 +474,10 @@ function NavItem({ item, active, collapsed }: { item: NavItemConfig; active: boo
   const content = (
     <Link
       href={item.href}
+      aria-current={active ? "page" : undefined}
       className={cn(
-        "flex h-10 items-center gap-3 rounded-lg px-3 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
-        active && "bg-primary/10 text-primary",
+        "focus-ring flex h-10 items-center gap-3 rounded-lg px-3 text-sm font-semibold text-muted-foreground transition-all hover:bg-accent hover:text-foreground",
+        active && "bg-primary text-primary-foreground shadow-[var(--shadow-control)] hover:bg-primary hover:text-primary-foreground",
         collapsed && "justify-center px-0",
       )}
     >
@@ -498,9 +501,10 @@ function MobileMenuItem({ item, active, onSelect }: { item: NavItemConfig; activ
     <Link
       href={item.href}
       onClick={onSelect}
+      aria-current={active ? "page" : undefined}
       className={cn(
-        "flex min-h-14 items-center gap-3 rounded-lg border bg-background p-3 text-sm transition-colors",
-        active ? "border-primary bg-primary/5 text-primary" : "text-muted-foreground hover:border-primary hover:text-foreground",
+        "interactive-row flex min-h-14 items-center gap-3 rounded-lg p-3 text-sm",
+        active ? "border-primary bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
       )}
     >
       <Icon className="h-4 w-4 shrink-0" />

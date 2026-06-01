@@ -118,7 +118,7 @@ export function InsightsPage() {
       )}
 
       <section className="mb-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <div className="rounded-lg border bg-card p-4 sm:p-5">
+        <div className="rounded-lg border bg-card/90 p-4 shadow-[var(--shadow-card)] sm:p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <Badge variant={warnings ? "destructive" : "secondary"}>{warnings ? "Needs attention" : "Looking steady"}</Badge>
@@ -141,7 +141,7 @@ export function InsightsPage() {
           </div>
         </div>
 
-        <div className="rounded-lg border bg-muted/25 p-4 sm:p-5">
+        <div className="soft-tile rounded-lg p-4 sm:p-5">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-sm font-semibold">Cycle pulse</p>
@@ -201,7 +201,7 @@ export function InsightsPage() {
 
 function InsightMetric({ icon: Icon, label, value, detail }: { icon: typeof Flame; label: string; value: string; detail?: string }) {
   return (
-    <div className="rounded-lg border bg-background/70 p-3">
+    <div className="soft-tile rounded-lg p-3">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <Icon className="h-3.5 w-3.5" />
         {label}
@@ -253,11 +253,11 @@ function InsightCard({ insight }: { insight: Insight }) {
   const icon = getLucideIcon(insight.icon);
   const tone =
     insight.severity === "danger"
-      ? "border-red-500/30 bg-red-500/5 text-red-500"
+      ? "border-[color-mix(in_srgb,var(--danger)_32%,transparent)] bg-[color-mix(in_srgb,var(--danger)_8%,transparent)] text-[var(--danger)]"
       : insight.severity === "warning"
-        ? "border-amber-500/30 bg-amber-500/5 text-amber-500"
+        ? "border-[color-mix(in_srgb,var(--warning)_32%,transparent)] bg-[color-mix(in_srgb,var(--warning)_9%,transparent)] text-[var(--warning)]"
         : insight.severity === "positive"
-          ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-500"
+          ? "border-[color-mix(in_srgb,var(--success)_32%,transparent)] bg-[color-mix(in_srgb,var(--success)_9%,transparent)] text-[var(--success)]"
           : "border-primary/20 bg-primary/5 text-primary";
 
   return (

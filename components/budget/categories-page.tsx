@@ -78,7 +78,7 @@ export function CategoriesPage() {
       </div>
       <div className="space-y-3">
         {rows.map((row, index) => (
-          <Card key={`${row.category}-${index}`}>
+          <Card key={`${row.category}-${index}`} className="bg-card/90">
             <CardContent className="grid gap-3 p-4 lg:grid-cols-[1fr_1fr_auto] lg:items-center">
               <div>
                 <p className="font-semibold">{titleCase(row.category)}</p>

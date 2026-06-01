@@ -124,7 +124,7 @@ export function ExternalFoodSearch({ library }: { library: FoodLibraryItem[] }) 
                   setWarnings([]);
                 }}
                 className={cn(
-                  "flex items-center gap-2 rounded-lg border bg-background px-3 py-2 text-left text-sm transition-colors hover:border-primary",
+                  "interactive-row flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
                   mode === item.value && "border-primary bg-primary/5 text-foreground",
                 )}
               >
@@ -171,7 +171,7 @@ export function ExternalFoodSearch({ library }: { library: FoodLibraryItem[] }) 
         {loading && <SearchSkeleton />}
 
         {!loading && hasSearched && !error && results.length === 0 && (
-          <div className="rounded-lg border bg-muted/20 p-4 text-sm text-muted-foreground">
+          <div className="soft-tile rounded-lg p-4 text-sm text-muted-foreground">
             No foods found. Try a simpler name, a brand term, or a full barcode.
           </div>
         )}
@@ -218,7 +218,7 @@ function SearchSkeleton() {
   return (
     <div className="grid gap-3 lg:grid-cols-2">
       {Array.from({ length: 4 }).map((_, index) => (
-        <div key={index} className="rounded-lg border p-4">
+        <div key={index} className="rounded-lg border bg-card/80 p-4">
           <div className="h-4 w-2/3 animate-pulse rounded bg-muted" />
           <div className="mt-2 h-3 w-1/3 animate-pulse rounded bg-muted" />
           <div className="mt-4 grid grid-cols-5 gap-2">
@@ -246,7 +246,7 @@ function ExternalFoodResult({
   onImport: () => void;
 }) {
   return (
-    <div className="flex min-h-full flex-col rounded-lg border bg-background p-4">
+    <div className="interactive-row flex min-h-full flex-col rounded-lg p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="break-words font-semibold leading-snug">{food.name}</h3>
@@ -285,7 +285,7 @@ function ExternalFoodResult({
 
 function NutritionMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border bg-muted/20 p-2">
+    <div className="soft-tile rounded-lg p-2">
       <p className="text-[11px] text-muted-foreground">{label}</p>
       <p className="mt-1 text-sm font-semibold data-number">{value}</p>
     </div>

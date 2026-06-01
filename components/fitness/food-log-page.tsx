@@ -72,7 +72,7 @@ export function FoodLogPage() {
               <Button variant="outline" size="icon" onClick={() => setDate(format(subDays(parseISO(`${date}T00:00:00`), 1), "yyyy-MM-dd"))}>
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg border px-3 py-2 sm:flex-none">
+              <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg border bg-card/80 px-3 py-2 shadow-[var(--shadow-control)] sm:flex-none">
                 <CalendarDays className="h-4 w-4 text-muted-foreground" />
                 <input className="min-w-0 flex-1 bg-transparent text-sm outline-none sm:flex-none" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
               </div>
@@ -129,7 +129,7 @@ export function FoodLogPage() {
                   ) : (
                     <div className="space-y-2">
                       {mealEntries.map((entry) => (
-                        <div key={entry.id} className="flex flex-col gap-3 rounded-lg border p-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div key={entry.id} className="interactive-row flex flex-col gap-3 rounded-lg p-3 sm:flex-row sm:items-center sm:justify-between">
                           <div className="min-w-0">
                             <p className="font-medium">{entry.name}</p>
                             <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
@@ -195,9 +195,9 @@ export function FoodLogPage() {
 
 function SummaryTile({ label, value, tone = "default" }: { label: string; value: string; tone?: "default" | "positive" | "danger" }) {
   return (
-    <div className="rounded-lg border bg-muted/30 p-3">
+    <div className="soft-tile rounded-lg p-3">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className={cn("mt-1 text-xl font-semibold data-number", tone === "positive" && "text-emerald-500", tone === "danger" && "text-red-500")}>{value}</p>
+      <p className={cn("mt-1 text-xl font-semibold data-number", tone === "positive" && "text-[var(--success)]", tone === "danger" && "text-[var(--danger)]")}>{value}</p>
     </div>
   );
 }

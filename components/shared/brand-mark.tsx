@@ -5,7 +5,7 @@ export function BrandMark({ className, compact = false }: { className?: string; 
   return (
     <span
       className={cn(
-        "relative inline-flex shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm shadow-primary/30",
+        "relative inline-flex shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-[var(--shadow-control)]",
         compact ? "h-8 w-8" : "h-10 w-10",
         className,
       )}

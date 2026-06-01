@@ -64,12 +64,12 @@ export function ResponsiveBar({
       <div className="w-full min-w-0" style={{ height, minWidth: 0 }}>
         <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={height} initialDimension={{ width: 800, height }}>
           <BarChart data={chartData}>
-            <CartesianGrid stroke={theme.goal} strokeDasharray="3 3" vertical={false} />
+            <CartesianGrid stroke={theme.goal} strokeDasharray="4 6" vertical={false} />
             <XAxis dataKey={xKey} stroke={theme.muted} tickLine={false} axisLine={false} fontSize={12} />
             <YAxis stroke={theme.muted} tickLine={false} axisLine={false} fontSize={12} />
-            <Tooltip contentStyle={{ background: theme.background, border: `1px solid ${theme.goal}`, borderRadius: 8 }} />
+            <Tooltip cursor={{ fill: "rgba(15, 159, 138, 0.08)" }} contentStyle={{ background: theme.background, border: `1px solid ${theme.goal}`, borderRadius: 8, boxShadow: "var(--shadow-card)" }} />
             {goalLine !== undefined && <ReferenceLine y={goalLine} stroke={theme.warning} strokeDasharray="4 4" />}
-            <Bar dataKey={yKey} radius={[6, 6, 0, 0]} fill={theme.primary} />
+            <Bar dataKey={yKey} radius={[8, 8, 2, 2]} fill={theme.primary} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -102,12 +102,12 @@ export function ResponsiveLine({
       <div className="w-full min-w-0" style={{ height, minWidth: 0 }}>
         <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={height} initialDimension={{ width: 800, height }}>
           <LineChart data={chartData}>
-            <CartesianGrid stroke={theme.goal} strokeDasharray="3 3" vertical={false} />
+            <CartesianGrid stroke={theme.goal} strokeDasharray="4 6" vertical={false} />
             <XAxis dataKey={xKey} stroke={theme.muted} tickLine={false} axisLine={false} fontSize={12} />
             <YAxis stroke={theme.muted} tickLine={false} axisLine={false} fontSize={12} />
-            <Tooltip contentStyle={{ background: theme.background, border: `1px solid ${theme.goal}`, borderRadius: 8 }} />
+            <Tooltip contentStyle={{ background: theme.background, border: `1px solid ${theme.goal}`, borderRadius: 8, boxShadow: "var(--shadow-card)" }} />
             {goalLine !== undefined && <ReferenceLine y={goalLine} stroke={theme.warning} strokeDasharray="4 4" />}
-            <Line type="monotone" dataKey={yKey} stroke={theme.primary} strokeWidth={3} dot={{ r: 3 }} activeDot={{ r: 5 }} />
+            <Line type="monotone" dataKey={yKey} stroke={theme.primary} strokeWidth={3} dot={{ r: 3, strokeWidth: 2, fill: theme.background }} activeDot={{ r: 6, strokeWidth: 0, fill: theme.primary }} />
           </LineChart>
         </ResponsiveContainer>
       </div>

@@ -16,10 +16,10 @@ export function MetricCard({
   tone?: "default" | "positive" | "warning" | "danger";
 }) {
   const toneClass = {
-    default: "text-muted-foreground",
-    positive: "text-emerald-500",
-    warning: "text-amber-500",
-    danger: "text-red-500",
+    default: "bg-primary/10 text-primary",
+    positive: "bg-[color-mix(in_srgb,var(--success)_14%,transparent)] text-[var(--success)]",
+    warning: "bg-[color-mix(in_srgb,var(--warning)_15%,transparent)] text-[var(--warning)]",
+    danger: "bg-[color-mix(in_srgb,var(--danger)_15%,transparent)] text-[var(--danger)]",
   }[tone];
 
   return (
@@ -30,7 +30,7 @@ export function MetricCard({
           <p className="mt-2 break-words text-xl font-semibold leading-tight data-number sm:text-2xl">{value}</p>
           {detail && <p className="mt-1 break-words text-xs leading-snug text-muted-foreground">{detail}</p>}
         </div>
-        <div className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-muted", toneClass)}>
+        <div className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-current/10", toneClass)}>
           <Icon className="h-5 w-5" />
         </div>
       </CardContent>

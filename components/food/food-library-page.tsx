@@ -162,7 +162,7 @@ export function FoodLibraryPage() {
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input className="pl-9" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by name or brand" />
             </div>
-            <select className="h-10 w-full rounded-lg border bg-background px-3 text-sm lg:w-auto" value={sort} onChange={(event) => setSort(event.target.value as SortOption)}>
+            <select className="h-11 w-full rounded-lg border px-3 text-sm lg:w-auto" value={sort} onChange={(event) => setSort(event.target.value as SortOption)}>
               <option value="favorites">Favorites First</option>
               <option value="name">Name A-Z</option>
               <option value="calHigh">Calories High</option>
@@ -172,7 +172,7 @@ export function FoodLibraryPage() {
               <option value="mostUsed">Most Used</option>
               <option value="recent">Recently Added</option>
             </select>
-            <div className="flex rounded-lg border p-1">
+            <div className="flex rounded-lg border bg-card/80 p-1 shadow-[var(--shadow-control)]">
               <Button variant={view === "grid" ? "default" : "ghost"} size="icon" onClick={() => setView("grid")}>
                 <Grid2X2 className="h-4 w-4" />
               </Button>
@@ -204,7 +204,7 @@ export function FoodLibraryPage() {
       ) : (
         <div className={cn(view === "grid" ? "grid gap-4 sm:grid-cols-2 xl:grid-cols-3" : "space-y-3")}>
           {filtered.map((food) => (
-            <Card key={food.id}>
+            <Card key={food.id} className="bg-card/90">
               <CardContent className={cn("p-4", view === "list" && "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between")}>
                 <div className="min-w-0">
                   <div className="flex items-start justify-between gap-3">
@@ -255,7 +255,7 @@ export function FoodLibraryPage() {
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
               <label className="text-sm font-medium">Meal</label>
-              <select className="h-10 w-full rounded-lg border bg-background px-3 text-sm" value={quickMealType} onChange={(event) => setQuickMealType(event.target.value as MealType)}>
+              <select className="h-11 w-full rounded-lg border px-3 text-sm" value={quickMealType} onChange={(event) => setQuickMealType(event.target.value as MealType)}>
                 {mealTypes.map((mealType) => (
                   <option key={mealType} value={mealType}>
                     {titleCase(mealType)}

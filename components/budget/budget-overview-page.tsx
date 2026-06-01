@@ -54,7 +54,7 @@ export function BudgetOverviewPage() {
             {summary.categorySpend.map((category) => {
               const used = percent(category.spent, category.limit);
               return (
-                <Link key={category.category} href={`/budget/transactions?category=${category.category}`} className="rounded-lg border p-3 hover:border-primary">
+                <Link key={category.category} href={`/budget/transactions?category=${category.category}`} className="interactive-row rounded-lg p-3">
                   <div className="mb-2 flex items-center justify-between gap-2">
                     <p className="font-medium">{titleCase(category.category)}</p>
                     <Badge variant={used >= 100 ? "destructive" : used >= 75 ? "outline" : "secondary"}>{category.limit > 0 ? `${Math.round(used)}%` : "No limit"}</Badge>
@@ -78,12 +78,12 @@ export function BudgetOverviewPage() {
         </Card>
       </div>
 
-      <Card className="mt-4 overflow-hidden">
+      <Card className="mt-4 overflow-hidden bg-[linear-gradient(135deg,var(--primary-soft),transparent_70%)]">
         <CardContent className="p-5">
           <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Remaining this cycle</p>
-              <p className={`mt-1 text-4xl font-semibold data-number ${summary.remaining < 0 ? "text-red-500" : summary.paceRatio > 1.1 ? "text-amber-500" : "text-emerald-500"}`}>
+              <p className={`mt-1 text-4xl font-semibold data-number ${summary.remaining < 0 ? "text-[var(--danger)]" : summary.paceRatio > 1.1 ? "text-[var(--warning)]" : "text-[var(--success)]"}`}>
                 {formatCurrency(summary.remaining, currency, symbol)}
               </p>
               <p className="mt-2 text-sm text-muted-foreground">

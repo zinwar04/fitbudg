@@ -89,14 +89,14 @@ function MealTargetControl({
 }) {
   if (locked) {
     return (
-      <div className={cn("flex h-10 min-w-32 items-center justify-center rounded-lg border bg-muted/30 px-3 text-sm font-medium", className)} aria-label={`Meal: ${titleCase(target)}`}>
+      <div className={cn("flex h-11 min-w-32 items-center justify-center rounded-lg border bg-muted/30 px-3 text-sm font-medium shadow-[var(--shadow-control)]", className)} aria-label={`Meal: ${titleCase(target)}`}>
         {titleCase(target)}
       </div>
     );
   }
 
   return (
-    <select className={cn("h-10 min-w-32 rounded-lg border bg-background px-3 text-sm", className)} value={value} onChange={(event) => onChange(event.target.value as MealType)}>
+    <select className={cn("h-11 min-w-32 rounded-lg border px-3 text-sm", className)} value={value} onChange={(event) => onChange(event.target.value as MealType)}>
       {mealTypes.map((type) => (
         <option key={type} value={type}>
           {titleCase(type)}
@@ -422,7 +422,7 @@ export function FoodEntryDialog({
                   type="button"
                   onClick={() => setSelectedFood(food)}
                   className={cn(
-                    "rounded-lg border bg-card p-3 text-left transition-colors hover:border-primary",
+                    "interactive-row rounded-lg p-3 text-left",
                     selectedFood?.id === food.id && "border-primary bg-primary/5",
                   )}
                 >
@@ -437,13 +437,13 @@ export function FoodEntryDialog({
                 </button>
               ))}
               {filteredLibrary.length === 0 && (
-                <div className="rounded-lg border bg-muted/20 p-3 text-sm text-muted-foreground sm:col-span-2">
+                <div className="soft-tile rounded-lg p-3 text-sm text-muted-foreground sm:col-span-2">
                   No saved foods match. External results will appear below when available.
                 </div>
               )}
             </div>
             {selectedFood && (
-              <div className="rounded-lg border bg-muted/30 p-3">
+              <div className="soft-tile rounded-lg p-3">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
                     <p className="text-sm font-medium">{selectedFood.name}</p>
@@ -476,7 +476,7 @@ export function FoodEntryDialog({
             )}
 
             {(externalLoading || externalResults.length > 0 || externalWarnings.length > 0 || externalQuery) && (
-              <div className="rounded-lg border bg-muted/20 p-3">
+              <div className="soft-tile rounded-lg p-3">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="text-sm font-medium">External databases</p>
@@ -485,7 +485,7 @@ export function FoodEntryDialog({
                   {externalLoading && <Badge variant="secondary">Searching...</Badge>}
                 </div>
                 {externalWarnings.map((warning) => (
-                  <div key={warning} className="mt-3 flex items-start gap-2 rounded-lg border bg-background p-2 text-xs text-muted-foreground">
+                  <div key={warning} className="mt-3 flex items-start gap-2 rounded-lg border bg-background/70 p-2 text-xs text-muted-foreground">
                     <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                     <p>{warning}</p>
                   </div>
@@ -504,7 +504,7 @@ export function FoodEntryDialog({
                           setSelectedFood(null);
                         }}
                         className={cn(
-                          "rounded-lg border bg-card p-3 text-left transition-colors hover:border-primary",
+                          "interactive-row rounded-lg p-3 text-left",
                           selectedExternalFood?.source === food.source && selectedExternalFood.external_id === food.external_id && "border-primary bg-primary/5",
                         )}
                       >
@@ -579,7 +579,7 @@ export function FoodEntryDialog({
                   type="button"
                   onClick={() => setSelectedTemplate(template)}
                   className={cn(
-                    "rounded-lg border bg-card p-3 text-left transition-colors hover:border-primary",
+                    "interactive-row rounded-lg p-3 text-left",
                     selectedTemplate?.id === template.id && "border-primary bg-primary/5",
                   )}
                 >
@@ -598,14 +598,14 @@ export function FoodEntryDialog({
                 </button>
               ))}
               {filteredTemplates.length === 0 && (
-                <div className="flex items-start gap-3 rounded-lg border bg-muted/20 p-4 text-sm text-muted-foreground sm:col-span-2">
+                <div className="soft-tile flex items-start gap-3 rounded-lg p-4 text-sm text-muted-foreground sm:col-span-2">
                   <UtensilsCrossed className="mt-0.5 h-4 w-4 shrink-0" />
                   <p>No saved meals yet. Create reusable meals from the Meals page, then log them here.</p>
                 </div>
               )}
             </div>
             {selectedTemplate && (
-              <div className="rounded-lg border bg-muted/30 p-3">
+              <div className="soft-tile rounded-lg p-3">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                   <div>
                     <p className="text-sm font-medium">{selectedTemplate.name}</p>
@@ -864,7 +864,7 @@ function BarcodeScannerDialog({
               <div className="pointer-events-none absolute inset-x-8 top-1/2 h-24 -translate-y-1/2 rounded-lg border-2 border-primary/80 shadow-[0_0_0_999px_rgba(0,0,0,0.25)]" />
             )}
           </div>
-          <div className="flex items-start gap-2 rounded-lg border bg-muted/20 p-3 text-xs text-muted-foreground">
+          <div className="soft-tile flex items-start gap-2 rounded-lg p-3 text-xs text-muted-foreground">
             <PackageSearch className="mt-0.5 h-4 w-4 shrink-0" />
             <p>Open Food Facts is community-provided. Verify the package label if needed.</p>
           </div>
@@ -972,7 +972,7 @@ export function FoodLibraryDialog({
             </OptionalField>
           </div>
           <Field label="Category" error={form.formState.errors.category?.message}>
-            <select className="h-10 w-full rounded-lg border bg-background px-3 text-sm" {...form.register("category")}>
+            <select className="h-11 w-full rounded-lg border px-3 text-sm" {...form.register("category")}>
               {foodCategories.map((category) => (
                 <option key={category} value={category}>
                   {titleCase(category)}
@@ -1004,7 +1004,7 @@ function ServingUnitSelect({ value, onChange }: { value: string; onChange: (valu
   return (
     <div className="grid gap-2 sm:grid-cols-[1fr_8rem]">
       <select
-        className="h-10 w-full rounded-lg border bg-background px-3 text-sm"
+        className="h-11 w-full rounded-lg border px-3 text-sm"
         value={custom ? "custom" : value}
         onChange={(event) => {
           if (event.target.value === "custom") {
@@ -1078,13 +1078,13 @@ export function TransactionDialog({
           <DialogDescription>Log income, expenses, recurring payments, and retroactive entries.</DialogDescription>
         </DialogHeader>
         <form className="space-y-4" onSubmit={form.handleSubmit(submit)}>
-          <div className="grid grid-cols-2 gap-2 rounded-lg bg-muted p-1">
+          <div className="grid grid-cols-2 gap-2 rounded-lg border bg-card/80 p-1 shadow-[var(--shadow-control)]">
             {(["expense", "income"] as const).map((value) => (
               <button
                 key={value}
                 type="button"
                 onClick={() => form.setValue("type", value)}
-                className={cn("rounded-md px-3 py-2 text-sm font-medium transition-colors", type === value ? "bg-card text-foreground shadow-sm" : "text-muted-foreground")}
+                className={cn("rounded-md px-3 py-2 text-sm font-semibold transition-colors", type === value ? "bg-primary text-primary-foreground shadow-[var(--shadow-control)]" : "text-muted-foreground hover:bg-accent hover:text-foreground")}
               >
                 {titleCase(value)}
               </button>
@@ -1098,7 +1098,7 @@ export function TransactionDialog({
           </Field>
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Category" error={form.formState.errors.category?.message}>
-              <select className="h-10 w-full rounded-lg border bg-background px-3 text-sm" {...form.register("category")}>
+              <select className="h-11 w-full rounded-lg border px-3 text-sm" {...form.register("category")}>
                 {categoryOptions.map((category) => (
                   <option key={category} value={category}>
                     {titleCase(category)}
@@ -1117,7 +1117,7 @@ export function TransactionDialog({
                   key={method}
                   type="button"
                   onClick={() => form.setValue("paymentMethod", method)}
-                  className={cn("rounded-lg border px-3 py-2 text-sm", form.watch("paymentMethod") === method && "border-primary bg-primary/10 text-primary")}
+                  className={cn("interactive-row rounded-lg px-3 py-2 text-sm", form.watch("paymentMethod") === method && "border-primary bg-primary/10 text-primary")}
                 >
                   {titleCase(method)}
                 </button>
@@ -1164,7 +1164,7 @@ export function HabitDialog({
       targetValue: habit?.targetValue,
       unit: habit?.unit ?? "",
       category: habit?.category ?? "lifestyle",
-      color: habit?.color ?? "#10b981",
+      color: habit?.color ?? "#0f9f8a",
       isActive: habit?.isActive ?? true,
     },
   });
@@ -1189,7 +1189,7 @@ export function HabitDialog({
           </Field>
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Icon" error={form.formState.errors.icon?.message}>
-              <select className="h-10 w-full rounded-lg border bg-background px-3 text-sm" {...form.register("icon")}>
+              <select className="h-11 w-full rounded-lg border px-3 text-sm" {...form.register("icon")}>
                 {["CheckCircle2", "Droplets", "Apple", "ClipboardList", "Dumbbell", "ReceiptText", "Moon", "ShieldCheck"].map((icon) => (
                   <option key={icon} value={icon}>
                     {icon}
@@ -1198,7 +1198,7 @@ export function HabitDialog({
               </select>
             </Field>
             <Field label="Type" error={form.formState.errors.type?.message}>
-              <select className="h-10 w-full rounded-lg border bg-background px-3 text-sm" {...form.register("type")}>
+              <select className="h-11 w-full rounded-lg border px-3 text-sm" {...form.register("type")}>
                 <option value="boolean">Done or not done</option>
                 <option value="quantitative">Quantitative</option>
               </select>
@@ -1216,7 +1216,7 @@ export function HabitDialog({
           )}
           <div className="grid gap-3 sm:grid-cols-2">
             <Field label="Category" error={form.formState.errors.category?.message}>
-              <select className="h-10 w-full rounded-lg border bg-background px-3 text-sm" {...form.register("category")}>
+              <select className="h-11 w-full rounded-lg border px-3 text-sm" {...form.register("category")}>
                 {["fitness", "nutrition", "finance", "lifestyle"].map((category) => (
                   <option key={category} value={category}>
                     {titleCase(category)}

@@ -110,7 +110,7 @@ export function WeightPage() {
                   const bodyFatPercent = Number.isFinite(entry.bodyFatPercent) ? entry.bodyFatPercent : undefined;
 
                   return (
-                    <div key={entry.id} className="rounded-lg border p-3">
+                    <div key={entry.id} className="interactive-row rounded-lg p-3">
                       <div className="flex items-center justify-between gap-3">
                         <div>
                           <p className="font-medium data-number">{formatWeight(displayWeight(entry.weight), weightUnit)}</p>

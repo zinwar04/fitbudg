@@ -21,11 +21,11 @@ export const dashboardWidgetOrder = [
 ];
 
 export const accentColorMap: Record<AccentColor, string> = {
-  emerald: "#10b981",
-  blue: "#3b82f6",
-  violet: "#8b5cf6",
-  amber: "#f59e0b",
-  rose: "#f43f5e",
+  emerald: "#0f9f8a",
+  blue: "#3478f6",
+  violet: "#7c5cff",
+  amber: "#d98d18",
+  rose: "#dd4b6a",
 };
 
 export const accentOptions: { value: AccentColor; label: string }[] = [

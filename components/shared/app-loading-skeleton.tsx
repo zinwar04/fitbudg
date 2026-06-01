@@ -6,7 +6,7 @@ export function AppLoadingSkeleton() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      <aside className="fixed left-0 top-0 hidden h-screen w-72 border-r bg-card lg:block">
+      <aside className="surface-strong fixed left-0 top-0 hidden h-screen w-72 border-r lg:block">
         <div className="flex h-16 items-center gap-3 border-b px-4">
           <div className="h-10 w-10 animate-pulse rounded-lg bg-primary/70" />
           <div className="space-y-2">
@@ -25,7 +25,7 @@ export function AppLoadingSkeleton() {
       </aside>
 
       <section className="min-h-screen lg:pl-72">
-        <header className="flex h-14 items-center justify-between border-b bg-background/90 px-4 lg:hidden">
+        <header className="surface-strong flex h-14 items-center justify-between border-b px-4 lg:hidden">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 animate-pulse rounded-lg bg-primary/70" />
             <div className="h-4 w-24 animate-pulse rounded bg-muted" />
@@ -46,27 +46,27 @@ export function AppLoadingSkeleton() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="h-24 animate-pulse rounded-lg border bg-card" />
-            <div className="h-24 animate-pulse rounded-lg border bg-card" />
-            <div className="h-24 animate-pulse rounded-lg border bg-card" />
+            <div className="h-24 animate-pulse rounded-lg border bg-card/90 shadow-[var(--shadow-card)]" />
+            <div className="h-24 animate-pulse rounded-lg border bg-card/90 shadow-[var(--shadow-card)]" />
+            <div className="h-24 animate-pulse rounded-lg border bg-card/90 shadow-[var(--shadow-card)]" />
           </div>
 
           <div className="grid gap-4 lg:grid-cols-[1.35fr_1fr]">
-            <div className="rounded-lg border bg-card p-4">
+            <div className="rounded-lg border bg-card/90 p-4 shadow-[var(--shadow-card)]">
               <div className="mb-4 h-5 w-36 animate-pulse rounded bg-muted" />
               <div className="h-72 animate-pulse rounded-lg bg-muted/70" />
             </div>
-            <div className="space-y-3 rounded-lg border bg-card p-4">
+            <div className="space-y-3 rounded-lg border bg-card/90 p-4 shadow-[var(--shadow-card)]">
               <div className="h-5 w-32 animate-pulse rounded bg-muted" />
               {cards.slice(0, 4).map((card) => (
-                <div key={card} className="h-16 animate-pulse rounded-lg border bg-background" />
+                <div key={card} className="h-16 animate-pulse rounded-lg border bg-background/80" />
               ))}
             </div>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {cards.map((card) => (
-              <div key={card} className="h-28 animate-pulse rounded-lg border bg-card" />
+              <div key={card} className="h-28 animate-pulse rounded-lg border bg-card/90 shadow-[var(--shadow-card)]" />
             ))}
           </div>
         </div>

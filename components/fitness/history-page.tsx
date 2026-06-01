@@ -112,7 +112,7 @@ export function HistoryPage() {
                   <Link
                     key={date}
                     href={`/nutrition?date=${date}`}
-                    className={cn("min-h-20 rounded-lg border p-2 text-left hover:border-primary", row?.count ? "bg-card" : "bg-muted/30")}
+                    className={cn("interactive-row min-h-20 rounded-lg p-2 text-left", row?.count ? "bg-card/90" : "bg-muted/30")}
                   >
                     <p className="text-xs text-muted-foreground">{Number(date.slice(-2))}</p>
                     {row?.count ? (
@@ -139,7 +139,7 @@ export function HistoryPage() {
             ) : (
               <div className="space-y-2">
                 {[...loggedDays].reverse().map((day) => (
-                  <Link key={day.date} href={`/nutrition?date=${day.date}`} className="flex flex-col gap-2 rounded-lg border p-3 hover:border-primary sm:flex-row sm:items-center sm:justify-between">
+                  <Link key={day.date} href={`/nutrition?date=${day.date}`} className="interactive-row flex flex-col gap-2 rounded-lg p-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <p className="font-medium">{formatDateKey(day.date)}</p>
                       <p className="text-sm text-muted-foreground">{day.count} entries</p>

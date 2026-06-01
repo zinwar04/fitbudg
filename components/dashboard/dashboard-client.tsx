@@ -134,149 +134,148 @@ export function DashboardClient() {
           value={insight?.title ?? "Log more data"}
           detail={insight ? `${insights.length} insights available` : "personalized guidance"}
           tone={insight?.severity === "danger" ? "danger" : insight?.severity === "warning" ? "warning" : "default"}
+          numeric={false}
         />
       </section>
 
       <div className="space-y-7">
         <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
-        <Widget index={0}>
-          <Link href="/nutrition" className="block">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Flame className="h-4 w-4 text-primary" /> Daily Calorie Ring
-              </CardTitle>
+          <Widget index={0}>
+            <Link href="/nutrition" className="block">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Flame className="h-4 w-4 text-primary" /> Daily Calorie Ring
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col items-center">
+                  <CalorieRing value={consumed} goal={targets?.calories ?? 0} />
+                  <p className={cn("mt-3 text-center text-sm", consumed <= (targets?.calories ?? 0) ? "text-[var(--success)]" : "text-[var(--danger)]")}>
+                    {formatKcal((targets?.calories ?? 0) - consumed)} remaining
+                  </p>
+                </div>
+                <div className="mt-5 space-y-3">
+                  <Macro label="Protein" value={protein} goal={targets?.protein ?? 0} />
+                  <Macro label="Carbs" value={carbs} goal={targets?.carbs ?? 0} />
+                  <Macro label="Fat" value={fat} goal={targets?.fat ?? 0} />
+                </div>
+              </CardContent>
+            </Link>
+          </Widget>
+
+          <Widget index={1}>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
+              <CardTitle>Today&apos;s Quick Log</CardTitle>
+              <Button size="sm" onClick={() => openDialog("food")}>
+                <Plus className="h-4 w-4" /> Add Food
+              </Button>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col items-center">
-                <CalorieRing value={consumed} goal={targets?.calories ?? 0} />
-                <p className={cn("mt-3 text-center text-sm", consumed <= (targets?.calories ?? 0) ? "text-emerald-500" : "text-red-500")}>
-                  {formatKcal((targets?.calories ?? 0) - consumed)} remaining
-                </p>
-              </div>
-              <div className="mt-5 space-y-3">
-                <Macro label="Protein" value={protein} goal={targets?.protein ?? 0} />
-                <Macro label="Carbs" value={carbs} goal={targets?.carbs ?? 0} />
-                <Macro label="Fat" value={fat} goal={targets?.fat ?? 0} />
-              </div>
-            </CardContent>
-          </Link>
-        </Widget>
-
-        <Widget index={1}>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Today&apos;s Quick Log</CardTitle>
-            <Button size="sm" onClick={() => openDialog("food")}>
-              <Plus className="h-4 w-4" /> Add Food
-            </Button>
-          </CardHeader>
-          <CardContent>
-            {todayEntries.length === 0 ? (
-              <EmptyState icon={UtensilsCrossed} title="No food logged today" description="Tap to add your first meal and the dashboard will update instantly." action={<Button onClick={() => openDialog("food")}>Add Food</Button>} />
-            ) : (
-              <div className="space-y-2">
-                {todayEntries.slice(-3).reverse().map((entry) => (
-                  <div key={entry.id} className="flex items-center justify-between rounded-lg border p-2">
-                    <div>
-                      <p className="text-sm font-medium">{entry.name}</p>
-                      <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <span className={cn("h-2 w-2 rounded-full", mealDotClass(entry.mealType))} />
-                        {titleCase(entry.mealType)}
-                      </p>
+              {todayEntries.length === 0 ? (
+                <EmptyState icon={UtensilsCrossed} title="No food logged today" description="Tap to add your first meal and the dashboard will update instantly." action={<Button onClick={() => openDialog("food")}>Add Food</Button>} />
+              ) : (
+                <div className="space-y-2">
+                  {todayEntries.slice(-3).reverse().map((entry) => (
+                    <div key={entry.id} className="interactive-row flex items-center justify-between rounded-lg p-2">
+                      <div>
+                        <p className="text-sm font-medium">{entry.name}</p>
+                        <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <span className={cn("h-2 w-2 rounded-full", mealDotClass(entry.mealType))} />
+                          {titleCase(entry.mealType)}
+                        </p>
+                      </div>
+                      <p className="data-number text-sm">{formatKcal(entry.calories)}</p>
                     </div>
-                    <p className="data-number text-sm">{formatKcal(entry.calories)}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Widget>
-
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Widget>
         </section>
 
         <section className="grid gap-4 lg:grid-cols-3">
-        <Widget index={2}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CircleDollarSign className="h-4 w-4 text-primary" /> Budget Pulse
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Progress value={percent(budgetSummary.spent, budgetProfile.monthlyBudget)} />
-            <div className="mt-3 flex flex-wrap gap-2 text-sm text-muted-foreground">
-              <span>{formatCurrency(budgetSummary.spent, budgetProfile.currency, budgetProfile.currencySymbol)} spent</span>
-              <span>{formatCurrency(budgetSummary.remaining, budgetProfile.currency, budgetProfile.currencySymbol)} remaining</span>
-              <span>{budgetSummary.daysLeftInCycle} days left in cycle</span>
-            </div>
-            <Badge className="mt-3" variant={budgetSummary.pacing === "onTrack" ? "secondary" : budgetSummary.pacing === "spendingFast" ? "outline" : "destructive"}>
-              {budgetSummary.pacing === "onTrack" ? "On Track" : budgetSummary.pacing === "spendingFast" ? "Spending Fast" : "Over Budget"}
-            </Badge>
-            <p className="mt-4 text-sm text-muted-foreground">Safe to spend today</p>
-            <p className="text-2xl font-semibold data-number">{formatCurrency(budgetSummary.safeToSpendToday, budgetProfile.currency, budgetProfile.currencySymbol)}</p>
-          </CardContent>
-        </Widget>
-
-        <Widget index={3}>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Habit Streak Board</CardTitle>
-            <Button size="sm" variant="outline" onClick={() => openDialog("habit")}>
-              <Plus className="h-4 w-4" /> Habit
-            </Button>
-          </CardHeader>
-          <CardContent>
-            {activeHabits.length === 0 ? (
-              <EmptyState icon={Check} title="No active habits" description="Add a small daily habit to start building momentum." action={<Button onClick={() => openDialog("habit")}>Add Habit</Button>} />
-            ) : (
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {activeHabits.map((habit) => {
-                  const Icon = getLucideIcon(habit.icon);
-                  const entry = habitEntries.find((item) => item.habitId === habit.id && item.date === today);
-                  return (
-                    <button
-                      key={habit.id}
-                      type="button"
-                      onClick={() => (habit.type === "boolean" ? toggleBoolean(habit.id, today) : adjustQuantitative(habit, today, 1))}
-                      className={cn("rounded-lg border p-3 text-center transition-colors hover:border-primary", entry?.completed && "border-primary bg-primary/5")}
-                    >
-                      <Icon className="mx-auto h-5 w-5" style={{ color: habit.color }} />
-                      <p className="mt-2 break-words text-xs font-medium leading-snug">{habit.name}</p>
-                      <p className="mt-1 text-xs text-muted-foreground">{habit.type === "quantitative" ? `${entry?.value ?? 0}/${habit.targetValue ?? 1}` : entry?.completed ? "Done" : "Open"}</p>
-                      <p className="mt-1 text-xs data-number">{habit.streak} day streak</p>
-                    </button>
-                  );
-                })}
+          <Widget index={2}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CircleDollarSign className="h-4 w-4 text-primary" /> Budget Pulse
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Progress value={percent(budgetSummary.spent, budgetProfile.monthlyBudget)} />
+              <div className="mt-3 flex flex-wrap gap-2 text-sm text-muted-foreground">
+                <span>{formatCurrency(budgetSummary.spent, budgetProfile.currency, budgetProfile.currencySymbol)} spent</span>
+                <span>{formatCurrency(budgetSummary.remaining, budgetProfile.currency, budgetProfile.currencySymbol)} remaining</span>
+                <span>{budgetSummary.daysLeftInCycle} days left in cycle</span>
               </div>
-            )}
-          </CardContent>
-        </Widget>
+              <Badge className="mt-3" variant={budgetSummary.pacing === "onTrack" ? "secondary" : budgetSummary.pacing === "spendingFast" ? "outline" : "destructive"}>
+                {budgetSummary.pacing === "onTrack" ? "On Track" : budgetSummary.pacing === "spendingFast" ? "Spending Fast" : "Over Budget"}
+              </Badge>
+              <p className="mt-4 text-sm text-muted-foreground">Safe to spend today</p>
+              <p className="text-2xl font-semibold data-number">{formatCurrency(budgetSummary.safeToSpendToday, budgetProfile.currency, budgetProfile.currencySymbol)}</p>
+            </CardContent>
+          </Widget>
 
-        <Widget index={4}>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Recent Transactions</CardTitle>
-            <Button size="sm" onClick={() => openDialog("transaction")}>
-              <Plus className="h-4 w-4" /> Add
-            </Button>
-          </CardHeader>
-          <CardContent>
-            {transactions.length === 0 ? (
-              <EmptyState icon={ReceiptText} title="No transactions yet" description="Add one expense and your budget pace will come alive." action={<Button onClick={() => openDialog("transaction")}>Add Transaction</Button>} />
-            ) : (
-              <div className="space-y-2">
-                {transactions.slice(0, 4).map((transaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between rounded-lg border p-2">
-                    <div>
-                      <p className="text-sm font-medium">{transaction.title}</p>
-                      <p className="text-xs text-muted-foreground">{titleCase(transaction.category)} · {formatRelativeDate(transaction.date)}</p>
+          <Widget index={3}>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
+              <CardTitle>Habit Streak Board</CardTitle>
+              <Button size="sm" variant="outline" onClick={() => openDialog("habit")}>
+                <Plus className="h-4 w-4" /> Habit
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {activeHabits.length === 0 ? (
+                <EmptyState icon={Check} title="No active habits" description="Add a small daily habit to start building momentum." action={<Button onClick={() => openDialog("habit")}>Add Habit</Button>} />
+              ) : (
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {activeHabits.map((habit) => {
+                    const Icon = getLucideIcon(habit.icon);
+                    const entry = habitEntries.find((item) => item.habitId === habit.id && item.date === today);
+                    return (
+                      <button
+                        key={habit.id}
+                        type="button"
+                        onClick={() => (habit.type === "boolean" ? toggleBoolean(habit.id, today) : adjustQuantitative(habit, today, 1))}
+                        className={cn("interactive-row rounded-lg p-3 text-center", entry?.completed && "border-primary bg-primary/5")}
+                      >
+                        <Icon className="mx-auto h-5 w-5" style={{ color: habit.color }} />
+                        <p className="mt-2 break-words text-xs font-medium leading-snug">{habit.name}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">{habit.type === "quantitative" ? `${entry?.value ?? 0}/${habit.targetValue ?? 1}` : entry?.completed ? "Done" : "Open"}</p>
+                        <p className="mt-1 text-xs data-number">{habit.streak} day streak</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Widget>
+
+          <Widget index={4}>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
+              <CardTitle>Recent Transactions</CardTitle>
+              <Button size="sm" onClick={() => openDialog("transaction")}>
+                <Plus className="h-4 w-4" /> Add
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {transactions.length === 0 ? (
+                <EmptyState icon={ReceiptText} title="No transactions yet" description="Add one expense and your budget pace will come alive." action={<Button onClick={() => openDialog("transaction")}>Add Transaction</Button>} />
+              ) : (
+                <div className="space-y-2">
+                  {transactions.slice(0, 4).map((transaction) => (
+                    <div key={transaction.id} className="interactive-row flex items-center justify-between rounded-lg p-2">
+                      <div>
+                        <p className="text-sm font-medium">{transaction.title}</p>
+                        <p className="text-xs text-muted-foreground">{titleCase(transaction.category)} · {formatRelativeDate(transaction.date)}</p>
+                      </div>
+                      <p className={cn("data-number text-sm", transaction.type === "income" ? "text-[var(--success)]" : "text-[var(--danger)]")}>
+                        {transaction.type === "income" ? "+" : "-"}{formatCurrency(transaction.amount, transaction.currency, budgetProfile.currencySymbol)}
+                      </p>
                     </div>
-                    <p className={cn("data-number text-sm", transaction.type === "income" ? "text-emerald-500" : "text-red-500")}>
-                      {transaction.type === "income" ? "+" : "-"}{formatCurrency(transaction.amount, transaction.currency, budgetProfile.currencySymbol)}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Widget>
-
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Widget>
         </section>
 
         <section className="grid gap-4 lg:grid-cols-3">
@@ -301,7 +300,7 @@ export function DashboardClient() {
           </CardHeader>
           <CardContent>
             {insight ? (
-              <div className="w-full rounded-lg border bg-muted/30 p-4 text-left">
+              <div className="soft-tile w-full rounded-lg p-4 text-left">
                 <Badge variant={insight.severity === "danger" || insight.severity === "warning" ? "destructive" : "secondary"}>{titleCase(insight.category)}</Badge>
                 <h3 className="mt-3 font-semibold">{insight.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{insight.description}</p>
@@ -349,7 +348,7 @@ export function DashboardClient() {
 function Widget({ children, index, className }: { children: React.ReactNode; index: number; className?: string }) {
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.04 }}>
-      <Card className={cn("h-full overflow-hidden", className)}>{children}</Card>
+      <Card className={cn("h-full overflow-hidden bg-card/90", className)}>{children}</Card>
     </motion.div>
   );
 }
@@ -360,29 +359,31 @@ function DailyFocusCard({
   value,
   detail,
   tone = "default",
+  numeric = true,
 }: {
   icon: typeof Flame;
   label: string;
   value: string;
   detail: string;
   tone?: "default" | "positive" | "warning" | "danger";
+  numeric?: boolean;
 }) {
   const toneClass = {
     default: "bg-primary/10 text-primary",
-    positive: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-300",
-    warning: "bg-amber-500/10 text-amber-600 dark:text-amber-300",
-    danger: "bg-red-500/10 text-red-600 dark:text-red-300",
+    positive: "bg-[color-mix(in_srgb,var(--success)_14%,transparent)] text-[var(--success)]",
+    warning: "bg-[color-mix(in_srgb,var(--warning)_15%,transparent)] text-[var(--warning)]",
+    danger: "bg-[color-mix(in_srgb,var(--danger)_15%,transparent)] text-[var(--danger)]",
   }[tone];
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden bg-card/90">
       <CardContent className="flex min-h-28 items-center gap-3 p-4">
-        <div className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-lg", toneClass)}>
+        <div className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-current/10", toneClass)}>
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
-          <p className="mt-1 truncate text-lg font-semibold data-number">{value}</p>
+          <p className={cn("mt-1 truncate text-lg font-semibold", numeric && "data-number")}>{value}</p>
           <p className="mt-1 truncate text-xs text-muted-foreground">{detail}</p>
         </div>
       </CardContent>

@@ -1,0 +1,6 @@
+name,brand,caloriesPerServing,servingSize,servingUnit,protein,carbs,fat,fiber,category,isFavorite,notes
+"Chickpea Soup (Kurdish Style, No Meat)",,195,1,medium bowl,10,30,3,7,meal,false,Estimated per medium bowl; total pot 10 servings; 1-2 tbsp sunflower oil total; no meat.
+Red Bulghur with Tomato Paste,,215,10,tbsp,3.5,28,10.5,4,carbs,false,Estimated per serving: 10 tbsp cooked red bulghur with tomato paste and about 0.75 tbsp sunflower oil.
+Tomato Cucumber Salad with Yogurt,,45,1,small bowl,2.3,7.1,0.9,1.5,vegetables,false,Estimated small bowl tomato and cucumber salad with 1.5 tbsp plain yogurt; no added oil counted.
+Oven Rice,,155,7,tbsp,2.5,31,1.8,0.5,carbs,false,Estimated per serving: 7 tbsp cooked rice; total batch 10 servings with 1-1.5 tbsp sunflower oil total.
+Chicken Breast Fried/Seared Minimal Oil,,205,150,g raw weight,35,0,6,0,protein,false,Estimated per 150g raw frozen chicken breast portion before cooking; includes shared minimal sunflower oil from 2kg batch.

@@ -17,13 +17,13 @@ import { useHabitsStore } from "@/lib/store/habits.store";
 import { localDateKey, titleCase } from "@/lib/utils/formatting";
 
 const suggestions = [
-  { name: "Drink 8 glasses of water", icon: "Droplets", type: "quantitative" as const, targetValue: 8, unit: "glasses", category: "nutrition" as const, color: "#3b82f6", isActive: true },
-  { name: "Eat 5 servings of vegetables", icon: "Apple", type: "quantitative" as const, targetValue: 5, unit: "servings", category: "nutrition" as const, color: "#10b981", isActive: true },
-  { name: "Log all meals", icon: "ClipboardList", type: "boolean" as const, category: "nutrition" as const, color: "#10b981", isActive: true },
-  { name: "Exercise today", icon: "Dumbbell", type: "boolean" as const, category: "fitness" as const, color: "#f59e0b", isActive: true },
-  { name: "Log all expenses", icon: "ReceiptText", type: "boolean" as const, category: "finance" as const, color: "#8b5cf6", isActive: true },
+  { name: "Drink 8 glasses of water", icon: "Droplets", type: "quantitative" as const, targetValue: 8, unit: "glasses", category: "nutrition" as const, color: "#3478f6", isActive: true },
+  { name: "Eat 5 servings of vegetables", icon: "Apple", type: "quantitative" as const, targetValue: 5, unit: "servings", category: "nutrition" as const, color: "#0f9f8a", isActive: true },
+  { name: "Log all meals", icon: "ClipboardList", type: "boolean" as const, category: "nutrition" as const, color: "#0f9f8a", isActive: true },
+  { name: "Exercise today", icon: "Dumbbell", type: "boolean" as const, category: "fitness" as const, color: "#d98d18", isActive: true },
+  { name: "Log all expenses", icon: "ReceiptText", type: "boolean" as const, category: "finance" as const, color: "#7c5cff", isActive: true },
   { name: "Sleep 7+ hours", icon: "Moon", type: "boolean" as const, category: "lifestyle" as const, color: "#6366f1", isActive: true },
-  { name: "No impulse purchases", icon: "ShieldCheck", type: "boolean" as const, category: "finance" as const, color: "#f43f5e", isActive: true },
+  { name: "No impulse purchases", icon: "ShieldCheck", type: "boolean" as const, category: "finance" as const, color: "#dd4b6a", isActive: true },
 ];
 
 export function HabitsPage() {
@@ -73,7 +73,7 @@ export function HabitsPage() {
               {suggestions.map((suggestion) => {
                 const Icon = getLucideIcon(suggestion.icon);
                 return (
-                  <button key={suggestion.name} type="button" onClick={() => addHabit(suggestion)} className="rounded-lg border p-3 text-left hover:border-primary">
+                  <button key={suggestion.name} type="button" onClick={() => addHabit(suggestion)} className="interactive-row rounded-lg p-3 text-left">
                     <Icon className="h-5 w-5" style={{ color: suggestion.color }} />
                     <p className="mt-2 text-sm font-medium">{suggestion.name}</p>
                     <p className="mt-1 text-xs text-muted-foreground">{titleCase(suggestion.category)}</p>
@@ -95,7 +95,7 @@ export function HabitsPage() {
             const progress = habit.type === "quantitative" ? ((todayEntry?.value ?? 0) / (habit.targetValue ?? 1)) * 100 : todayEntry?.completed ? 100 : 0;
             return (
               <motion.div key={habit.id} animate={todayEntry?.completed ? { scale: [1, 1.03, 1] } : { scale: 1 }} transition={{ duration: 0.25 }}>
-                <Card>
+                <Card className="bg-card/90">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
@@ -154,13 +154,13 @@ export function HabitsPage() {
       )}
 
       {inactiveHabits.length > 0 && (
-        <details className="mt-6 rounded-lg border bg-card p-4">
+        <details className="mt-6 rounded-lg border bg-card/90 p-4 shadow-[var(--shadow-card)]">
           <summary className="cursor-pointer text-sm font-semibold">Archived habits ({inactiveHabits.length})</summary>
           <div className="mt-3 grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
             {inactiveHabits.map((habit) => {
               const Icon = getLucideIcon(habit.icon);
               return (
-                <div key={habit.id} className="flex items-center justify-between gap-3 rounded-lg border bg-muted/20 p-3">
+                <div key={habit.id} className="interactive-row flex items-center justify-between gap-3 rounded-lg p-3">
                   <div className="flex min-w-0 items-center gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-white" style={{ background: habit.color }}>
                       <Icon className="h-4 w-4" />

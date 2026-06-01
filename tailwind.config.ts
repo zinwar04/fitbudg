@@ -44,9 +44,9 @@ const config: Config = {
           foreground: "var(--card-foreground)",
         },
         chart: {
-          positive: "#10b981",
-          warning: "#f59e0b",
-          danger: "#ef4444",
+          positive: "var(--success)",
+          warning: "var(--warning)",
+          danger: "var(--danger)",
         },
       },
       fontFamily: {
@@ -59,4 +59,3 @@ const config: Config = {
 };
 
 export default config;
-

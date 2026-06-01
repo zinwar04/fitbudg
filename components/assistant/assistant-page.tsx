@@ -188,7 +188,7 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
 
   return (
     <div className={cn("flex w-full overflow-hidden bg-background", embedded ? "h-full min-h-0" : "h-[calc(100svh-7.5rem)] min-h-[34rem] lg:h-screen lg:min-h-0")}>
-      <aside className={cn("hidden w-80 shrink-0 flex-col border-r bg-card/70", !embedded && "lg:flex")}>
+      <aside className={cn("hidden w-80 shrink-0 flex-col border-r bg-card/75 backdrop-blur-xl", !embedded && "lg:flex")}>
         <div className="flex h-14 items-center gap-2 border-b px-3">
           <Button className="h-10 flex-1 justify-start" variant="ghost" onClick={startNewChat}>
             <MessageSquarePlus className="h-4 w-4" />
@@ -199,7 +199,7 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
       </aside>
 
       <main className="flex min-w-0 flex-1 flex-col">
-        <header className={cn("flex h-14 shrink-0 items-center justify-between border-b bg-background/95 px-3 backdrop-blur sm:px-4", embedded && "pr-12")}>
+        <header className={cn("flex h-14 shrink-0 items-center justify-between border-b bg-card/80 px-3 backdrop-blur-xl sm:px-4", embedded && "pr-12")}>
           <div className="flex min-w-0 items-center gap-2">
             <Button className={cn(!embedded && "lg:hidden")} size="icon" variant="ghost" onClick={() => setHistoryOpen(true)} aria-label="Open chat history">
               <Menu className="h-5 w-5" />
@@ -217,7 +217,7 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
           <div className={cn("mx-auto flex w-full flex-col gap-6", embedded ? "max-w-full" : "max-w-3xl")}>
             {messages.length === 0 && (
               <div className={cn("flex flex-col items-center justify-center py-8 text-center", embedded ? "min-h-[44vh]" : "min-h-[58vh]")}>
-                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full border bg-card">
+                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full border bg-card shadow-[var(--shadow-control)]">
                   <Bot className="h-5 w-5" />
                 </div>
                 <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">What can I help with?</h1>
@@ -227,7 +227,7 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
                     return (
                       <button
                         key={item.prompt}
-                        className="group min-h-20 rounded-lg border bg-card px-4 py-3 text-left transition-colors hover:border-primary/60 hover:bg-accent"
+                        className="interactive-row group min-h-20 rounded-lg px-4 py-3 text-left"
                         onClick={() => void send(item.prompt)}
                       >
                         <div className="flex items-center gap-2 text-sm font-medium">
@@ -248,10 +248,10 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
 
             {loading && (
               <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-card">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-card shadow-[var(--shadow-control)]">
                   <Bot className="h-4 w-4" />
                 </div>
-                <div className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">Thinking...</div>
+                <div className="rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground shadow-[var(--shadow-control)]">Thinking...</div>
               </div>
             )}
             <div ref={scrollRef} />
@@ -265,7 +265,7 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
             void send();
           }}
         >
-          <div className={cn("mx-auto flex items-end gap-2 rounded-[26px] border bg-card p-2 shadow-sm", embedded ? "max-w-full" : "max-w-3xl")}>
+          <div className={cn("mx-auto flex items-end gap-2 rounded-[26px] border bg-card/95 p-2 shadow-[var(--shadow-card)] backdrop-blur-xl", embedded ? "max-w-full" : "max-w-3xl")}>
             <Textarea
               value={input}
               onChange={(event) => setInput(event.target.value)}
@@ -386,7 +386,7 @@ function ChatHistory({
       ) : (
         <div className="space-y-1">
           {sessions.map((chat) => (
-            <div key={chat.id} className={cn("group flex items-center gap-1 rounded-lg px-2 py-1.5", chat.id === sessionId && "bg-primary/10")}>
+            <div key={chat.id} className={cn("group flex items-center gap-1 rounded-lg px-2 py-1.5 transition-colors hover:bg-accent", chat.id === sessionId && "bg-primary/10 text-primary")}>
               <button className="flex min-w-0 flex-1 items-center gap-2 text-left text-sm" onClick={() => onOpen(chat)}>
                 <MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <span className="truncate">{chat.title}</span>
@@ -408,14 +408,14 @@ function MessageRow({ message }: { message: ChatMessage }) {
   return (
     <div className={cn("flex items-start gap-3", user ? "justify-end" : "justify-start")}>
       {!user && (
-        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-card">
+        <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-card shadow-[var(--shadow-control)]">
           <Bot className="h-4 w-4" />
         </div>
       )}
       <div
         className={cn(
           "min-w-0 text-[15px] leading-7 sm:text-sm sm:leading-6",
-          user ? "max-w-[86%] rounded-[22px] bg-muted px-4 py-2.5" : "w-full max-w-3xl px-1 py-1 text-foreground",
+          user ? "max-w-[86%] rounded-[22px] bg-primary px-4 py-2.5 text-primary-foreground shadow-[var(--shadow-control)]" : "w-full max-w-3xl px-1 py-1 text-foreground",
         )}
       >
         <FormattedMessage content={message.content} />
