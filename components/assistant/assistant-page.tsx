@@ -229,6 +229,7 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
                         key={item.prompt}
                         className="interactive-row group min-h-20 rounded-lg px-4 py-3 text-left"
                         onClick={() => void send(item.prompt)}
+                        aria-label={`Use starter prompt: ${item.title}`}
                       >
                         <div className="flex items-center gap-2 text-sm font-medium">
                           <Icon className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
@@ -387,7 +388,7 @@ function ChatHistory({
         <div className="space-y-1">
           {sessions.map((chat) => (
             <div key={chat.id} className={cn("group flex items-center gap-1 rounded-lg px-2 py-1.5 transition-colors hover:bg-accent", chat.id === sessionId && "bg-primary/10 text-primary")}>
-              <button className="flex min-w-0 flex-1 items-center gap-2 text-left text-sm" onClick={() => onOpen(chat)}>
+              <button className="flex min-w-0 flex-1 items-center gap-2 text-left text-sm" onClick={() => onOpen(chat)} aria-current={chat.id === sessionId ? "page" : undefined}>
                 <MessageSquare className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <span className="truncate">{chat.title}</span>
               </button>

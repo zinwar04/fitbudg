@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { BrandMark } from "@/components/shared/brand-mark";
 import { calculateNutritionTargets, cmToIn, inToCm, kgToLb, lbToKg } from "@/lib/calculations/nutrition";
 import { useAuthStore } from "@/lib/store/auth.store";
 import { useProfileStore } from "@/lib/store/profile.store";
@@ -118,12 +119,8 @@ export function OnboardingWizard() {
       <div className="mx-auto flex min-h-[calc(100vh-3rem)] w-full max-w-4xl flex-col">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <motion.div
-              initial={{ rotate: -10, scale: 0.8 }}
-              animate={{ rotate: 0, scale: 1 }}
-            className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground shadow-[var(--shadow-control)]"
-            >
-              FB
+            <motion.div initial={{ rotate: -10, scale: 0.8 }} animate={{ rotate: 0, scale: 1 }}>
+              <BrandMark />
             </motion.div>
             <div>
               <p className="text-sm font-semibold">FitBudget</p>
@@ -176,6 +173,7 @@ export function OnboardingWizard() {
                       key={unit}
                       type="button"
                       onClick={() => updateUnitSystem(unit)}
+                      aria-pressed={profile.unitSystem === unit}
                       className={cn("flex-1 rounded-md px-3 py-2 text-sm font-medium", profile.unitSystem === unit && "bg-card shadow-sm")}
                     >
                       {unit === "metric" ? "Metric" : "Imperial"}
@@ -200,6 +198,7 @@ export function OnboardingWizard() {
                         key={goal}
                         type="button"
                         onClick={() => setProfile((current) => ({ ...current, fitnessGoal: goal }))}
+                        aria-pressed={profile.fitnessGoal === goal}
                         className={cn("interactive-row rounded-lg p-4 text-left", profile.fitnessGoal === goal && "border-primary bg-primary/5")}
                       >
                         <Icon className="mb-3 h-5 w-5 text-primary" />
@@ -240,6 +239,7 @@ export function OnboardingWizard() {
                       key={level}
                       type="button"
                       onClick={() => setProfile((current) => ({ ...current, activityLevel: level }))}
+                      aria-pressed={profile.activityLevel === level}
                       className={cn("interactive-row rounded-lg p-4 text-left", profile.activityLevel === level && "border-primary bg-primary/5")}
                     >
                       <p className="font-semibold">{activityLabels[level].title}</p>
@@ -316,6 +316,7 @@ export function OnboardingWizard() {
                           key={accent.value}
                           type="button"
                           onClick={() => setSettings((current) => ({ ...current, accentColor: accent.value }))}
+                          aria-pressed={settings.accentColor === accent.value}
                           className={cn("rounded-lg border p-2 text-xs", settings.accentColor === accent.value && "border-primary")}
                         >
                           <span className="mx-auto mb-2 block h-6 w-6 rounded-full" style={{ background: accentColorMap[accent.value] }} />

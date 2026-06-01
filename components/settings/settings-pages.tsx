@@ -131,6 +131,7 @@ export function ProfileSettingsPage() {
               key={section.id}
               type="button"
               onClick={() => setActive(section.id)}
+              aria-pressed={active === section.id}
               className={cn(
                 "focus-ring flex h-12 items-center justify-center gap-2 rounded-lg border bg-card/85 px-3 text-sm font-semibold shadow-[var(--shadow-control)] transition-all",
                 active === section.id ? "border-primary bg-primary text-primary-foreground" : "text-muted-foreground hover:border-primary/50 hover:bg-accent hover:text-foreground",
@@ -265,6 +266,7 @@ function AppearancePanel({ draft, setDraft }: { draft: AppSettings; setDraft: (d
                   key={accent.value}
                   type="button"
                   onClick={() => setDraft({ ...draft, accentColor: accent.value })}
+                  aria-pressed={draft.accentColor === accent.value}
                   className={cn("interactive-row flex h-11 items-center gap-2 rounded-lg px-3 text-sm", draft.accentColor === accent.value ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground")}
                 >
                   <span className="h-3 w-3 rounded-full" style={{ backgroundColor: accentColorMap[accent.value] }} />

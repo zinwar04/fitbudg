@@ -94,7 +94,7 @@ export function TransactionsPage() {
           <div className="flex flex-col gap-3 lg:flex-row">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input className="pl-9" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search title or notes" />
+              <Input className="pl-9" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search title or notes" aria-label="Search transactions" />
             </div>
             <select className="h-11 w-full rounded-lg border bg-card/80 px-3 text-sm lg:w-auto" value={preset} onChange={(event) => setPreset(event.target.value as DatePreset)}>
               <option value="today">Today</option>
@@ -110,9 +110,9 @@ export function TransactionsPage() {
             </select>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" variant={category === "all" ? "default" : "outline"} onClick={() => setCategory("all")}>All</Button>
+            <Button size="sm" variant={category === "all" ? "default" : "outline"} onClick={() => setCategory("all")} aria-pressed={category === "all"}>All</Button>
             {categoryOptions.map((item) => (
-              <Button key={item} size="sm" variant={category === item ? "default" : "outline"} onClick={() => setCategory(item)}>
+              <Button key={item} size="sm" variant={category === item ? "default" : "outline"} onClick={() => setCategory(item)} aria-pressed={category === item}>
                 {titleCase(item)}
               </Button>
             ))}
@@ -151,10 +151,10 @@ export function TransactionsPage() {
                           <p className={`text-lg font-semibold data-number ${transaction.type === "income" ? "text-[var(--success)]" : "text-[var(--danger)]"}`}>
                             {transaction.type === "income" ? "+" : "-"}{formatCurrency(transaction.amount, transaction.currency, profile.currencySymbol)}
                           </p>
-                          <Button variant="ghost" size="icon" onClick={() => { setEditing(transaction); setDialogOpen(true); }}>
+                          <Button variant="ghost" size="icon" onClick={() => { setEditing(transaction); setDialogOpen(true); }} aria-label={`Edit ${transaction.title}`}>
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => deleteTransaction(transaction.id)}>
+                          <Button variant="ghost" size="icon" onClick={() => deleteTransaction(transaction.id)} aria-label={`Delete ${transaction.title}`}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>

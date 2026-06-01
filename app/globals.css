@@ -71,6 +71,11 @@
 
 html {
   background: var(--background);
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
 }
 
 body {
@@ -83,6 +88,13 @@ body {
     var(--background);
   letter-spacing: 0;
   font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+.dark body {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 24rem),
+    linear-gradient(105deg, color-mix(in srgb, var(--info) 9%, transparent), transparent 42rem),
+    var(--background);
 }
 
 ::selection {
@@ -181,5 +193,16 @@ body {
   .scrollbar-soft {
     scrollbar-width: thin;
     scrollbar-color: color-mix(in srgb, var(--foreground) 18%, transparent) transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

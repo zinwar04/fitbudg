@@ -69,14 +69,14 @@ export function FoodLogPage() {
         <CardContent className="p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-wrap items-center gap-2">
-              <Button variant="outline" size="icon" onClick={() => setDate(format(subDays(parseISO(`${date}T00:00:00`), 1), "yyyy-MM-dd"))}>
+              <Button variant="outline" size="icon" onClick={() => setDate(format(subDays(parseISO(`${date}T00:00:00`), 1), "yyyy-MM-dd"))} aria-label="Previous day">
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <div className="flex min-w-0 flex-1 items-center gap-2 rounded-lg border bg-card/80 px-3 py-2 shadow-[var(--shadow-control)] sm:flex-none">
                 <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                <input className="min-w-0 flex-1 bg-transparent text-sm outline-none sm:flex-none" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+                <input className="min-w-0 flex-1 bg-transparent text-sm outline-none sm:flex-none" type="date" value={date} onChange={(event) => setDate(event.target.value)} aria-label="Food log date" />
               </div>
-              <Button variant="outline" size="icon" onClick={() => setDate(format(addDays(parseISO(`${date}T00:00:00`), 1), "yyyy-MM-dd"))}>
+              <Button variant="outline" size="icon" onClick={() => setDate(format(addDays(parseISO(`${date}T00:00:00`), 1), "yyyy-MM-dd"))} aria-label="Next day">
                 <ChevronRight className="h-4 w-4" />
               </Button>
               <Button variant="ghost" onClick={() => setDate(localDateKey())}>
@@ -112,6 +112,7 @@ export function FoodLogPage() {
                   type="button"
                   className="flex items-center gap-2 text-left"
                   onClick={() => setCollapsed((current) => (current.includes(mealType) ? current.filter((item) => item !== mealType) : [...current, mealType]))}
+                  aria-expanded={!isCollapsed}
                 >
                   <ChevronDown className={cn("h-4 w-4 transition-transform", isCollapsed && "-rotate-90")} />
                   <CardTitle>{titleCase(mealType)}</CardTitle>
@@ -144,15 +145,15 @@ export function FoodLogPage() {
                           </div>
                           <div className="flex items-center justify-between gap-3 sm:justify-end">
                             <p className="text-lg font-semibold data-number">{formatKcal(entry.calories)}</p>
-                            <Button variant="ghost" size="icon" onClick={() => openEdit(entry)}>
+                            <Button variant="ghost" size="icon" onClick={() => openEdit(entry)} aria-label={`Edit ${entry.name}`}>
                               <Edit className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" onClick={() => deleteEntry(entry.id)}>
+                            <Button variant="ghost" size="icon" onClick={() => deleteEntry(entry.id)} aria-label={`Delete ${entry.name}`}>
                               <Trash2 className="h-4 w-4" />
                             </Button>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon">
+                                <Button variant="ghost" size="icon" aria-label={`More actions for ${entry.name}`}>
                                   <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>

@@ -1164,7 +1164,7 @@ export function HabitDialog({
       targetValue: habit?.targetValue,
       unit: habit?.unit ?? "",
       category: habit?.category ?? "lifestyle",
-      color: habit?.color ?? "#0f9f8a",
+      color: habit?.color ?? "#0f9488",
       isActive: habit?.isActive ?? true,
     },
   });

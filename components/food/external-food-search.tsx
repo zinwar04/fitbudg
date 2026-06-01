@@ -123,6 +123,7 @@ export function ExternalFoodSearch({ library }: { library: FoodLibraryItem[] }) 
                   setError(null);
                   setWarnings([]);
                 }}
+                aria-pressed={mode === item.value}
                 className={cn(
                   "interactive-row flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
                   mode === item.value && "border-primary bg-primary/5 text-foreground",
@@ -151,6 +152,7 @@ export function ExternalFoodSearch({ library }: { library: FoodLibraryItem[] }) 
               value={mode === "barcode" ? barcode : query}
               onChange={(event) => (mode === "barcode" ? setBarcode(event.target.value) : setQuery(event.target.value))}
               placeholder={mode === "barcode" ? "Paste or type a barcode" : selectedMode.description}
+              aria-label={mode === "barcode" ? "Barcode" : "Food search"}
             />
           </div>
           <Button type="submit" disabled={loading}>

@@ -96,7 +96,7 @@ export function MealTemplatesPage() {
         <CardContent className="flex flex-col gap-3 p-4 sm:flex-row">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input className="pl-9" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search templates" />
+            <Input className="pl-9" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search templates" aria-label="Search meal templates" />
           </div>
           <select className="h-11 w-full rounded-lg border px-3 text-sm sm:w-auto" value={sort} onChange={(event) => setSort(event.target.value as SortOption)}>
             <option value="used">Most Used</option>
@@ -129,10 +129,10 @@ export function MealTemplatesPage() {
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Button onClick={() => setUseTemplate(template)}>Add to Today</Button>
-                  <Button variant="outline" size="icon" onClick={() => { setEditing(template); setDialogOpen(true); }}>
+                  <Button variant="outline" size="icon" onClick={() => { setEditing(template); setDialogOpen(true); }} aria-label={`Edit ${template.name}`}>
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="icon" onClick={() => deleteTemplate(template.id)}>
+                  <Button variant="outline" size="icon" onClick={() => deleteTemplate(template.id)} aria-label={`Delete ${template.name}`}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -256,10 +256,10 @@ function TemplateDialog({
             <Textarea value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Description" />
             <div className="soft-tile rounded-lg p-3">
               <p className="mb-2 text-sm font-medium">Add ingredients</p>
-              <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search food library" />
+                <Input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search food library" aria-label="Search food library for ingredients" />
               <div className="mt-2 max-h-56 space-y-2 overflow-y-auto">
                 {filteredLibrary.map((food) => (
-                  <button key={food.id} type="button" onClick={() => addItem(food.id)} className="interactive-row flex w-full items-center justify-between rounded-lg p-2 text-left">
+                  <button key={food.id} type="button" onClick={() => addItem(food.id)} className="interactive-row flex w-full items-center justify-between rounded-lg p-2 text-left" aria-label={`Add ${food.name} to template`}>
                     <span className="text-sm">{food.name}</span>
                     <span className="text-xs text-muted-foreground">{formatKcal(food.caloriesPerServing)}</span>
                   </button>
@@ -286,13 +286,13 @@ function TemplateDialog({
                       <p className="text-xs text-muted-foreground">{formatKcal(item.calories)}</p>
                     </div>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => move(index, -1)}>
+                      <Button variant="ghost" size="icon" onClick={() => move(index, -1)} aria-label={`Move ${item.name} up`}>
                         <ArrowUp className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => move(index, 1)}>
+                      <Button variant="ghost" size="icon" onClick={() => move(index, 1)} aria-label={`Move ${item.name} down`}>
                         <ArrowDown className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => setItems((current) => current.filter((_, itemIndex) => itemIndex !== index))}>
+                      <Button variant="ghost" size="icon" onClick={() => setItems((current) => current.filter((_, itemIndex) => itemIndex !== index))} aria-label={`Remove ${item.name}`}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>

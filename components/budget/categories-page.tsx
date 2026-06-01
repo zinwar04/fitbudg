@@ -71,7 +71,7 @@ export function CategoriesPage() {
         {transactionCategories
           .filter((category) => category !== "income")
           .map((category) => (
-            <Button key={category} size="sm" variant={budgets.some((budget) => budget.category === category) ? "default" : "outline"} onClick={() => addMissingCategory(category)}>
+            <Button key={category} size="sm" variant={budgets.some((budget) => budget.category === category) ? "default" : "outline"} onClick={() => addMissingCategory(category)} aria-pressed={budgets.some((budget) => budget.category === category)}>
               {titleCase(category)}
             </Button>
           ))}
@@ -97,7 +97,7 @@ export function CategoriesPage() {
                   }}
                 />
               </div>
-              <Button variant="outline" size="icon" onClick={() => setBudgets((current) => current.filter((_, budgetIndex) => budgetIndex !== index))}>
+              <Button variant="outline" size="icon" onClick={() => setBudgets((current) => current.filter((_, budgetIndex) => budgetIndex !== index))} aria-label={`Remove ${titleCase(row.category)} budget`}>
                 <Trash2 className="h-4 w-4" />
               </Button>
             </CardContent>

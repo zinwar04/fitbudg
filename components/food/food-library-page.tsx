@@ -160,7 +160,7 @@ export function FoodLibraryPage() {
           <div className="flex flex-col gap-3 lg:flex-row">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input className="pl-9" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by name or brand" />
+              <Input className="pl-9" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search by name or brand" aria-label="Search saved foods" />
             </div>
             <select className="h-11 w-full rounded-lg border px-3 text-sm lg:w-auto" value={sort} onChange={(event) => setSort(event.target.value as SortOption)}>
               <option value="favorites">Favorites First</option>
@@ -173,16 +173,16 @@ export function FoodLibraryPage() {
               <option value="recent">Recently Added</option>
             </select>
             <div className="flex rounded-lg border bg-card/80 p-1 shadow-[var(--shadow-control)]">
-              <Button variant={view === "grid" ? "default" : "ghost"} size="icon" onClick={() => setView("grid")}>
+              <Button variant={view === "grid" ? "default" : "ghost"} size="icon" onClick={() => setView("grid")} aria-label="Grid view" aria-pressed={view === "grid"}>
                 <Grid2X2 className="h-4 w-4" />
               </Button>
-              <Button variant={view === "list" ? "default" : "ghost"} size="icon" onClick={() => setView("list")}>
+              <Button variant={view === "list" ? "default" : "ghost"} size="icon" onClick={() => setView("list")} aria-label="List view" aria-pressed={view === "list"}>
                 <List className="h-4 w-4" />
               </Button>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" variant={categories.length === 0 ? "default" : "outline"} onClick={() => setCategories([])}>
+            <Button size="sm" variant={categories.length === 0 ? "default" : "outline"} onClick={() => setCategories([])} aria-pressed={categories.length === 0}>
               All
             </Button>
             {foodCategories.map((category) => (
@@ -191,6 +191,7 @@ export function FoodLibraryPage() {
                 size="sm"
                 variant={categories.includes(category) ? "default" : "outline"}
                 onClick={() => setCategories((current) => (current.includes(category) ? current.filter((item) => item !== category) : [...current, category]))}
+                aria-pressed={categories.includes(category)}
               >
                 {titleCase(category)}
               </Button>
@@ -212,7 +213,7 @@ export function FoodLibraryPage() {
                       <h3 className="font-semibold">{food.name}</h3>
                       <p className="text-sm text-muted-foreground">{food.brand ?? titleCase(food.category)}</p>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => toggleFavorite(food.id)}>
+                    <Button variant="ghost" size="icon" onClick={() => toggleFavorite(food.id)} aria-label={food.isFavorite ? `Remove ${food.name} from favorites` : `Add ${food.name} to favorites`}>
                       <Star className={cn("h-4 w-4", food.isFavorite && "fill-primary text-primary")} />
                     </Button>
                   </div>
@@ -232,10 +233,10 @@ export function FoodLibraryPage() {
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Button size="sm" onClick={() => setQuickFood(food)}>Quick Add Today</Button>
-                  <Button size="icon" variant="outline" onClick={() => openEdit(food)}>
+                  <Button size="icon" variant="outline" onClick={() => openEdit(food)} aria-label={`Edit ${food.name}`}>
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button size="icon" variant="outline" onClick={() => deleteFood(food.id)}>
+                  <Button size="icon" variant="outline" onClick={() => deleteFood(food.id)} aria-label={`Delete ${food.name}`}>
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>

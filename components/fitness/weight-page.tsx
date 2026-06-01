@@ -118,10 +118,10 @@ export function WeightPage() {
                         </div>
                         <div className="flex items-center gap-1">
                           {bodyFatPercent !== undefined && <Badge variant="secondary">{bodyFatPercent.toFixed(1)}% fat</Badge>}
-                          <Button variant="ghost" size="icon" onClick={() => openEdit(entry)}>
+                          <Button variant="ghost" size="icon" onClick={() => openEdit(entry)} aria-label={`Edit weight from ${formatDateKey(entry.date)}`}>
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost" size="icon" onClick={() => deleteWeight(entry.id)}>
+                          <Button variant="ghost" size="icon" onClick={() => deleteWeight(entry.id)} aria-label={`Delete weight from ${formatDateKey(entry.date)}`}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>

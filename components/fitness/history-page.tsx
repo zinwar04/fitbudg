@@ -78,7 +78,7 @@ export function HistoryPage() {
         <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-2">
             {(["7", "30", "thisMonth", "lastMonth", "all"] as Preset[]).map((item) => (
-              <Button key={item} variant={preset === item ? "default" : "outline"} size="sm" onClick={() => setPreset(item)}>
+              <Button key={item} variant={preset === item ? "default" : "outline"} size="sm" onClick={() => setPreset(item)} aria-pressed={preset === item}>
                 {presetLabel(item)}
               </Button>
             ))}

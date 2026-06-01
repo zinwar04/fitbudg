@@ -18,8 +18,8 @@ import { localDateKey, titleCase } from "@/lib/utils/formatting";
 
 const suggestions = [
   { name: "Drink 8 glasses of water", icon: "Droplets", type: "quantitative" as const, targetValue: 8, unit: "glasses", category: "nutrition" as const, color: "#3478f6", isActive: true },
-  { name: "Eat 5 servings of vegetables", icon: "Apple", type: "quantitative" as const, targetValue: 5, unit: "servings", category: "nutrition" as const, color: "#0f9f8a", isActive: true },
-  { name: "Log all meals", icon: "ClipboardList", type: "boolean" as const, category: "nutrition" as const, color: "#0f9f8a", isActive: true },
+  { name: "Eat 5 servings of vegetables", icon: "Apple", type: "quantitative" as const, targetValue: 5, unit: "servings", category: "nutrition" as const, color: "#0f9488", isActive: true },
+  { name: "Log all meals", icon: "ClipboardList", type: "boolean" as const, category: "nutrition" as const, color: "#0f9488", isActive: true },
   { name: "Exercise today", icon: "Dumbbell", type: "boolean" as const, category: "fitness" as const, color: "#d98d18", isActive: true },
   { name: "Log all expenses", icon: "ReceiptText", type: "boolean" as const, category: "finance" as const, color: "#7c5cff", isActive: true },
   { name: "Sleep 7+ hours", icon: "Moon", type: "boolean" as const, category: "lifestyle" as const, color: "#6366f1", isActive: true },
@@ -73,7 +73,7 @@ export function HabitsPage() {
               {suggestions.map((suggestion) => {
                 const Icon = getLucideIcon(suggestion.icon);
                 return (
-                  <button key={suggestion.name} type="button" onClick={() => addHabit(suggestion)} className="interactive-row rounded-lg p-3 text-left">
+                  <button key={suggestion.name} type="button" onClick={() => addHabit(suggestion)} className="interactive-row rounded-lg p-3 text-left" aria-label={`Add suggested habit: ${suggestion.name}`}>
                     <Icon className="h-5 w-5" style={{ color: suggestion.color }} />
                     <p className="mt-2 text-sm font-medium">{suggestion.name}</p>
                     <p className="mt-1 text-xs text-muted-foreground">{titleCase(suggestion.category)}</p>
@@ -108,7 +108,7 @@ export function HabitsPage() {
                         </div>
                       </div>
                       <div className="flex gap-1">
-                        <Button variant="ghost" size="icon" onClick={() => { setEditing(habit); setDialogOpen(true); }}>
+                        <Button variant="ghost" size="icon" onClick={() => { setEditing(habit); setDialogOpen(true); }} aria-label={`Edit ${habit.name}`}>
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button variant="ghost" size="icon" onClick={() => updateHabit(habit.id, { isActive: false })} aria-label={`Archive ${habit.name}`}>
@@ -123,9 +123,9 @@ export function HabitsPage() {
                         </Button>
                       ) : (
                         <div className="flex items-center gap-2">
-                          <Button variant="outline" size="icon" onClick={() => adjustQuantitative(habit, today, -1)}>-</Button>
+                          <Button variant="outline" size="icon" onClick={() => adjustQuantitative(habit, today, -1)} aria-label={`Decrease ${habit.name}`}>-</Button>
                           <Progress value={progress} className="h-3 flex-1" />
-                          <Button variant="outline" size="icon" onClick={() => adjustQuantitative(habit, today, 1)}>+</Button>
+                          <Button variant="outline" size="icon" onClick={() => adjustQuantitative(habit, today, 1)} aria-label={`Increase ${habit.name}`}>+</Button>
                         </div>
                       )}
                     </div>

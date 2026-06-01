@@ -180,7 +180,7 @@ export function InsightsPage() {
 
       <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
         {(["all", "foodBody", "money", "habits"] as Filter[]).map((item) => (
-          <Button key={item} className="shrink-0" size="sm" variant={filter === item ? "default" : "outline"} onClick={() => setFilter(item)}>
+          <Button key={item} className="shrink-0" size="sm" variant={filter === item ? "default" : "outline"} onClick={() => setFilter(item)} aria-pressed={filter === item}>
             {filterLabel(item)}
           </Button>
         ))}
