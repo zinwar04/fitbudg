@@ -193,10 +193,10 @@ export function generateInsights(data: AllUserData): Insight[] {
       category: "warning",
       severity: budgetSummary.paceRatio > 1.4 ? "danger" : "warning",
       icon: "AlertTriangle",
-      title: "Budget pace is fast",
-      description: `You have used ${Math.round((budgetSummary.spent / data.budgetProfile.monthlyBudget) * 100)}% of your budget but only ${Math.round((budgetSummary.dayInCycle / budgetSummary.daysInCycle) * 100)}% of the current budget cycle has passed. You may overspend by ${formatCurrency(projectedOverspend, data.budgetProfile.currency, data.budgetProfile.currencySymbol)}.`,
+      title: "Money pace is fast",
+      description: `You have used ${Math.round((budgetSummary.spent / data.budgetProfile.monthlyBudget) * 100)}% of your money limit but only ${Math.round((budgetSummary.dayInCycle / budgetSummary.daysInCycle) * 100)}% of the current cycle has passed. You may overspend by ${formatCurrency(projectedOverspend, data.budgetProfile.currency, data.budgetProfile.currencySymbol)}.`,
       metric: `${Math.round(budgetSummary.paceRatio * 100)}% pace`,
-      actionLabel: "Open budget",
+      actionLabel: "Open money",
       actionRoute: "/budget",
     });
   } else if (budgetSummary.paceRatio > 0 && budgetSummary.paceRatio < 0.85) {
@@ -205,7 +205,7 @@ export function generateInsights(data: AllUserData): Insight[] {
       severity: "positive",
       icon: "PiggyBank",
       title: "Spending below pace",
-      description: `Great financial discipline. You are spending slower than your budget allows. Safe to spend ${formatCurrency(budgetSummary.safeDailySpend, data.budgetProfile.currency, data.budgetProfile.currencySymbol)} per day for the rest of this cycle.`,
+      description: `Great financial discipline. You are spending slower than your money plan allows. Safe to spend ${formatCurrency(budgetSummary.safeDailySpend, data.budgetProfile.currency, data.budgetProfile.currencySymbol)} per day for the rest of this cycle.`,
       metric: formatCurrency(budgetSummary.safeDailySpend, data.budgetProfile.currency, data.budgetProfile.currencySymbol),
     });
   }
@@ -218,8 +218,8 @@ export function generateInsights(data: AllUserData): Insight[] {
         category: "budget",
         severity: "warning",
         icon: "Gauge",
-        title: `${category.category} over budget`,
-        description: `Your ${category.category} spending is ${Math.round(((category.spent - category.limit) / category.limit) * 100)}% over its budget limit.`,
+        title: `${category.category} over limit`,
+        description: `Your ${category.category} spending is ${Math.round(((category.spent - category.limit) / category.limit) * 100)}% over its category limit.`,
         metric: formatCurrency(category.spent, data.budgetProfile.currency, data.budgetProfile.currencySymbol),
         actionLabel: "Edit limits",
         actionRoute: "/budget/categories",
@@ -232,7 +232,7 @@ export function generateInsights(data: AllUserData): Insight[] {
       severity: "neutral",
       icon: "Receipt",
       title: "Largest cycle expense",
-      description: `Your biggest expense this budget cycle is "${budgetSummary.largestExpense.title}" at ${formatCurrency(budgetSummary.largestExpense.amount, data.budgetProfile.currency, data.budgetProfile.currencySymbol)} on ${formatDateKey(budgetSummary.largestExpense.date)}.`,
+      description: `Your biggest expense this cycle is "${budgetSummary.largestExpense.title}" at ${formatCurrency(budgetSummary.largestExpense.amount, data.budgetProfile.currency, data.budgetProfile.currencySymbol)} on ${formatDateKey(budgetSummary.largestExpense.date)}.`,
       metric: formatCurrency(budgetSummary.largestExpense.amount, data.budgetProfile.currency, data.budgetProfile.currencySymbol),
     });
   }
@@ -255,7 +255,7 @@ export function generateInsights(data: AllUserData): Insight[] {
       severity: "neutral",
       icon: "ShoppingBasket",
       title: "Food leads spending",
-      description: `Food is your largest spending category this budget cycle at ${Math.round((budgetSummary.topCategory.spent / budgetSummary.spent) * 100)}% of your total expenses.`,
+      description: `Food is your largest spending category this cycle at ${Math.round((budgetSummary.topCategory.spent / budgetSummary.spent) * 100)}% of your total expenses.`,
       metric: formatCurrency(budgetSummary.topCategory.spent, data.budgetProfile.currency, data.budgetProfile.currencySymbol),
     });
   }
@@ -373,8 +373,8 @@ export function generateInsights(data: AllUserData): Insight[] {
       category: "warning",
       severity: "danger",
       icon: "OctagonAlert",
-      title: "Budget cycle depleted",
-      description: `You have used your entire budget with ${budgetSummary.daysLeftInCycle} days remaining in the current cycle. Only log income or essentials from here.`,
+      title: "Money cycle depleted",
+      description: `You have used your entire money limit with ${budgetSummary.daysLeftInCycle} days remaining in the current cycle. Only log income or essentials from here.`,
       metric: formatCurrency(Math.abs(budgetSummary.remaining), data.budgetProfile.currency, data.budgetProfile.currencySymbol),
     });
   }
@@ -403,7 +403,7 @@ export function generateInsights(data: AllUserData): Insight[] {
       severity: "positive",
       icon: "WalletCards",
       title: "Spending improved",
-      description: `You spent ${formatCurrency(previousCycleSpend - thisCycleSpend, data.budgetProfile.currency, data.budgetProfile.currencySymbol)} less than the previous budget cycle. Great financial progress.`,
+      description: `You spent ${formatCurrency(previousCycleSpend - thisCycleSpend, data.budgetProfile.currency, data.budgetProfile.currencySymbol)} less than the previous money cycle. Great financial progress.`,
       metric: formatCurrency(previousCycleSpend - thisCycleSpend, data.budgetProfile.currency, data.budgetProfile.currencySymbol),
     });
   }

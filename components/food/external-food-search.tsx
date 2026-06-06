@@ -98,12 +98,12 @@ export function ExternalFoodSearch({ library }: { library: FoodLibraryItem[] }) 
   };
 
   return (
-    <Card className="mb-4">
+    <Card className="mb-4 overflow-hidden bg-card/90">
       <CardHeader className="pb-3">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle>Find foods</CardTitle>
-            <p className="mt-1 text-sm text-muted-foreground">Values are usually per 100 g. Nutrition data may vary by brand, recipe, and serving size.</p>
+            <CardTitle>Food Search</CardTitle>
+            <p className="mt-1 text-sm text-muted-foreground">Search USDA, packaged foods, or a barcode, then save the useful ones.</p>
           </div>
           <Badge variant="outline" className="w-fit">
             External databases
@@ -125,7 +125,7 @@ export function ExternalFoodSearch({ library }: { library: FoodLibraryItem[] }) 
                 }}
                 aria-pressed={mode === item.value}
                 className={cn(
-                  "interactive-row flex items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
+                  "interactive-row flex min-h-16 items-center gap-2 rounded-lg px-3 py-2 text-left text-sm",
                   mode === item.value && "border-primary bg-primary/5 text-foreground",
                 )}
               >

@@ -4,6 +4,7 @@ import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "
 import { ArrowUp, Bot, CheckCircle2, Flame, Menu, MessageSquare, MessageSquarePlus, Scale, Sparkles, Trash2, UtensilsCrossed, WalletCards, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { buildAssistantContext } from "@/lib/assistant/context";
@@ -80,7 +81,7 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
     [budgetProfile, foodEntries, foodLibrary, habitEntries, habits, mealTemplates, profile, transactions, weightEntries],
   );
 
-  const activeTitle = sessions.find((chat) => chat.id === sessionId)?.title ?? "Assistant";
+  const activeTitle = sessions.find((chat) => chat.id === sessionId)?.title ?? "Vela Coach";
 
   const refreshSessions = async () => {
     const loaded = await getAssistantSessions();
@@ -188,7 +189,7 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
 
   return (
     <div className={cn("flex w-full overflow-hidden bg-background", embedded ? "h-full min-h-0" : "h-[calc(100svh-7.5rem)] min-h-[34rem] lg:h-screen lg:min-h-0")}>
-      <aside className={cn("hidden w-80 shrink-0 flex-col border-r bg-card/75 backdrop-blur-xl", !embedded && "lg:flex")}>
+      <aside className={cn("hidden w-80 shrink-0 flex-col border-r bg-card/80 backdrop-blur-xl", !embedded && "lg:flex")}>
         <div className="flex h-14 items-center gap-2 border-b px-3">
           <Button className="h-10 flex-1 justify-start" variant="ghost" onClick={startNewChat}>
             <MessageSquarePlus className="h-4 w-4" />
@@ -217,17 +218,21 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
           <div className={cn("mx-auto flex w-full flex-col gap-6", embedded ? "max-w-full" : "max-w-3xl")}>
             {messages.length === 0 && (
               <div className={cn("flex flex-col items-center justify-center py-8 text-center", embedded ? "min-h-[44vh]" : "min-h-[58vh]")}>
-                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-full border bg-card shadow-[var(--shadow-control)]">
+                <div className="brand-gradient mb-5 flex h-12 w-12 items-center justify-center rounded-lg text-primary-foreground shadow-[var(--shadow-control)]">
                   <Bot className="h-5 w-5" />
                 </div>
-                <h1 className="text-2xl font-semibold tracking-normal sm:text-3xl">What can I help with?</h1>
+                <Badge variant="secondary">Coach</Badge>
+                <h1 className="mt-3 text-2xl font-semibold leading-tight sm:text-3xl">Ask Vela what to do next.</h1>
+                <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
+                  The coach reads your food, money, habits, and body trend so the answer starts from your actual day.
+                </p>
                 <div className="mt-8 grid w-full gap-2 sm:grid-cols-2">
                   {starterPrompts.map((item) => {
                     const Icon = item.icon;
                     return (
                       <button
                         key={item.prompt}
-                        className="interactive-row group min-h-20 rounded-lg px-4 py-3 text-left"
+                        className="interactive-row group min-h-24 rounded-lg px-4 py-3 text-left"
                         onClick={() => void send(item.prompt)}
                         aria-label={`Use starter prompt: ${item.title}`}
                       >
@@ -284,7 +289,7 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
       <Dialog open={historyOpen} onOpenChange={setHistoryOpen}>
         <DialogContent className="left-0 top-0 h-dvh max-h-none w-[86vw] max-w-sm translate-x-0 translate-y-0 gap-0 rounded-none border-l-0 border-y-0 p-0 sm:w-96 lg:hidden">
           <DialogHeader className="border-b px-4 py-4">
-            <DialogTitle>Chats</DialogTitle>
+            <DialogTitle>Vela Coach</DialogTitle>
           </DialogHeader>
           <div className="flex h-[calc(100dvh-4rem)] flex-col">
             <div className="border-b p-3">
@@ -343,15 +348,15 @@ function buildStarterPrompts({
       title: foodLibrary.length || mealTemplates.length ? "Meals" : "First meal",
       prompt:
         foodLibrary.length || mealTemplates.length
-          ? "Build a cheap high-protein meal idea from my saved foods and meal templates. Keep it realistic for my calorie target and budget."
+          ? "Build a cheap high-protein meal idea from my saved foods and meal templates. Keep it realistic for my calorie target and money limit."
           : "I have not built my food library yet. What should I add first so logging becomes fast and useful?",
       icon: UtensilsCrossed,
     },
     {
       title: transactions.length ? "Money" : "Money setup",
       prompt: transactions.length
-        ? `Summarize my spending pattern for this budget cycle and tell me the one decision that would keep me safest. My current safe daily spend is ${formatCurrency(budget.safeToSpendToday, budgetProfile.currency, budgetProfile.currencySymbol)}.`
-        : "Help me set up a practical first budget and category limits for the way I actually spend.",
+        ? `Summarize my spending pattern for this money cycle and tell me the one decision that would keep me safest. My current safe daily spend is ${formatCurrency(budget.safeToSpendToday, budgetProfile.currency, budgetProfile.currencySymbol)}.`
+        : "Help me set up a practical first money plan and category limits for the way I actually spend.",
       icon: WalletCards,
     },
     {
@@ -363,7 +368,7 @@ function buildStarterPrompts({
     },
     {
       title: "Quick fix",
-      prompt: "Look across my food, habits, weight, and budget data. What is the single highest-impact improvement I can make in the next 24 hours?",
+      prompt: "Look across my food, habits, weight, and money data. What is the single highest-impact improvement I can make in the next 24 hours?",
       icon: Flame,
     },
   ];

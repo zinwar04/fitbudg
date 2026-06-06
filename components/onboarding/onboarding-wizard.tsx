@@ -105,7 +105,7 @@ export function OnboardingWizard() {
               </div>
               <h1 className="text-2xl font-semibold">Your Vela is ready</h1>
               <p className="mt-2 text-sm text-muted-foreground">
-                Calorie goal: {formatKcal(targets?.calories)}. Budget: {formatCurrency(budget.monthlyBudget, budget.currency, budget.currencySymbol)} per cycle.
+                Calorie goal: {formatKcal(targets?.calories)}. Money limit: {formatCurrency(budget.monthlyBudget, budget.currency, budget.currencySymbol)} per cycle.
               </p>
             </CardContent>
           </Card>
@@ -146,7 +146,7 @@ export function OnboardingWizard() {
                 icon={Sparkles}
               >
                 <div className="grid gap-3 sm:grid-cols-3">
-                  {["Food logging", "Budget pacing", "Habit streaks"].map((item) => (
+                  {["Food logging", "Money pacing", "Habit streaks"].map((item) => (
                     <div key={item} className="soft-tile rounded-lg p-4 text-sm font-medium">
                       {item}
                     </div>
@@ -259,8 +259,8 @@ export function OnboardingWizard() {
               <StepShell title="Money setup" description="Set the amount available for each pay cycle. Category limits can be edited anytime." icon={CircleDollarSign}>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <InputBlock label="Monthly income" type="number" value={budget.monthlyIncome} onChangeNumber={(value) => setBudget((current) => ({ ...current, monthlyIncome: value }))} />
-                  <InputBlock label="Monthly budget" type="number" value={budget.monthlyBudget} onChangeNumber={(value) => setBudget((current) => ({ ...current, monthlyBudget: value }))} />
-                  <InputBlock label="Budget cycle start day" type="number" min={1} max={31} value={budget.monthStartDay} onChangeNumber={(value) => setBudget((current) => ({ ...current, monthStartDay: Math.min(31, Math.max(1, Math.round(value || 1))) }))} />
+                  <InputBlock label="Monthly spending limit" type="number" value={budget.monthlyBudget} onChangeNumber={(value) => setBudget((current) => ({ ...current, monthlyBudget: value }))} />
+                  <InputBlock label="Cycle start day" type="number" min={1} max={31} value={budget.monthStartDay} onChangeNumber={(value) => setBudget((current) => ({ ...current, monthStartDay: Math.min(31, Math.max(1, Math.round(value || 1))) }))} />
                   <SelectBlock
                     label="Currency"
                     value={budget.currency}
@@ -272,7 +272,7 @@ export function OnboardingWizard() {
                   />
                 </div>
                 <p className="mt-3 text-sm text-muted-foreground">
-                  If your salary arrives on the 19th, set the cycle start to the {formatOrdinalDay(19)} so budgeting follows your real pay period instead of the calendar month.
+                  If your salary arrives on the 19th, set the cycle start to the {formatOrdinalDay(19)} so money pacing follows your real pay period instead of the calendar month.
                 </p>
                 <div className="mt-5 space-y-3">
                   {budget.categoryBudgets.slice(0, 5).map((category, index) => (

@@ -118,7 +118,7 @@ export function InsightsPage() {
       )}
 
       <section className="mb-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <div className="rounded-lg border bg-card/90 p-4 shadow-[var(--shadow-card)] sm:p-5">
+        <div className="balance-band rounded-lg border p-4 shadow-[var(--shadow-card)] sm:p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <Badge variant={warnings ? "destructive" : "secondary"}>{warnings ? "Needs attention" : "Looking steady"}</Badge>
@@ -152,7 +152,7 @@ export function InsightsPage() {
             </Badge>
           </div>
           <div className="mt-4 space-y-3 text-sm">
-            <PulseRow label="Budget used" value={`${Math.round(percent(budget.spent, budgetProfile.monthlyBudget))}%`} />
+            <PulseRow label="Money used" value={`${Math.round(percent(budget.spent, budgetProfile.monthlyBudget))}%`} />
             <PulseRow label="Remaining" value={formatCurrency(budget.remaining, budgetProfile.currency, budgetProfile.currencySymbol)} />
             <PulseRow label="Average daily spend" value={formatCurrency(budget.averageDailySpend, budgetProfile.currency, budgetProfile.currencySymbol)} />
           </div>
@@ -160,7 +160,7 @@ export function InsightsPage() {
       </section>
 
       <section className="mb-4 grid gap-4 lg:grid-cols-2">
-        <Card>
+        <Card className="overflow-hidden bg-card/90">
           <CardHeader>
             <CardTitle>Calories, Last 14 Days</CardTitle>
           </CardHeader>
@@ -168,7 +168,7 @@ export function InsightsPage() {
             <ResponsiveLine data={nutritionTrend} xKey="date" yKey="calories" goal={targets?.calories} height={300} />
           </CardContent>
         </Card>
-        <Card>
+        <Card className="overflow-hidden bg-card/90">
           <CardHeader>
             <CardTitle>Daily Spending, Last 14 Days</CardTitle>
           </CardHeader>
@@ -261,7 +261,7 @@ function InsightCard({ insight }: { insight: Insight }) {
           : "border-primary/20 bg-primary/5 text-primary";
 
   return (
-    <Card>
+    <Card className="overflow-hidden bg-card/90">
       <CardContent className="flex gap-4 p-4">
         <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border ${tone}`}>
           {createElement(icon, { className: "h-5 w-5" })}

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { addDays, format, isFuture, parseISO, subDays } from "date-fns";
-import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Copy, Edit, MoreHorizontal, Plus, Trash2, UtensilsCrossed } from "lucide-react";
+import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Copy, Edit, Flame, MoreHorizontal, Plus, ScanBarcode, Trash2, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +26,7 @@ export function FoodLogPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMealType, setDialogMealType] = useState<MealType>("lunch");
   const [dialogMealLocked, setDialogMealLocked] = useState(false);
+  const [dialogStartWithBarcode, setDialogStartWithBarcode] = useState(false);
   const [editing, setEditing] = useState<FoodEntry | null>(null);
   const [collapsed, setCollapsed] = useState<MealType[]>([]);
   const profile = useProfileStore((state) => state.profile);
@@ -44,6 +45,15 @@ export function FoodLogPage() {
     setEditing(null);
     setDialogMealType(mealType);
     setDialogMealLocked(lockMealType);
+    setDialogStartWithBarcode(false);
+    setDialogOpen(true);
+  };
+
+  const openScan = () => {
+    setEditing(null);
+    setDialogMealType("lunch");
+    setDialogMealLocked(false);
+    setDialogStartWithBarcode(true);
     setDialogOpen(true);
   };
 
@@ -51,6 +61,7 @@ export function FoodLogPage() {
     setEditing(entry);
     setDialogMealType(entry.mealType);
     setDialogMealLocked(false);
+    setDialogStartWithBarcode(false);
     setDialogOpen(true);
   };
 
@@ -60,14 +71,19 @@ export function FoodLogPage() {
         title="Log Food"
         description={`${format(parseISO(`${date}T00:00:00`), "EEEE, MMM d")} · ${formatKcal(consumed)} logged · ${formatKcal((targets?.calories ?? 0) - consumed)} remaining`}
         action={
-          <Button onClick={() => openAdd("lunch", false)}>
-            <Plus className="h-4 w-4" /> Quick Add
-          </Button>
+          <div className="flex w-full gap-2 sm:w-auto">
+            <Button className="flex-1 sm:flex-none" variant="outline" onClick={openScan}>
+              <ScanBarcode className="h-4 w-4" /> Scan
+            </Button>
+            <Button className="flex-1 sm:flex-none" onClick={() => openAdd("lunch", false)}>
+              <Plus className="h-4 w-4" /> Add
+            </Button>
+          </div>
         }
       />
-      <Card className="mb-4">
+      <Card className="balance-band mb-4 overflow-hidden">
         <CardContent className="p-4">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex flex-wrap items-center gap-2">
               <Button variant="outline" size="icon" onClick={() => setDate(format(subDays(parseISO(`${date}T00:00:00`), 1), "yyyy-MM-dd"))} aria-label="Previous day">
                 <ChevronLeft className="h-4 w-4" />
@@ -87,8 +103,8 @@ export function FoodLogPage() {
               <Badge variant="outline">Logging future meals. Calories will not count toward today.</Badge>
             )}
           </div>
-          <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            <SummaryTile label="Consumed" value={formatKcal(consumed)} />
+          <div className="mt-5 grid gap-3 sm:grid-cols-[1.1fr_0.9fr_0.9fr]">
+            <SummaryTile icon={Flame} label="Consumed" value={formatKcal(consumed)} detail={`${Math.round(percent(consumed, targets?.calories ?? 0))}% of target`} />
             <SummaryTile label="Remaining" value={formatKcal((targets?.calories ?? 0) - consumed)} tone={consumed <= (targets?.calories ?? 0) ? "positive" : "danger"} />
             <SummaryTile label="Goal" value={formatKcal(targets?.calories)} />
           </div>
@@ -106,7 +122,7 @@ export function FoodLogPage() {
           const total = sum(mealEntries.map((entry) => entry.calories));
           const isCollapsed = collapsed.includes(mealType);
           return (
-            <Card key={mealType}>
+            <Card key={mealType} className="overflow-hidden bg-card/90">
               <CardHeader className="flex-row items-center justify-between space-y-0">
                 <button
                   type="button"
@@ -119,8 +135,8 @@ export function FoodLogPage() {
                   <Badge variant="secondary">{mealEntries.length} items</Badge>
                   <Badge>{formatKcal(total)}</Badge>
                 </button>
-                <Button size="sm" onClick={() => openAdd(mealType)}>
-                  <Plus className="h-4 w-4" /> Add to {titleCase(mealType)}
+                <Button size="sm" onClick={() => openAdd(mealType)} aria-label={`Add food to ${titleCase(mealType)}`}>
+                  <Plus className="h-4 w-4" /> Add
                 </Button>
               </CardHeader>
               {!isCollapsed && (
@@ -189,16 +205,32 @@ export function FoodLogPage() {
         })}
       </div>
 
-      <FoodEntryDialog open={dialogOpen} onOpenChange={setDialogOpen} date={date} mealType={dialogMealType} lockMealType={dialogMealLocked} entry={editing} />
+      <FoodEntryDialog open={dialogOpen} onOpenChange={setDialogOpen} date={date} mealType={dialogMealType} lockMealType={dialogMealLocked} entry={editing} startWithBarcode={dialogStartWithBarcode} />
     </>
   );
 }
 
-function SummaryTile({ label, value, tone = "default" }: { label: string; value: string; tone?: "default" | "positive" | "danger" }) {
+function SummaryTile({
+  icon: Icon,
+  label,
+  value,
+  detail,
+  tone = "default",
+}: {
+  icon?: typeof Flame;
+  label: string;
+  value: string;
+  detail?: string;
+  tone?: "default" | "positive" | "danger";
+}) {
   return (
-    <div className="soft-tile rounded-lg p-3">
-      <p className="text-xs text-muted-foreground">{label}</p>
+    <div className="rounded-lg border border-border/70 bg-card/75 p-3 shadow-[var(--shadow-control)]">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        {Icon && <Icon className="h-3.5 w-3.5 text-primary" />}
+        {label}
+      </div>
       <p className={cn("mt-1 text-xl font-semibold data-number", tone === "positive" && "text-[var(--success)]", tone === "danger" && "text-[var(--danger)]")}>{value}</p>
+      {detail && <p className="mt-1 text-xs text-muted-foreground">{detail}</p>}
     </div>
   );
 }

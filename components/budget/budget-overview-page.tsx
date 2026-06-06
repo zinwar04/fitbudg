@@ -26,13 +26,35 @@ export function BudgetOverviewPage() {
     <>
       <PageHeader
         title="Money"
-        description={`Day ${summary.dayInCycle} of ${summary.daysInCycle} · ${formatCurrency(summary.remaining, currency, symbol)} remaining · ${summary.pacing === "onTrack" ? "on track" : summary.pacing === "spendingFast" ? "spending fast" : "over budget"}`}
+        description={`Day ${summary.dayInCycle} of ${summary.daysInCycle} · ${formatCurrency(summary.remaining, currency, symbol)} remaining · ${summary.pacing === "onTrack" ? "on track" : summary.pacing === "spendingFast" ? "spending fast" : "over"}`}
         action={
           <Button onClick={() => openDialog("transaction")}>
             <ReceiptText className="h-4 w-4" /> Add Transaction
           </Button>
         }
       />
+
+      <section className="balance-band mb-4 rounded-lg border p-4 shadow-[var(--shadow-card)] sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <Badge variant={summary.pacing === "onTrack" ? "secondary" : summary.pacing === "spendingFast" ? "outline" : "destructive"}>
+              {summary.pacing === "onTrack" ? "On track" : summary.pacing === "spendingFast" ? "Spending fast" : "Over"}
+            </Badge>
+            <h2 className="mt-3 text-3xl font-semibold leading-tight data-number">{formatCurrency(summary.safeToSpendToday, currency, symbol)}</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Safe to spend today while keeping the rest of this cycle protected.
+            </p>
+          </div>
+          <div className="w-full lg:max-w-sm">
+            <div className="mb-2 flex justify-between text-xs text-muted-foreground">
+              <span>{formatCurrency(summary.spent, currency, symbol)} spent</span>
+              <span>{formatCurrency(profile.monthlyBudget, currency, symbol)} limit</span>
+            </div>
+            <Progress value={percent(summary.spent, profile.monthlyBudget)} className="h-3" />
+            <p className="mt-2 text-xs text-muted-foreground">Cycle {formatDateKey(summary.cycleStart)} to {formatDateKey(summary.cycleEnd)}</p>
+          </div>
+        </div>
+      </section>
 
       <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <MetricCard icon={ReceiptText} label="Largest expense" value={summary.largestExpense ? formatCurrency(summary.largestExpense.amount, currency, symbol) : "--"} detail={summary.largestExpense?.title} />
@@ -43,9 +65,9 @@ export function BudgetOverviewPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_1.2fr]">
-        <Card>
+        <Card className="overflow-hidden bg-card/90">
           <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Category budgets</CardTitle>
+            <CardTitle>Category Limits</CardTitle>
             <Button asChild size="sm" variant="outline">
               <Link href="/budget/categories">Edit Limits</Link>
             </Button>
@@ -68,7 +90,7 @@ export function BudgetOverviewPage() {
             })}
           </CardContent>
         </Card>
-        <Card>
+        <Card className="overflow-hidden bg-card/90">
           <CardHeader>
             <CardTitle>Daily spending this cycle</CardTitle>
           </CardHeader>
@@ -78,7 +100,7 @@ export function BudgetOverviewPage() {
         </Card>
       </div>
 
-      <Card className="mt-4 overflow-hidden bg-[linear-gradient(135deg,var(--primary-soft),transparent_70%)]">
+      <Card className="mt-4 overflow-hidden bg-card/90">
         <CardContent className="p-5">
           <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, useMemo, useRef, useState } from "react";
-import { Download, Edit, FileUp, Grid2X2, List, Plus, Search, Star, Trash2, UtensilsCrossed } from "lucide-react";
+import { Database, Download, Edit, FileUp, Grid2X2, List, PackageSearch, Plus, Search, Star, Trash2, UtensilsCrossed } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -58,6 +58,8 @@ export function FoodLibraryPage() {
         return b.useCount - a.useCount;
       });
   }, [categories, library, query, sort]);
+  const favorites = library.filter((food) => food.isFavorite).length;
+  const externalFoods = library.filter((food) => food.source && food.source !== "manual").length;
 
   const openAdd = () => {
     setEditing(null);
@@ -153,9 +155,29 @@ export function FoodLibraryPage() {
         }
       />
 
+      <section className="balance-band mb-4 rounded-lg border p-4 shadow-[var(--shadow-card)] sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <Badge variant="secondary">Library</Badge>
+            <h2 className="mt-3 text-2xl font-semibold leading-tight">Make logging feel instant.</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Saved foods, barcode imports, and favorites all feed the same quick log flow.
+            </p>
+          </div>
+          <Button className="w-full lg:w-auto" onClick={openAdd}>
+            <Plus className="h-4 w-4" /> Add Food
+          </Button>
+        </div>
+        <div className="mt-5 grid gap-2 sm:grid-cols-3">
+          <LibraryStat icon={Database} label="Saved" value={`${library.length}`} />
+          <LibraryStat icon={Star} label="Favorites" value={`${favorites}`} />
+          <LibraryStat icon={PackageSearch} label="External foods" value={`${externalFoods}`} />
+        </div>
+      </section>
+
       <ExternalFoodSearch library={library} />
 
-      <Card className="mb-4">
+      <Card className="mb-4 bg-card/90">
         <CardContent className="space-y-3 p-4">
           <div className="flex flex-col gap-3 lg:flex-row">
             <div className="relative flex-1">
@@ -182,13 +204,14 @@ export function FoodLibraryPage() {
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" variant={categories.length === 0 ? "default" : "outline"} onClick={() => setCategories([])} aria-pressed={categories.length === 0}>
+            <Button className="rounded-full" size="sm" variant={categories.length === 0 ? "default" : "outline"} onClick={() => setCategories([])} aria-pressed={categories.length === 0}>
               All
             </Button>
             {foodCategories.map((category) => (
               <Button
                 key={category}
                 size="sm"
+                className="rounded-full"
                 variant={categories.includes(category) ? "default" : "outline"}
                 onClick={() => setCategories((current) => (current.includes(category) ? current.filter((item) => item !== category) : [...current, category]))}
                 aria-pressed={categories.includes(category)}
@@ -205,7 +228,7 @@ export function FoodLibraryPage() {
       ) : (
         <div className={cn(view === "grid" ? "grid gap-4 sm:grid-cols-2 xl:grid-cols-3" : "space-y-3")}>
           {filtered.map((food) => (
-            <Card key={food.id} className="bg-card/90">
+            <Card key={food.id} className="overflow-hidden bg-card/90">
               <CardContent className={cn("p-4", view === "list" && "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between")}>
                 <div className="min-w-0">
                   <div className="flex items-start justify-between gap-3">
@@ -279,5 +302,17 @@ export function FoodLibraryPage() {
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+function LibraryStat({ icon: Icon, label, value }: { icon: typeof Database; label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-border/70 bg-card/75 p-3 shadow-[var(--shadow-control)]">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <Icon className="h-3.5 w-3.5 text-primary" />
+        {label}
+      </div>
+      <p className="mt-2 text-xl font-semibold data-number">{value}</p>
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { ChangeEvent, useMemo, useRef, useState } from "react";
-import { ArrowDown, ArrowUp, Download, Edit, FileUp, Plus, Search, Trash2, UtensilsCrossed } from "lucide-react";
+import { ArrowDown, ArrowUp, ChefHat, Download, Edit, FileUp, Plus, Search, Star, Trash2, UtensilsCrossed } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -45,6 +45,8 @@ export function MealTemplatesPage() {
         return b.useCount - a.useCount;
       });
   }, [query, sort, templates]);
+  const favoriteCount = templates.filter((template) => template.isFavorite).length;
+  const totalUses = templates.reduce((total, template) => total + template.useCount, 0);
 
   const openCreate = () => {
     setEditing(null);
@@ -92,7 +94,28 @@ export function MealTemplatesPage() {
           </div>
         }
       />
-      <Card className="mb-4">
+
+      <section className="balance-band mb-4 rounded-lg border p-4 shadow-[var(--shadow-card)] sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <Badge variant="secondary">Templates</Badge>
+            <h2 className="mt-3 text-2xl font-semibold leading-tight">Repeat meals without repeat work.</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Build meals once, then log breakfast, lunch, dinner, or snacks in one tap.
+            </p>
+          </div>
+          <Button className="w-full lg:w-auto" onClick={openCreate}>
+            <Plus className="h-4 w-4" /> Create Template
+          </Button>
+        </div>
+        <div className="mt-5 grid gap-2 sm:grid-cols-3">
+          <TemplateStat icon={ChefHat} label="Saved" value={`${templates.length}`} />
+          <TemplateStat icon={Star} label="Favorites" value={`${favoriteCount}`} />
+          <TemplateStat icon={UtensilsCrossed} label="Total uses" value={`${totalUses}`} />
+        </div>
+      </section>
+
+      <Card className="mb-4 bg-card/90">
         <CardContent className="flex flex-col gap-3 p-4 sm:flex-row">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -111,7 +134,7 @@ export function MealTemplatesPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {filtered.map((template) => (
-            <Card key={template.id} className="bg-card/90">
+            <Card key={template.id} className="overflow-hidden bg-card/90">
               <CardHeader>
                 <CardTitle className="flex items-start justify-between gap-3">
                   <span>{template.name}</span>
@@ -183,6 +206,18 @@ export function MealTemplatesPage() {
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+function TemplateStat({ icon: Icon, label, value }: { icon: typeof ChefHat; label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-border/70 bg-card/75 p-3 shadow-[var(--shadow-control)]">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <Icon className="h-3.5 w-3.5 text-primary" />
+        {label}
+      </div>
+      <p className="mt-2 text-xl font-semibold data-number">{value}</p>
+    </div>
   );
 }
 

@@ -102,7 +102,7 @@ export const useProfileStore = create<ProfileState>()(
         set((state) => {
           state.budgetProfile = saved;
         });
-        toast.success("Budget settings saved.");
+        toast.success("Money settings saved.");
       } catch (error) {
         toast.error(messageFromError(error));
       }

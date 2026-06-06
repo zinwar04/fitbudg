@@ -65,8 +65,30 @@ export function HabitsPage() {
         }
       />
 
+      <section className="balance-band mb-4 rounded-lg border p-4 shadow-[var(--shadow-card)] sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <Badge variant={activeHabits.length && completedToday === activeHabits.length ? "secondary" : "outline"}>
+              {activeHabits.length ? `${completedToday}/${activeHabits.length} today` : "No habits yet"}
+            </Badge>
+            <h2 className="mt-3 text-2xl font-semibold leading-tight">Keep the loop small enough to finish.</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Tap a habit once to update today. Quantitative habits move in single steps so progress stays low-friction.
+            </p>
+          </div>
+          <Button className="w-full lg:w-auto" onClick={openAdd}>
+            <Plus className="h-4 w-4" /> Add Habit
+          </Button>
+        </div>
+        <div className="mt-5 grid gap-2 sm:grid-cols-3">
+          <HabitStat label="Active" value={`${activeHabits.length}`} />
+          <HabitStat label="Best streak" value={`${bestStreak} days`} />
+          <HabitStat label="30-day rate" value={`${monthCompletionRate}%`} />
+        </div>
+      </section>
+
       {habits.length === 0 && (
-        <Card className="mb-4">
+        <Card className="mb-4 overflow-hidden bg-card/90">
           <CardContent className="p-4">
             <p className="mb-3 font-semibold">Start with a suggested habit</p>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -86,7 +108,7 @@ export function HabitsPage() {
       )}
 
       {activeHabits.length === 0 ? (
-        <EmptyState icon={CheckCircle2} title="No active habits" description="Add a habit to build a daily loop that supports your food and budget goals." action={<Button onClick={openAdd}>Add Habit</Button>} />
+        <EmptyState icon={CheckCircle2} title="No active habits" description="Add a habit to build a daily loop that supports your food and money goals." action={<Button onClick={openAdd}>Add Habit</Button>} />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {activeHabits.map((habit) => {
@@ -95,7 +117,7 @@ export function HabitsPage() {
             const progress = habit.type === "quantitative" ? ((todayEntry?.value ?? 0) / (habit.targetValue ?? 1)) * 100 : todayEntry?.completed ? 100 : 0;
             return (
               <motion.div key={habit.id} animate={todayEntry?.completed ? { scale: [1, 1.03, 1] } : { scale: 1 }} transition={{ duration: 0.25 }}>
-                <Card className="bg-card/90">
+                <Card className="overflow-hidden bg-card/90">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
@@ -187,5 +209,14 @@ export function HabitsPage() {
 
       <HabitDialog open={dialogOpen} onOpenChange={setDialogOpen} habit={editing} />
     </>
+  );
+}
+
+function HabitStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-border/70 bg-card/75 p-3 shadow-[var(--shadow-control)]">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-2 text-lg font-semibold data-number">{value}</p>
+    </div>
   );
 }

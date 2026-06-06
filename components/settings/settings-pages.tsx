@@ -72,7 +72,7 @@ export function ProfileSettingsPage() {
     <>
       <PageHeader
         title="Profile"
-        description="Your body, goals, budget, and app preferences in one place."
+        description="Your body, goals, money plan, and app preferences in one place."
         action={
           <div className="flex items-center gap-2">
             {dirty && <Badge variant="outline">Unsaved changes</Badge>}
@@ -84,7 +84,7 @@ export function ProfileSettingsPage() {
       />
 
       <section className="mb-4 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-lg border bg-card/90 p-4 shadow-[var(--shadow-card)] sm:p-5">
+        <div className="balance-band rounded-lg border p-4 shadow-[var(--shadow-card)] sm:p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-center gap-4">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-primary text-lg font-semibold text-primary-foreground shadow-[var(--shadow-control)]">
@@ -133,7 +133,7 @@ export function ProfileSettingsPage() {
               onClick={() => setActive(section.id)}
               aria-pressed={active === section.id}
               className={cn(
-                "focus-ring flex h-12 items-center justify-center gap-2 rounded-lg border bg-card/85 px-3 text-sm font-semibold shadow-[var(--shadow-control)] transition-all",
+                "focus-ring flex h-12 items-center justify-center gap-2 rounded-full border bg-card/85 px-3 text-sm font-semibold shadow-[var(--shadow-control)] transition-all",
                 active === section.id ? "border-primary bg-primary text-primary-foreground" : "text-muted-foreground hover:border-primary/50 hover:bg-accent hover:text-foreground",
               )}
             >
@@ -154,7 +154,7 @@ export function ProfileSettingsPage() {
 
 function ProfilePanel({ draft, setDraft }: { draft: UserProfile; setDraft: (draft: UserProfile) => void }) {
   return (
-    <Card>
+    <Card className="overflow-hidden bg-card/90">
       <CardHeader>
         <CardTitle>Personal Details</CardTitle>
       </CardHeader>
@@ -181,7 +181,7 @@ function FitnessPanel({
 }) {
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_22rem]">
-      <Card>
+      <Card className="overflow-hidden bg-card/90">
         <CardHeader>
           <CardTitle>Body Goal Settings</CardTitle>
         </CardHeader>
@@ -194,7 +194,7 @@ function FitnessPanel({
           <OptionalNumberSetting label="Protein override (g/day)" value={draft.targetProteinOverride} onChange={(value) => setDraft({ ...draft, targetProteinOverride: value })} />
         </CardContent>
       </Card>
-      <Card>
+      <Card className="overflow-hidden bg-card/90">
         <CardHeader>
           <CardTitle>Targets</CardTitle>
         </CardHeader>
@@ -212,21 +212,21 @@ function FitnessPanel({
 
 function BudgetPanel({ draft, setDraft }: { draft: BudgetProfile; setDraft: (draft: BudgetProfile) => void }) {
   return (
-    <Card>
+    <Card className="overflow-hidden bg-card/90">
       <CardHeader>
-        <CardTitle>Budget Settings</CardTitle>
+        <CardTitle>Money Settings</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-4 sm:grid-cols-2">
         <InputSetting label="Monthly income" type="number" value={draft.monthlyIncome} onNumber={(value) => setDraft({ ...draft, monthlyIncome: value })} />
-        <InputSetting label="Monthly budget" type="number" value={draft.monthlyBudget} onNumber={(value) => setDraft({ ...draft, monthlyBudget: value })} />
-        <InputSetting label="Budget cycle start day" type="number" min={1} max={31} value={draft.monthStartDay} onNumber={(value) => setDraft({ ...draft, monthStartDay: Math.min(31, Math.max(1, Math.round(value || 1))) })} />
+        <InputSetting label="Monthly spending limit" type="number" value={draft.monthlyBudget} onNumber={(value) => setDraft({ ...draft, monthlyBudget: value })} />
+        <InputSetting label="Cycle start day" type="number" min={1} max={31} value={draft.monthStartDay} onNumber={(value) => setDraft({ ...draft, monthStartDay: Math.min(31, Math.max(1, Math.round(value || 1))) })} />
         <SelectSetting label="Currency" value={draft.currency} options={["IQD", "USD", "EUR", "TRY"]} onChange={(value) => setDraft({ ...draft, currency: value, currencySymbol: value })} />
         <div className="soft-tile rounded-lg p-4 text-sm text-muted-foreground sm:col-span-2">
           <div className="flex items-center gap-2 font-medium text-foreground">
             <CalendarDays className="h-4 w-4" />
             Cycle starts on the {formatOrdinalDay(draft.monthStartDay)}
           </div>
-          <p className="mt-2">Set this to payday so budget pacing matches real spending pressure.</p>
+          <p className="mt-2">Set this to payday so money pacing matches real spending pressure.</p>
         </div>
         <div className="soft-tile rounded-lg p-3 text-xs leading-5 text-muted-foreground sm:col-span-2">{financialDisclaimer}</div>
       </CardContent>
@@ -246,7 +246,7 @@ function AppearancePanel({ draft, setDraft }: { draft: AppSettings; setDraft: (d
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_1.1fr]">
-      <Card>
+      <Card className="overflow-hidden bg-card/90">
         <CardHeader>
           <CardTitle>Appearance</CardTitle>
         </CardHeader>
@@ -278,7 +278,7 @@ function AppearancePanel({ draft, setDraft }: { draft: AppSettings; setDraft: (d
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="overflow-hidden bg-card/90">
         <CardHeader>
           <CardTitle>Today Order</CardTitle>
         </CardHeader>

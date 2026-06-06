@@ -57,7 +57,7 @@ export function HistoryPage() {
   return (
     <>
       <PageHeader
-        title="Calorie History"
+        title="Food History"
         description={`${loggedDays.length} logged days · ${formatKcal(averageCalories)} average · ${bestStreak} day best streak`}
         action={
           <Button asChild>
@@ -65,6 +65,21 @@ export function HistoryPage() {
           </Button>
         }
       />
+
+      <section className="balance-band mb-4 rounded-lg border p-4 shadow-[var(--shadow-card)] sm:p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <Badge variant="secondary">Food memory</Badge>
+            <h2 className="mt-3 text-2xl font-semibold leading-tight">See the rhythm, not just the numbers.</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Switch between calendar, list, and chart views to spot consistency without digging through logs.
+            </p>
+          </div>
+          <Button asChild className="w-full sm:w-auto">
+            <Link href="/nutrition">Log Today</Link>
+          </Button>
+        </div>
+      </section>
 
       <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <MetricCard icon={UtensilsCrossed} label="Average calories" value={formatKcal(averageCalories)} />
@@ -74,7 +89,7 @@ export function HistoryPage() {
         <MetricCard icon={CalendarDays} label="Total entries" value={`${sum(loggedDays.map((day) => day.count))}`} />
       </div>
 
-      <Card className="mb-4">
+      <Card className="mb-4 bg-card/90">
         <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-2">
             {(["7", "30", "thisMonth", "lastMonth", "all"] as Preset[]).map((item) => (
@@ -94,7 +109,7 @@ export function HistoryPage() {
       </Card>
 
       {view === "calendar" && (
-        <Card>
+        <Card className="overflow-hidden bg-card/90">
           <CardHeader>
             <CardTitle>{formatDateKey(range.end, "MMMM yyyy")}</CardTitle>
           </CardHeader>

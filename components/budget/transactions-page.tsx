@@ -57,6 +57,7 @@ export function TransactionsPage() {
   }, [filtered]);
 
   const filteredExpenseTotal = sum(filtered.filter((transaction) => transaction.type === "expense").map((transaction) => transaction.amount));
+  const filteredIncomeTotal = sum(filtered.filter((transaction) => transaction.type === "income").map((transaction) => transaction.amount));
 
   const openAdd = () => {
     setEditing(null);
@@ -89,7 +90,28 @@ export function TransactionsPage() {
           </div>
         }
       />
-      <Card className="sticky top-16 z-10 mb-4 bg-card/95 backdrop-blur-xl">
+
+      <section className="balance-band mb-4 rounded-lg border p-4 shadow-[var(--shadow-card)] sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <Badge variant="secondary">Ledger</Badge>
+            <h2 className="mt-3 text-2xl font-semibold leading-tight">Every spend gets a clean place.</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Search, filter, edit, and export without losing your cycle context.
+            </p>
+          </div>
+          <Button className="w-full lg:w-auto" onClick={openAdd}>
+            <Plus className="h-4 w-4" /> Add Transaction
+          </Button>
+        </div>
+        <div className="mt-5 grid gap-2 sm:grid-cols-3">
+          <TransactionStat label="Expenses" value={formatCurrency(filteredExpenseTotal, profile.currency, profile.currencySymbol)} />
+          <TransactionStat label="Income" value={formatCurrency(filteredIncomeTotal, profile.currency, profile.currencySymbol)} />
+          <TransactionStat label="Shown" value={`${filtered.length}`} />
+        </div>
+      </section>
+
+      <Card className="sticky top-[7.25rem] z-10 mb-4 bg-card/95 backdrop-blur-xl lg:top-14">
         <CardContent className="space-y-3 p-4">
           <div className="flex flex-col gap-3 lg:flex-row">
             <div className="relative flex-1">
@@ -110,9 +132,9 @@ export function TransactionsPage() {
             </select>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" variant={category === "all" ? "default" : "outline"} onClick={() => setCategory("all")} aria-pressed={category === "all"}>All</Button>
+            <Button className="rounded-full" size="sm" variant={category === "all" ? "default" : "outline"} onClick={() => setCategory("all")} aria-pressed={category === "all"}>All</Button>
             {categoryOptions.map((item) => (
-              <Button key={item} size="sm" variant={category === item ? "default" : "outline"} onClick={() => setCategory(item)} aria-pressed={category === item}>
+              <Button key={item} className="rounded-full" size="sm" variant={category === item ? "default" : "outline"} onClick={() => setCategory(item)} aria-pressed={category === item}>
                 {titleCase(item)}
               </Button>
             ))}
@@ -124,13 +146,13 @@ export function TransactionsPage() {
       </Card>
 
       {grouped.length === 0 ? (
-        <EmptyState icon={ReceiptText} title="No matching transactions" description="Adjust the filters or add a transaction to start budget tracking." action={<Button onClick={openAdd}>Add Transaction</Button>} />
+        <EmptyState icon={ReceiptText} title="No matching transactions" description="Adjust the filters or add a transaction to start money tracking." action={<Button onClick={openAdd}>Add Transaction</Button>} />
       ) : (
         <div className="space-y-4">
           {grouped.map(([date, items]) => {
             const dailyTotal = sum(items.filter((transaction) => transaction.type === "expense").map((transaction) => transaction.amount));
             return (
-              <Card key={date}>
+              <Card key={date} className="overflow-hidden bg-card/90">
                 <CardContent className="p-4">
                   <div className="mb-3 flex items-center justify-between">
                     <div>
@@ -170,6 +192,15 @@ export function TransactionsPage() {
 
       <TransactionDialog open={dialogOpen} onOpenChange={setDialogOpen} transaction={editing} />
     </>
+  );
+}
+
+function TransactionStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-border/70 bg-card/75 p-3 shadow-[var(--shadow-control)]">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-2 truncate text-lg font-semibold data-number">{value}</p>
+    </div>
   );
 }
 

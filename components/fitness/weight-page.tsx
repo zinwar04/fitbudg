@@ -75,6 +75,24 @@ export function WeightPage() {
           </Button>
         }
       />
+
+      <section className="balance-band mb-4 rounded-lg border p-4 shadow-[var(--shadow-card)] sm:p-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <Badge variant="secondary">Body trend</Badge>
+            <h2 className="mt-3 text-2xl font-semibold leading-tight">
+              {current ? `${formatWeight(displayWeight(current.weight), weightUnit)} today` : "Start with one weigh-in"}
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Vela compares weight logs against your goal and keeps projection language calm.
+            </p>
+          </div>
+          <Button className="w-full lg:w-auto" onClick={openAdd}>
+            <Plus className="h-4 w-4" /> Log Weight
+          </Button>
+        </div>
+      </section>
+
       <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <MetricCard icon={Scale} label="Starting weight" value={formatWeight(displayWeight(first?.weight), weightUnit)} />
         <MetricCard icon={Scale} label="Current weight" value={formatWeight(displayWeight(current?.weight), weightUnit)} />
@@ -89,7 +107,7 @@ export function WeightPage() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-        <Card>
+        <Card className="overflow-hidden bg-card/90">
           <CardHeader>
             <CardTitle>Weight trend</CardTitle>
           </CardHeader>
@@ -97,7 +115,7 @@ export function WeightPage() {
             <ResponsiveLine data={chartData} xKey="date" yKey="weight" goal={goalLine} height={320} />
           </CardContent>
         </Card>
-        <Card>
+        <Card className="overflow-hidden bg-card/90">
           <CardHeader>
             <CardTitle>Entry history</CardTitle>
           </CardHeader>

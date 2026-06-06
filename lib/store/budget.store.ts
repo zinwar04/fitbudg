@@ -113,7 +113,7 @@ export const useBudgetStore = create<BudgetState>()(
         set((state) => {
           state.profile = saved;
         });
-        toast.success("Budget profile saved.");
+        toast.success("Money settings saved.");
       } catch (error) {
         toast.error(messageFromError(error));
       }
