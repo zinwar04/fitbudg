@@ -170,7 +170,7 @@ export function DashboardClient() {
                   </Button>
                 </div>
               </div>
-              <ScoreRing score={dailyScore} label="Daily balance" />
+              <ScoreRing score={dailyScore} label="Daily balance" detail="Food, money, and habits averaged together" />
             </div>
             <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               <HeroMetric icon={Flame} label="Calories left" value={formatKcal(caloriesRemaining)} detail={`${Math.round(calorieProgress)}% of target`} tone={caloriesRemaining >= 0 ? "positive" : "danger"} />
@@ -408,9 +408,9 @@ function Widget({ children, index, className }: { children: React.ReactNode; ind
   );
 }
 
-function ScoreRing({ score, label }: { score: number; label: string }) {
+function ScoreRing({ score, label, detail }: { score: number; label: string; detail: string }) {
   return (
-    <div className="mx-auto flex w-full max-w-[12rem] flex-col items-center md:mx-0">
+    <div className="mx-auto flex w-full max-w-[13rem] flex-col items-center text-center md:mx-0">
       <div
         className="grid aspect-square w-40 place-items-center rounded-full p-3 shadow-[var(--shadow-control)]"
         style={{
@@ -422,6 +422,7 @@ function ScoreRing({ score, label }: { score: number; label: string }) {
           <span className="mt-1 text-xs text-muted-foreground">{label}</span>
         </div>
       </div>
+      <p className="mt-3 text-xs leading-5 text-muted-foreground">{detail}</p>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, KeyboardEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowUp, Bot, CheckCircle2, Flame, Menu, MessageSquare, MessageSquarePlus, Scale, Sparkles, Trash2, UtensilsCrossed, WalletCards, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,8 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [historyError, setHistoryError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const context = useMemo(
@@ -84,9 +86,18 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
   const activeTitle = sessions.find((chat) => chat.id === sessionId)?.title ?? "Vela Coach";
 
   const refreshSessions = async () => {
-    const loaded = await getAssistantSessions();
-    setSessions(loaded);
-    return loaded;
+    setHistoryLoading(true);
+    try {
+      const loaded = await getAssistantSessions();
+      setSessions(loaded);
+      setHistoryError(null);
+      return loaded;
+    } catch (error) {
+      setHistoryError(error instanceof Error ? error.message : "Chat history could not load.");
+      return [];
+    } finally {
+      setHistoryLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -97,8 +108,7 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
           setSessionId(latest.id);
           setMessages(latest.messages);
         }
-      })
-      .catch(() => undefined);
+      });
   }, []);
 
   useEffect(() => {
@@ -125,11 +135,23 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
     toast.success("Chat deleted.");
   };
 
-  const persist = async (nextMessages: ChatMessage[]) => {
+  const persist = async (nextMessages: ChatMessage[], targetSessionId = sessionId) => {
     const title = nextMessages.find((message) => message.role === "user")?.content.slice(0, 56) || "New chat";
-    const saved = await saveAssistantSession({ id: sessionId ?? undefined, title, messages: nextMessages });
+    const saved = await saveAssistantSession({ id: targetSessionId ?? undefined, title, messages: nextMessages });
     setSessionId(saved.id);
-    await refreshSessions();
+    setSessions((current) => [saved, ...current.filter((chat) => chat.id !== saved.id)].slice(0, 20));
+    setHistoryError(null);
+    return saved;
+  };
+
+  const persistSafely = async (nextMessages: ChatMessage[], targetSessionId = sessionId) => {
+    try {
+      return await persist(nextMessages, targetSessionId);
+    } catch (error) {
+      setHistoryError(error instanceof Error ? error.message : "Chat history could not save.");
+      toast.error("Chat history could not save.");
+      return null;
+    }
   };
 
   const send = async (content = input) => {
@@ -141,6 +163,8 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
     setMessages(next);
     setInput("");
     setLoading(true);
+    const savedDraft = await persistSafely(next);
+    const activeSessionId = savedDraft?.id ?? sessionId;
 
     try {
       const response = await fetch("/api/assistant", {
@@ -165,7 +189,7 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
       };
       const withAssistant = [...next, assistantMessage];
       setMessages(withAssistant);
-      await persist(withAssistant);
+      await persistSafely(withAssistant, activeSessionId);
     } catch (error) {
       const assistantMessage: ChatMessage = {
         id: createId(),
@@ -173,7 +197,9 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
         content: "I could not reach the assistant right now. Check your connection and try again.",
         createdAt: nowIso(),
       };
-      setMessages([...next, assistantMessage]);
+      const failedMessages = [...next, assistantMessage];
+      setMessages(failedMessages);
+      await persistSafely(failedMessages, activeSessionId);
       toast.error(error instanceof Error ? error.message : "Assistant request failed.");
     } finally {
       setLoading(false);
@@ -196,7 +222,7 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
             New chat
           </Button>
         </div>
-        <ChatHistory sessions={sessions} sessionId={sessionId} onOpen={openSession} onDelete={(id) => void removeSession(id)} />
+        <ChatHistory sessions={sessions} sessionId={sessionId} loading={historyLoading} error={historyError} onOpen={openSession} onDelete={(id) => void removeSession(id)} />
       </aside>
 
       <main className="flex min-w-0 flex-1 flex-col">
@@ -298,7 +324,7 @@ export function AssistantPage({ embedded = false }: { embedded?: boolean }) {
                 New chat
               </Button>
             </div>
-            <ChatHistory sessions={sessions} sessionId={sessionId} onOpen={openSession} onDelete={(id) => void removeSession(id)} />
+            <ChatHistory sessions={sessions} sessionId={sessionId} loading={historyLoading} error={historyError} onOpen={openSession} onDelete={(id) => void removeSession(id)} />
           </div>
         </DialogContent>
       </Dialog>
@@ -377,17 +403,27 @@ function buildStarterPrompts({
 function ChatHistory({
   sessions,
   sessionId,
+  loading,
+  error,
   onOpen,
   onDelete,
 }: {
   sessions: AssistantSession[];
   sessionId: string | null;
+  loading: boolean;
+  error: string | null;
   onOpen: (session: AssistantSession) => void;
   onDelete: (id: string) => void;
 }) {
   return (
     <div className="min-h-0 flex-1 overflow-y-auto px-2 py-3">
-      {sessions.length === 0 ? (
+      {loading ? (
+        <p className="px-3 py-2 text-sm text-muted-foreground">Loading chats...</p>
+      ) : error ? (
+        <div className="mx-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+          Chat history is unavailable right now.
+        </div>
+      ) : sessions.length === 0 ? (
         <p className="px-3 py-2 text-sm text-muted-foreground">No chats yet.</p>
       ) : (
         <div className="space-y-1">
@@ -443,8 +479,10 @@ function FormattedMessage({ content }: { content: string }) {
         if (bulletLines) {
           return (
             <ul key={`${block}-${index}`} className="list-disc space-y-1 pl-5">
-              {lines.map((line) => (
-                <li key={line}>{line.replace(/^[-*]\s+/, "")}</li>
+              {lines.map((line, lineIndex) => (
+                <li key={`${line}-${lineIndex}`}>
+                  <InlineMarkdown content={line.replace(/^[-*]\s+/, "")} />
+                </li>
               ))}
             </ul>
           );
@@ -453,8 +491,10 @@ function FormattedMessage({ content }: { content: string }) {
         if (numberLines) {
           return (
             <ol key={`${block}-${index}`} className="list-decimal space-y-1 pl-5">
-              {lines.map((line) => (
-                <li key={line}>{line.replace(/^\d+\.\s+/, "")}</li>
+              {lines.map((line, lineIndex) => (
+                <li key={`${line}-${lineIndex}`}>
+                  <InlineMarkdown content={line.replace(/^\d+\.\s+/, "")} />
+                </li>
               ))}
             </ol>
           );
@@ -462,10 +502,44 @@ function FormattedMessage({ content }: { content: string }) {
 
         return (
           <p key={`${block}-${index}`} className="whitespace-pre-wrap break-words">
-            {block}
+            <InlineMarkdown content={block} />
           </p>
         );
       })}
     </div>
   );
+}
+
+function InlineMarkdown({ content }: { content: string }) {
+  return <>{parseInlineMarkdown(content)}</>;
+}
+
+function parseInlineMarkdown(content: string): ReactNode[] {
+  const tokens: ReactNode[] = [];
+  const pattern = /(`[^`]+`|\*\*[^*]+\*\*|__[^_]+__|\*[^*\s](?:[^*]*?[^*\s])?\*)/g;
+  let cursor = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = pattern.exec(content)) !== null) {
+    if (match.index > cursor) tokens.push(content.slice(cursor, match.index));
+    const token = match[0];
+    const key = `${match.index}-${token}`;
+
+    if (token.startsWith("`")) {
+      tokens.push(
+        <code key={key} className="rounded bg-muted px-1 py-0.5 text-[0.92em]">
+          {token.slice(1, -1)}
+        </code>,
+      );
+    } else if (token.startsWith("**") || token.startsWith("__")) {
+      tokens.push(<strong key={key}>{token.slice(2, -2)}</strong>);
+    } else {
+      tokens.push(<em key={key}>{token.slice(1, -1)}</em>);
+    }
+
+    cursor = match.index + token.length;
+  }
+
+  if (cursor < content.length) tokens.push(content.slice(cursor));
+  return tokens;
 }

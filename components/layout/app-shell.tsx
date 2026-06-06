@@ -276,10 +276,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={() => setAssistantOpen(true)}
-            className="fixed bottom-6 right-6 z-50 hidden h-14 w-14 items-center justify-center rounded-full border bg-card text-primary shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5 active:translate-y-0 lg:flex"
-            aria-label="Open assistant"
+            className="brand-gradient fixed bottom-20 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full text-primary-foreground shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5 active:translate-y-0 lg:bottom-6 lg:right-6 lg:h-14 lg:w-14"
+            aria-label="Open Vela Coach"
           >
-            <Bot className="h-6 w-6" />
+            <Bot className="h-5 w-5 lg:h-6 lg:w-6" />
           </button>
         )}
 
@@ -351,9 +351,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         </Dialog>
 
         <Dialog open={assistantOpen} onOpenChange={setAssistantOpen}>
-          <DialogContent className="bottom-0 left-0 top-auto h-[88dvh] max-h-none w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl p-0 lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-dvh lg:max-w-[30rem] lg:rounded-none lg:border-y-0 lg:border-r-0">
+          <DialogContent className="bottom-0 left-0 top-auto h-[88dvh] max-h-none w-full max-w-none translate-x-0 translate-y-0 gap-0 overflow-hidden rounded-b-none rounded-t-2xl p-0 lg:bottom-auto lg:left-1/2 lg:top-1/2 lg:h-[min(760px,86dvh)] lg:w-[min(56rem,calc(100vw-4rem))] lg:max-w-4xl lg:-translate-x-1/2 lg:-translate-y-1/2 lg:rounded-lg">
             <DialogHeader className="sr-only">
-              <DialogTitle>Coach</DialogTitle>
+              <DialogTitle>Vela Coach</DialogTitle>
               <DialogDescription>Ask about your food, money, habits, and progress.</DialogDescription>
             </DialogHeader>
             <AssistantPage embedded />
