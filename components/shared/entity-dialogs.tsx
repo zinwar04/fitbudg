@@ -113,6 +113,7 @@ export function FoodEntryDialog({
   mealType = "lunch",
   lockMealType = false,
   entry,
+  startWithBarcode = false,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -120,6 +121,7 @@ export function FoodEntryDialog({
   mealType?: MealType;
   lockMealType?: boolean;
   entry?: FoodEntry | null;
+  startWithBarcode?: boolean;
 }) {
   const library = useFoodStore((state) => state.library);
   const mealTemplates = useFoodStore((state) => state.mealTemplates);
@@ -217,6 +219,7 @@ export function FoodEntryDialog({
     setExternalWarnings([]);
     setExternalQuery("");
     setExternalLoading(false);
+    setBarcodeOpen(false);
     form.reset({
       name: entry?.name ?? "",
       calories: entry?.calories ?? 300,
@@ -232,6 +235,12 @@ export function FoodEntryDialog({
       saveToLibrary: false,
     });
   }, [entry, form, mealType, open]);
+
+  useEffect(() => {
+    if (!open || entry || !startWithBarcode) return;
+    const timeout = window.setTimeout(() => setBarcodeOpen(true), 180);
+    return () => window.clearTimeout(timeout);
+  }, [entry, open, startWithBarcode]);
 
   useEffect(() => {
     if (!open || entry) return;

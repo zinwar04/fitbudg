@@ -348,7 +348,7 @@ function buildStarterPrompts({
       icon: UtensilsCrossed,
     },
     {
-      title: transactions.length ? "Money" : "Budget setup",
+      title: transactions.length ? "Money" : "Money setup",
       prompt: transactions.length
         ? `Summarize my spending pattern for this budget cycle and tell me the one decision that would keep me safest. My current safe daily spend is ${formatCurrency(budget.safeToSpendToday, budgetProfile.currency, budgetProfile.currencySymbol)}.`
         : "Help me set up a practical first budget and category limits for the way I actually spend.",

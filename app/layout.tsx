@@ -17,13 +17,13 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "FitBudget",
-  description: "Personal health and budget tracking in one calm daily app.",
+  title: "Vela",
+  description: "A calm daily app for food, money, habits, and momentum.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "FitBudget",
+    title: "Vela",
   },
 };
 
@@ -31,7 +31,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  themeColor: "#0f9488",
+  themeColor: "#1f6f56",
 };
 
 export default function RootLayout({

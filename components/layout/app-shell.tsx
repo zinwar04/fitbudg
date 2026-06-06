@@ -17,6 +17,7 @@ import {
   Plus,
   ReceiptText,
   Scale,
+  ScanBarcode,
   Sun,
   UtensilsCrossed,
   UserRound,
@@ -44,32 +45,33 @@ type NavItemConfig = {
 };
 
 const primaryNav: NavItemConfig[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/nutrition", label: "Nutrition", icon: UtensilsCrossed, match: ["/nutrition", "/fitness", "/foods"] },
-  { href: "/budget", label: "Budget", icon: CircleDollarSign, match: ["/budget"] },
+  { href: "/dashboard", label: "Today", icon: LayoutDashboard },
+  { href: "/nutrition", label: "Food", icon: UtensilsCrossed, match: ["/nutrition", "/fitness", "/foods"] },
+  { href: "/budget", label: "Money", icon: CircleDollarSign, match: ["/budget"] },
   { href: "/habits", label: "Habits", icon: CheckCircle2 },
   { href: "/insights", label: "Insights", icon: LineChart },
 ];
 
 const mobileNav = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Today", icon: LayoutDashboard },
   { href: "/nutrition", label: "Food", icon: UtensilsCrossed, match: ["/nutrition", "/fitness", "/foods"] },
-  { href: "/budget", label: "Budget", icon: CircleDollarSign, match: ["/budget"] },
+  { href: "/budget", label: "Money", icon: CircleDollarSign, match: ["/budget"] },
   { href: "/insights", label: "Insights", icon: LineChart },
-  { href: "/settings/profile", label: "Profile", icon: UserRound, match: ["/settings"] },
+  { href: "/settings/profile", label: "Me", icon: UserRound, match: ["/settings"] },
 ];
 
 const mobileMenuGroups: { title: string; items: NavItemConfig[] }[] = [
   {
-    title: "Also available",
+    title: "More",
     items: [primaryNav[3]],
   },
 ];
 
 const quickActions = [
-  { label: "Food", description: "Log a meal or snack", dialog: "food" as const, icon: UtensilsCrossed },
-  { label: "Transaction", description: "Add income or expense", dialog: "transaction" as const, icon: ReceiptText },
-  { label: "Habit", description: "Create or track a habit", dialog: "habit" as const, icon: CheckCircle2 },
+  { label: "Scan food", description: "Camera or barcode lookup", dialog: "foodScan" as const, icon: ScanBarcode },
+  { label: "Log food", description: "Search, saved meal, or manual entry", dialog: "food" as const, icon: UtensilsCrossed },
+  { label: "Money", description: "Add income or expense", dialog: "transaction" as const, icon: ReceiptText },
+  { label: "Habit", description: "Track a small daily action", dialog: "habit" as const, icon: CheckCircle2 },
   { label: "Weight", description: "Add a weigh-in", dialog: "weight" as const, icon: Scale },
 ];
 
@@ -129,7 +131,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   };
 
   const initials = useMemo(() => {
-    const name = profile?.name ?? "FitBudget";
+    const name = profile?.name ?? "Vela";
     return name
       .split(" ")
       .map((part) => part[0])
@@ -155,13 +157,13 @@ export function AppShell({ children }: { children: ReactNode }) {
             <BrandMark />
             {!sidebarCollapsed && (
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">FitBudget</p>
-                <p className="text-xs leading-snug text-muted-foreground">Health and money cockpit</p>
+                <p className="truncate text-sm font-semibold">Vela</p>
+                <p className="text-xs leading-snug text-muted-foreground">Daily balance, simplified</p>
               </div>
             )}
           </div>
           <nav className="scrollbar-soft flex-1 overflow-y-auto px-2.5 py-4" aria-label="Primary navigation">
-            {!sidebarCollapsed && <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Daily system</p>}
+            {!sidebarCollapsed && <p className="mb-2 px-2 text-[11px] font-semibold uppercase text-muted-foreground">Daily system</p>}
             <div className="space-y-1">
               {primaryNav.map((item) => (
                 <NavItem key={item.href} item={item} active={isNavActive(pathname, item)} collapsed={sidebarCollapsed} />
@@ -169,14 +171,14 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
             {!sidebarCollapsed && (
               <div className="mt-6 rounded-lg border border-primary/15 bg-[linear-gradient(135deg,var(--primary-soft),transparent_70%)] p-3 shadow-[var(--shadow-control)]">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Assistant</p>
+                <p className="text-[11px] font-semibold uppercase text-muted-foreground">Coach</p>
                 <button type="button" onClick={() => setAssistantOpen(true)} className="interactive-row mt-2 flex w-full items-center gap-3 rounded-lg p-2 text-left">
                   <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-primary/15 bg-primary/10 text-primary">
                     <Bot className="h-4 w-4" />
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-sm font-medium">Ask anything</span>
-                    <span className="block truncate text-xs text-muted-foreground">Food, budget, habits, goals</span>
+                    <span className="block text-sm font-medium">Ask Vela</span>
+                    <span className="block truncate text-xs text-muted-foreground">Food, money, habits, goals</span>
                   </span>
                 </button>
               </div>
@@ -187,7 +189,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               active={pathname.startsWith("/settings")}
               collapsed={sidebarCollapsed}
               initials={initials}
-              name={profile?.name ?? user?.email ?? "FitBudget user"}
+              name={profile?.name ?? user?.email ?? "Vela user"}
               status={online ? "Sync on" : "Connection offline"}
             />
             <div className={cn("grid gap-1", sidebarCollapsed ? "grid-cols-1" : "grid-cols-3")}>
@@ -208,12 +210,15 @@ export function AppShell({ children }: { children: ReactNode }) {
           <header className="surface-strong sticky top-0 z-20 flex h-14 items-center justify-between border-b border-border/70 px-4 shadow-[var(--shadow-control)] lg:hidden">
             <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
               <BrandMark compact />
-              FitBudget
+              Vela
             </Link>
             <div className="flex items-center gap-2">
               {!online && <span className="rounded-full bg-amber-500/15 px-2 py-1 text-xs text-amber-600 dark:text-amber-300">Offline</span>}
               <Button size="icon" variant="ghost" onClick={toggleTheme} aria-label="Toggle theme">
                 {settings.theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
+              <Button size="icon" variant="ghost" onClick={() => setAssistantOpen(true)} aria-label="Open coach">
+                <Bot className="h-4 w-4" />
               </Button>
               <Button size="icon" variant="ghost" onClick={() => setMobileMenuOpen(true)} aria-label="Open shortcuts">
                 <Menu className="h-4 w-4" />
@@ -246,7 +251,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               const active = isNavActive(pathname, item);
               return (
                 <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined} className="relative flex flex-col items-center justify-center gap-1 text-xs text-muted-foreground">
-                  {active && <motion.span layoutId="mobile-nav-active" className="absolute inset-x-2 inset-y-2 rounded-lg bg-primary shadow-[var(--shadow-control)]" />}
+                  {active && <motion.span layoutId="mobile-nav-active" className="absolute inset-x-2 inset-y-2 rounded-full bg-primary shadow-[var(--shadow-control)]" />}
                   <Icon className={cn("relative h-5 w-5", active ? "text-primary-foreground" : "text-muted-foreground")} />
                   <span className={cn("relative", active ? "font-semibold text-primary-foreground" : "text-muted-foreground")}>{item.label}</span>
                 </Link>
@@ -259,10 +264,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={() => setQuickActionsOpen(true)}
-            className="fixed bottom-20 left-1/2 z-50 flex h-14 w-14 -translate-x-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5 active:translate-y-0 lg:hidden"
+            className="brand-gradient fixed bottom-20 left-1/2 z-50 flex h-12 min-w-24 -translate-x-1/2 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5 active:translate-y-0 lg:hidden"
             aria-label="Open quick actions"
           >
-            <Plus className="h-6 w-6" />
+            <Plus className="h-5 w-5" />
+            Log
           </button>
         )}
 
@@ -270,10 +276,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             onClick={() => setAssistantOpen(true)}
-            className="fixed bottom-[5.35rem] right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full border bg-card text-primary shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5 active:translate-y-0 lg:bottom-6 lg:right-6 lg:h-14 lg:w-14"
+            className="fixed bottom-6 right-6 z-50 hidden h-14 w-14 items-center justify-center rounded-full border bg-card text-primary shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5 active:translate-y-0 lg:flex"
             aria-label="Open assistant"
           >
-            <Bot className="h-5 w-5 lg:h-6 lg:w-6" />
+            <Bot className="h-6 w-6" />
           </button>
         )}
 
@@ -303,12 +309,12 @@ export function AppShell({ children }: { children: ReactNode }) {
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-semibold text-primary-foreground shadow-sm">{initials}</div>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{profile?.name ?? user?.email ?? "FitBudget user"}</p>
+                  <p className="truncate text-sm font-medium">{profile?.name ?? user?.email ?? "Vela user"}</p>
                   <p className="mt-1 text-xs text-muted-foreground">{online ? "Sync on" : "Connection offline"}</p>
                 </div>
               </Link>
               <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Quick actions</p>
+                <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Quick actions</p>
                 <div className="grid grid-cols-2 gap-2">
                   {quickActions.map((action) => (
                     <QuickActionTile
@@ -324,7 +330,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
               {mobileMenuGroups.map((group) => (
                 <div key={group.title}>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{group.title}</p>
+                  <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">{group.title}</p>
                   <div className="grid grid-cols-2 gap-2">
                     {group.items.map((item) => (
                       <MobileMenuItem
@@ -347,8 +353,8 @@ export function AppShell({ children }: { children: ReactNode }) {
         <Dialog open={assistantOpen} onOpenChange={setAssistantOpen}>
           <DialogContent className="bottom-0 left-0 top-auto h-[88dvh] max-h-none w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl p-0 lg:bottom-auto lg:left-auto lg:right-0 lg:top-0 lg:h-dvh lg:max-w-[30rem] lg:rounded-none lg:border-y-0 lg:border-r-0">
             <DialogHeader className="sr-only">
-              <DialogTitle>Assistant</DialogTitle>
-              <DialogDescription>Ask about your food, budget, habits, and progress.</DialogDescription>
+              <DialogTitle>Coach</DialogTitle>
+              <DialogDescription>Ask about your food, money, habits, and progress.</DialogDescription>
             </DialogHeader>
             <AssistantPage embedded />
           </DialogContent>
@@ -373,10 +379,10 @@ function QuickActionsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bottom-0 left-0 top-auto w-full max-w-none translate-x-0 translate-y-0 gap-0 rounded-b-none rounded-t-2xl p-0 sm:left-1/2 sm:top-1/2 sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-lg">
         <DialogHeader className="border-b px-4 py-4">
-          <DialogTitle>Quick actions</DialogTitle>
-          <DialogDescription>Jump straight into the task you need.</DialogDescription>
+          <DialogTitle>Log something</DialogTitle>
+          <DialogDescription>Choose the fastest path and Vela will update today.</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-2 p-4">
+        <div className="grid gap-2 p-4 sm:grid-cols-2">
           {quickActions.map((action) => (
             <QuickActionTile key={action.dialog} action={action} onSelect={() => onSelect(action.dialog)} />
           ))}

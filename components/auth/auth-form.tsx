@@ -111,14 +111,14 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         <div className="grid w-full gap-6 lg:grid-cols-[minmax(0,1fr)_28rem] lg:items-center">
           <section className="min-w-0 py-4">
             <div className="flex items-center gap-3">
-              <BrandMark />
-              <div>
-                <p className="text-sm font-semibold">FitBudget</p>
-                <p className="text-xs text-muted-foreground">Health and money cockpit</p>
-              </div>
+                <BrandMark />
+                <div>
+                  <p className="text-sm font-semibold">Vela</p>
+                  <p className="text-xs text-muted-foreground">Daily balance, simplified</p>
+                </div>
             </div>
             <h1 className="mt-8 max-w-2xl text-balance text-4xl font-semibold leading-[1.04] tracking-normal sm:text-5xl">
-              {isSignup ? "Create your FitBudget account." : "Welcome back to FitBudget."}
+              {isSignup ? "Create your Vela account." : "Welcome back to Vela."}
             </h1>
             <p className="mt-4 max-w-xl text-base leading-7 text-muted-foreground">
               One calm place for meals, weight trends, spending, habits, and coaching notes.
@@ -126,7 +126,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
             <div className="mt-7 grid grid-cols-3 gap-2 sm:gap-3">
               <AuthValue icon={UtensilsCrossed} label="Food" value="1,840 kcal" />
-              <AuthValue icon={CircleDollarSign} label="Budget" value="68% left" />
+              <AuthValue icon={CircleDollarSign} label="Money" value="68% left" />
               <AuthValue icon={Target} label="Habits" value="4 streaks" />
             </div>
 

@@ -103,7 +103,7 @@ export function OnboardingWizard() {
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <CheckCircle2 className="h-8 w-8" />
               </div>
-              <h1 className="text-2xl font-semibold">Your FitBudget is ready</h1>
+              <h1 className="text-2xl font-semibold">Your Vela is ready</h1>
               <p className="mt-2 text-sm text-muted-foreground">
                 Calorie goal: {formatKcal(targets?.calories)}. Budget: {formatCurrency(budget.monthlyBudget, budget.currency, budget.currencySymbol)} per cycle.
               </p>
@@ -123,7 +123,7 @@ export function OnboardingWizard() {
               <BrandMark />
             </motion.div>
             <div>
-              <p className="text-sm font-semibold">FitBudget</p>
+              <p className="text-sm font-semibold">Vela</p>
               <p className="text-xs text-muted-foreground">A few quick questions</p>
             </div>
           </div>
@@ -142,7 +142,7 @@ export function OnboardingWizard() {
             {step === 0 && (
               <StepShell
                 title="Build a daily rhythm for your body and money."
-                description="FitBudget brings meals, weight, habits, and spending into one clear daily view."
+                description="Vela brings meals, weight, habits, and spending into one clear daily view."
                 icon={Sparkles}
               >
                 <div className="grid gap-3 sm:grid-cols-3">
@@ -256,7 +256,7 @@ export function OnboardingWizard() {
             )}
 
             {step === 4 && (
-              <StepShell title="Budget setup" description="Set the amount available for each pay cycle. Category limits can be edited anytime." icon={CircleDollarSign}>
+              <StepShell title="Money setup" description="Set the amount available for each pay cycle. Category limits can be edited anytime." icon={CircleDollarSign}>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <InputBlock label="Monthly income" type="number" value={budget.monthlyIncome} onChangeNumber={(value) => setBudget((current) => ({ ...current, monthlyIncome: value }))} />
                   <InputBlock label="Monthly budget" type="number" value={budget.monthlyBudget} onChangeNumber={(value) => setBudget((current) => ({ ...current, monthlyBudget: value }))} />
@@ -351,7 +351,7 @@ export function OnboardingWizard() {
                 Continue <ArrowRight className="h-4 w-4" />
               </Button>
             ) : (
-              <Button onClick={completeSetup}>Go to Dashboard</Button>
+              <Button onClick={completeSetup}>Open Vela</Button>
             )}
           </div>
         )}

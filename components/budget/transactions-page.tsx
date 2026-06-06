@@ -68,7 +68,7 @@ export function TransactionsPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `fitbudget-transactions-${localDateKey()}.csv`;
+    link.download = `vela-transactions-${localDateKey()}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };

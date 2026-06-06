@@ -3,70 +3,75 @@
 @tailwind utilities;
 
 :root {
-  --background: #f7f8fb;
-  --foreground: #171a20;
+  --background: #f6f8f5;
+  --foreground: #171a17;
   --card: #ffffff;
-  --card-foreground: #171a20;
+  --card-foreground: #171a17;
   --popover: #ffffff;
-  --popover-foreground: #171a20;
-  --primary: #0f9488;
+  --popover-foreground: #171a17;
+  --primary: #1f6f56;
   --primary-foreground: #ffffff;
-  --secondary: #eef2f6;
-  --secondary-foreground: #202630;
-  --muted: #edf1f5;
-  --muted-foreground: #64707d;
-  --accent: #eaf5f4;
-  --accent-foreground: #14201f;
-  --destructive: #d94848;
+  --secondary: #edf1ec;
+  --secondary-foreground: #20261f;
+  --muted: #edf0ec;
+  --muted-foreground: #626d63;
+  --accent: #f5efe9;
+  --accent-foreground: #251f1a;
+  --destructive: #d44e43;
   --destructive-foreground: #ffffff;
-  --border: #dde4ec;
-  --input: #d5dee7;
+  --border: #dce4dc;
+  --input: #d2ddd4;
   --ring: var(--primary);
-  --surface: rgba(255, 255, 255, 0.78);
-  --surface-strong: rgba(255, 255, 255, 0.94);
-  --surface-muted: rgba(238, 242, 246, 0.8);
-  --surface-inset: rgba(244, 247, 250, 0.86);
+  --surface: rgba(255, 255, 255, 0.8);
+  --surface-strong: rgba(255, 255, 255, 0.95);
+  --surface-muted: rgba(237, 241, 236, 0.84);
+  --surface-inset: rgba(246, 248, 245, 0.9);
   --primary-soft: color-mix(in srgb, var(--primary) 13%, transparent);
   --primary-glow: color-mix(in srgb, var(--primary) 22%, transparent);
-  --success: #169b68;
-  --warning: #cf7c1d;
-  --info: #3568d4;
-  --danger: #d94848;
-  --shadow-card: 0 1px 1px rgba(18, 24, 32, 0.035), 0 16px 42px rgba(18, 24, 32, 0.08);
-  --shadow-control: 0 1px 1px rgba(18, 24, 32, 0.05), 0 8px 22px rgba(18, 24, 32, 0.075);
+  --success: #16845e;
+  --warning: #b96c24;
+  --info: #4267d5;
+  --danger: #d44e43;
+  --energy: #dd6a4f;
+  --plum: #7862d5;
+  --shadow-card: 0 1px 1px rgba(19, 28, 20, 0.035), 0 18px 46px rgba(19, 28, 20, 0.08);
+  --shadow-control: 0 1px 1px rgba(19, 28, 20, 0.05), 0 10px 24px rgba(19, 28, 20, 0.075);
 }
 
 .dark {
-  --background: #0e1116;
-  --foreground: #eef2f6;
-  --card: #161b22;
-  --card-foreground: #f2f6fa;
-  --popover: #161b22;
-  --popover-foreground: #f2f6fa;
-  --secondary: #202733;
-  --secondary-foreground: #f2f6fa;
-  --muted: #202733;
-  --muted-foreground: #9aa6b3;
-  --accent: #142c2f;
-  --accent-foreground: #f2f6fa;
-  --destructive: #f06464;
+  --background: #10140f;
+  --foreground: #f0f4ed;
+  --card: #171d16;
+  --card-foreground: #f4f7f1;
+  --popover: #171d16;
+  --popover-foreground: #f4f7f1;
+  --secondary: #222b21;
+  --secondary-foreground: #f4f7f1;
+  --muted: #222b21;
+  --muted-foreground: #9caa9b;
+  --accent: #2b241f;
+  --accent-foreground: #f4f7f1;
+  --destructive: #ef6a5f;
   --destructive-foreground: #ffffff;
-  --border: #2a3340;
-  --input: #34404d;
-  --surface: rgba(22, 27, 34, 0.72);
-  --surface-strong: rgba(22, 27, 34, 0.94);
-  --surface-muted: rgba(32, 39, 51, 0.74);
-  --surface-inset: rgba(14, 17, 22, 0.78);
-  --success: #36c995;
-  --warning: #f0a64a;
-  --info: #77a4ff;
-  --danger: #ff7777;
+  --border: #2c382b;
+  --input: #384636;
+  --surface: rgba(23, 29, 22, 0.75);
+  --surface-strong: rgba(23, 29, 22, 0.95);
+  --surface-muted: rgba(34, 43, 33, 0.78);
+  --surface-inset: rgba(16, 20, 15, 0.82);
+  --success: #3cc18d;
+  --warning: #e6a354;
+  --info: #84a2ff;
+  --danger: #ff8177;
+  --energy: #f08b70;
+  --plum: #a496ff;
   --shadow-card: 0 1px 1px rgba(0, 0, 0, 0.32), 0 20px 56px rgba(0, 0, 0, 0.34);
   --shadow-control: 0 1px 1px rgba(0, 0, 0, 0.28), 0 12px 28px rgba(0, 0, 0, 0.28);
 }
 
 * {
   border-color: var(--border);
+  letter-spacing: 0 !important;
 }
 
 html {
@@ -82,9 +87,9 @@ body {
   min-height: 100vh;
   color: var(--foreground);
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--primary) 7%, transparent), transparent 24rem),
-    linear-gradient(105deg, color-mix(in srgb, var(--info) 7%, transparent), transparent 42rem),
-    linear-gradient(0deg, rgba(255, 255, 255, 0.32), transparent),
+    linear-gradient(180deg, color-mix(in srgb, var(--primary) 8%, transparent), transparent 22rem),
+    linear-gradient(112deg, color-mix(in srgb, var(--energy) 7%, transparent), transparent 34rem),
+    linear-gradient(0deg, rgba(255, 255, 255, 0.38), transparent),
     var(--background);
   letter-spacing: 0;
   font-feature-settings: "rlig" 1, "calt" 1;
@@ -92,8 +97,8 @@ body {
 
 .dark body {
   background:
-    linear-gradient(180deg, color-mix(in srgb, var(--primary) 10%, transparent), transparent 24rem),
-    linear-gradient(105deg, color-mix(in srgb, var(--info) 9%, transparent), transparent 42rem),
+    linear-gradient(180deg, color-mix(in srgb, var(--primary) 12%, transparent), transparent 24rem),
+    linear-gradient(112deg, color-mix(in srgb, var(--energy) 10%, transparent), transparent 38rem),
     var(--background);
 }
 
@@ -188,6 +193,18 @@ body {
   .touch-target {
     min-height: 44px;
     min-width: 44px;
+  }
+
+  .brand-gradient {
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--primary) 92%, #102118), color-mix(in srgb, var(--energy) 88%, #ffffff) 68%, color-mix(in srgb, var(--plum) 72%, #ffffff));
+  }
+
+  .balance-band {
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--primary) 12%, transparent), transparent 55%),
+      linear-gradient(36deg, color-mix(in srgb, var(--energy) 12%, transparent), transparent 48%),
+      var(--surface-strong);
   }
 
   .scrollbar-soft {

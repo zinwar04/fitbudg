@@ -52,7 +52,7 @@ export function MealTemplatesPage() {
   };
 
   const exportTemplates = () => {
-    downloadTextFile("fitbudget-meal-templates.csv", mealTemplatesToCsv(templates));
+    downloadTextFile("vela-meal-templates.csv", mealTemplatesToCsv(templates));
   };
 
   const importTemplateFile = async (event: ChangeEvent<HTMLInputElement>) => {

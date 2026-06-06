@@ -8,7 +8,7 @@ export async function requireUserId() {
   const { data, error } = await supabase.auth.getUser();
 
   if (error) throw error;
-  if (!data.user) throw new Error("You need to be signed in to access FitBudget data.");
+  if (!data.user) throw new Error("You need to be signed in to access Vela data.");
 
   return data.user.id;
 }

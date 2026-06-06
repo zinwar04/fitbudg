@@ -10,10 +10,10 @@ export function QuickDialogHost() {
   return (
     <>
       <FoodEntryDialog open={dialog === "food"} onOpenChange={(open) => (!open ? closeDialog() : undefined)} />
+      <FoodEntryDialog open={dialog === "foodScan"} onOpenChange={(open) => (!open ? closeDialog() : undefined)} startWithBarcode />
       <TransactionDialog open={dialog === "transaction"} onOpenChange={(open) => (!open ? closeDialog() : undefined)} />
       <HabitDialog open={dialog === "habit"} onOpenChange={(open) => (!open ? closeDialog() : undefined)} />
       <WeightDialog open={dialog === "weight"} onOpenChange={(open) => (!open ? closeDialog() : undefined)} />
     </>
   );
 }
-

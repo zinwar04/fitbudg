@@ -29,7 +29,7 @@ type TableDef<T> = {
   Relationships: [];
 };
 
-export interface FitBudgetDatabase {
+export interface VelaDatabase {
   public: {
     Tables: {
       user_profiles: TableDef<UserProfile>;
@@ -52,9 +52,9 @@ export interface FitBudgetDatabase {
   };
 }
 
-export type SupabaseTableName = keyof FitBudgetDatabase["public"]["Tables"];
-export type SupabaseRow<Table extends SupabaseTableName> = FitBudgetDatabase["public"]["Tables"][Table]["Row"];
-export type SupabaseInsert<Table extends SupabaseTableName> = FitBudgetDatabase["public"]["Tables"][Table]["Insert"];
+export type SupabaseTableName = keyof VelaDatabase["public"]["Tables"];
+export type SupabaseRow<Table extends SupabaseTableName> = VelaDatabase["public"]["Tables"][Table]["Row"];
+export type SupabaseInsert<Table extends SupabaseTableName> = VelaDatabase["public"]["Tables"][Table]["Insert"];
 
 let client: SupabaseClient | null = null;
 
@@ -85,7 +85,7 @@ export function getSupabaseClient(): SupabaseClient {
       },
       global: {
         headers: {
-          "x-application-name": "fitbudget-web",
+          "x-application-name": "vela-web",
         },
       },
     });

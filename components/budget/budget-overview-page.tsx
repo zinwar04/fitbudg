@@ -25,7 +25,7 @@ export function BudgetOverviewPage() {
   return (
     <>
       <PageHeader
-        title="Budget"
+        title="Money"
         description={`Day ${summary.dayInCycle} of ${summary.daysInCycle} · ${formatCurrency(summary.remaining, currency, symbol)} remaining · ${summary.pacing === "onTrack" ? "on track" : summary.pacing === "spendingFast" ? "spending fast" : "over budget"}`}
         action={
           <Button onClick={() => openDialog("transaction")}>
@@ -94,7 +94,7 @@ export function BudgetOverviewPage() {
               </p>
             </div>
             <Badge variant={summary.pacing === "onTrack" ? "secondary" : summary.pacing === "spendingFast" ? "outline" : "destructive"}>
-              {summary.pacing === "onTrack" ? "On Track" : summary.pacing === "spendingFast" ? "Spending Fast" : "Over Budget"}
+              {summary.pacing === "onTrack" ? "On Track" : summary.pacing === "spendingFast" ? "Spending Fast" : "Over"}
             </Badge>
           </div>
           <Progress value={percent(summary.spent, profile.monthlyBudget)} className="h-3" />

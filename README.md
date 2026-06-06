@@ -1,6 +1,6 @@
-# FitBudget
+# Vela
 
-FitBudget is a Supabase-backed personal health and finance app built with Next.js 16, TypeScript, Tailwind CSS v3, Radix/shadcn-style primitives, Zustand with Immer, Recharts, Framer Motion, React Hook Form, Zod, and Gemini.
+Vela is a Supabase-backed personal health and finance app built with Next.js 16, TypeScript, Tailwind CSS v3, Radix/shadcn-style primitives, Zustand with Immer, Recharts, Framer Motion, React Hook Form, Zod, and Gemini.
 
 ## Run
 
@@ -42,7 +42,7 @@ Settings -> Data includes JSON backup/restore, transaction CSV export, and accou
 
 ## External Food Search Setup
 
-FitBudget can search USDA FoodData Central for generic foods and Open Food Facts for packaged foods and barcode lookup. USDA requires an API key. Open Food Facts read-only lookup does not require an API key, but the Edge Functions must send a contact email in the User-Agent.
+Vela can search USDA FoodData Central for generic foods and Open Food Facts for packaged foods and barcode lookup. USDA requires an API key. Open Food Facts read-only lookup does not require an API key, but the Edge Functions must send a contact email in the User-Agent.
 
 For an existing database, apply the migration in `supabase/migrations/20260526233000_add_food_external_metadata.sql` before importing external foods.
 

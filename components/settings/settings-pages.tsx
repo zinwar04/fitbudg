@@ -22,7 +22,7 @@ type SettingsSection = "profile" | "fitness" | "budget" | "appearance";
 const sections: { id: SettingsSection; label: string; icon: typeof UserRound }[] = [
   { id: "profile", label: "Profile", icon: UserRound },
   { id: "fitness", label: "Body Goals", icon: Dumbbell },
-  { id: "budget", label: "Budget", icon: WalletCards },
+  { id: "budget", label: "Money", icon: WalletCards },
   { id: "appearance", label: "Appearance", icon: Palette },
 ];
 
@@ -106,7 +106,7 @@ export function ProfileSettingsPage() {
             <ProfileStat label="Weight" value={`${profileDraft.weight} kg`} />
             <ProfileStat label="Goal" value={`${profileDraft.goalWeight} kg`} />
             <ProfileStat label="Protein" value={`${targets?.protein ?? "--"} g`} />
-            <ProfileStat label="Budget" value={formatCurrency(budgetDraft.monthlyBudget, budgetDraft.currency, budgetDraft.currencySymbol)} />
+            <ProfileStat label="Money" value={formatCurrency(budgetDraft.monthlyBudget, budgetDraft.currency, budgetDraft.currencySymbol)} />
           </div>
         </div>
 
@@ -280,7 +280,7 @@ function AppearancePanel({ draft, setDraft }: { draft: AppSettings; setDraft: (d
 
       <Card>
         <CardHeader>
-          <CardTitle>Dashboard Order</CardTitle>
+          <CardTitle>Today Order</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {(draft.dashboardWidgetOrder.length ? draft.dashboardWidgetOrder : dashboardWidgetOrder).map((widget, index) => (

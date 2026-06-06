@@ -133,7 +133,7 @@ export const defaultBudgetProfile: BudgetProfile = {
 };
 
 export const healthDisclaimer =
-  "FitBudget provides general fitness and nutrition information for educational purposes only. Calorie calculations are estimates and vary by individual. This app is not a substitute for professional medical advice. Consult a qualified healthcare provider before making significant changes to your diet or exercise routine, especially if you have any health conditions.";
+  "Vela provides general fitness and nutrition information for educational purposes only. Calorie calculations are estimates and vary by individual. This app is not a substitute for professional medical advice. Consult a qualified healthcare provider before making significant changes to your diet or exercise routine, especially if you have any health conditions.";
 
 export const financialDisclaimer =
-  "FitBudget is a personal budgeting tool and does not constitute financial advice. Budget calculations and projections are estimates only. Consult a qualified financial advisor for personalized financial guidance.";
+  "Vela is a personal budgeting tool and does not constitute financial advice. Budget calculations and projections are estimates only. Consult a qualified financial advisor for personalized financial guidance.";

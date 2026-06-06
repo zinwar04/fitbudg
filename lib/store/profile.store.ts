@@ -116,7 +116,7 @@ export const useProfileStore = create<ProfileState>()(
           state.settings = settings;
           state.hydrated = true;
         });
-        toast.success("FitBudget is ready.");
+        toast.success("Vela is ready.");
       } catch (error) {
         toast.error(messageFromError(error));
       }

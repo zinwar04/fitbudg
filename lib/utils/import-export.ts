@@ -81,7 +81,7 @@ export function validateFoodImportFile(file: File) {
   const name = file.name.toLowerCase();
   const hasAllowedExtension = allowedFoodImportExtensions.some((extension) => name.endsWith(extension));
   if (!hasAllowedExtension || !allowedFoodImportTypes.has(file.type)) {
-    throw new Error("Use a FitBudget food import file in CSV or XLSX format.");
+    throw new Error("Use a Vela food import file in CSV or XLSX format.");
   }
 
   if (file.size > 5 * 1024 * 1024) {
@@ -186,7 +186,7 @@ export function parseFoodRows(rows: Cell[][]): FoodLibraryInput[] {
   const requiredHeaders: (keyof FoodLibraryInput)[] = ["name", "caloriesPerServing", "servingSize", "servingUnit"];
   const missing = requiredHeaders.filter((key) => !headers.includes(key));
   if (missing.length > 0) {
-    throw new Error("Use the FitBudget food import template with name, calories, serving size, and serving unit columns.");
+    throw new Error("Use the Vela food import template with name, calories, serving size, and serving unit columns.");
   }
 
   return dataRows

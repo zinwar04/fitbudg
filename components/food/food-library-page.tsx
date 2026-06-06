@@ -90,7 +90,7 @@ export function FoodLibraryPage() {
   };
 
   const exportFoods = () => {
-    downloadTextFile("fitbudget-food-library.csv", foodsToCsv(library));
+    downloadTextFile("vela-food-library.csv", foodsToCsv(library));
   };
 
   const importFoodFile = async (event: ChangeEvent<HTMLInputElement>) => {

@@ -1,4 +1,4 @@
-const CACHE_NAME = "fitbudget-shell-v3";
+const CACHE_NAME = "vela-shell-v3";
 const APP_SHELL = ["/login", "/manifest.json", "/icon.svg"];
 
 self.addEventListener("install", (event) => {

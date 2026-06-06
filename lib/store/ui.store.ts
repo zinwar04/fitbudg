@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
-export type QuickDialog = "food" | "transaction" | "habit" | "weight" | null;
+export type QuickDialog = "food" | "foodScan" | "transaction" | "habit" | "weight" | null;
 
 interface UiState {
   sidebarCollapsed: boolean;
@@ -34,4 +34,3 @@ export const useUiStore = create<UiState>()(
     },
   })),
 );
-
